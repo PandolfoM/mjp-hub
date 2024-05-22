@@ -8,6 +8,23 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    colors: {
+      transparent: "transparent",
+      background: "#0E0F1E",
+      primary: "#F300AE",
+      secondary: "#8E39C5",
+      card: "#7B61FF",
+      white: "#ffffff",
+      black: "#000000",
+      error: "#B3001B",
+    },
+    fontSize: {
+      xxs: "8px",
+      xs: "10px",
+      sm: "12px",
+      md: "16px",
+      lg: "25px",
+    },
     extend: {
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
