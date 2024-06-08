@@ -27,10 +27,6 @@ function Login() {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

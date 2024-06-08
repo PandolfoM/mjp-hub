@@ -6,15 +6,30 @@ type Props = {
   disabled?: boolean;
   className?: string;
   type?: "submit" | "reset" | "button" | undefined;
+  variant?: "ghost" | "outline";
 };
 
-function Button({ onClick, children, disabled, type, className }: Props) {
+function Button({
+  onClick,
+  children,
+  disabled,
+  type,
+  className,
+  variant,
+}: Props) {
+  if (!variant) {
+    variant = "outline";
+  }
+
+  const outline = "py-1 px-3 font-bold custom-border";
+  const ghost = "underline hover:no-underline";
+
   return (
     <button
       onClick={onClick}
       type={type}
       disabled={disabled}
-      className={`py-1 px-3 font-bold custom-border ${className}`}>
+      className={`${variant === "ghost" ? ghost : outline} ${className}`}>
       {children}
     </button>
   );
