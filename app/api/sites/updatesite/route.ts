@@ -1,23 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AmplifyClient, UpdateAppCommand } from "@aws-sdk/client-amplify";
+import Site from "@/models/Site";
 
 const amplifyClient = new AmplifyClient({ region: "us-east-1" });
 
 export async function POST(request: NextRequest) {
   try {
-    const reqBody = await request.json();
-    const { appId, repo, env } = reqBody;
+    const req = await request.json();
 
-    const updateParams = {
-      appId,
-      repository: repo,
-      environmentVariables: env,
-    };
+    console.log(req.form.env);
 
-    const updateSite = new UpdateAppCommand(updateParams);
-    const updateResponse  = await amplifyClient.send(updateSite);
+    const updateDB = await Site.findOneAndUpdate(
+      { _id: req.site._id },
+      {
+        repo: req.form.repo,
+        env: req.form.env,
+        testURL: req.form.testUrl,
+        liveURL: req.form.liveUrl,
+      }
+    );
 
-    return NextResponse.json(updateResponse); 
+    // const updateParams = {
+    //   appId,
+    //   repository: repo,
+    //   environmentVariables: env,
+    // };
+
+    // const updateSite = new UpdateAppCommand(updateParams);
+    // const updateResponse = await amplifyClient.send(updateSite);
+
+    return NextResponse.json(updateDB);
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
