@@ -38,7 +38,7 @@ export default function Home() {
     <>
       {loading && <Spinner />}
       <main className="flex flex-col gap-5 h-full">
-        <nav className="flex justify-between h-8 px-2 mt-2">
+        <nav className="flex justify-between h-8 px-2 mt-2 items-center">
           <NavDrawer>
             <FontAwesomeIcon
               className="cursor-pointer sm:hidden"

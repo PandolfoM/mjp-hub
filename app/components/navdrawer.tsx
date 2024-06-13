@@ -32,7 +32,9 @@ function NavDrawer({ children }: Props) {
           <DrawerFooter>
             <Button>Submit</Button>
             <DrawerClose>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="border-white/50">
+                Cancel
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>

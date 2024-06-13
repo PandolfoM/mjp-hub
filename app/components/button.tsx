@@ -18,7 +18,7 @@ const Button = forwardRef<HTMLButtonElement, Props>(
     const customOutline =
       "font-bold custom-border disabled:opacity-50 transition-[opacity] duration-300 ease-in-out";
     const ghost = "underline hover:no-underline";
-    const filled = "bg-primary rounded-sm";
+    const filled = "rounded-sm";
 
     return (
       <button

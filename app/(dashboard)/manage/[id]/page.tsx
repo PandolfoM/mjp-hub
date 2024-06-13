@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
-import { DeployDialog } from "@/app/components/dialogs";
+import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
 
 const formSchema = z.object({
   repo: z.string().optional(),
@@ -70,6 +70,19 @@ export default function Page({ params }: { params: { id: string } }) {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const deleteSite = async () => {
+    setLoading(true);
+    try {
+      await axios.post("/api/sites/deletesite", {
+        site: site,
+      });
+      router.push("/");
+      setLoading(false);
+    } catch (error) {
       setLoading(false);
     }
   };
@@ -250,23 +263,30 @@ export default function Page({ params }: { params: { id: string } }) {
             </form>
           </Form>
         </div>
-        <footer className="flex gap-4">
-          <Button
-            variant="outline"
-            className="w-24 border-white/50"
-            onClick={() => {
-              setIsEdit(false);
-            }}>
-            Cancel
-          </Button>
-          <Button
-            variant="filled"
-            className="w-24 bg-primary"
-            onClick={() => {
-              saveSite(site);
-            }}>
-            Save
-          </Button>
+        <footer className="flex justify-between items-center">
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              className="w-24 border-white/50"
+              onClick={() => {
+                setIsEdit(false);
+              }}>
+              Cancel
+            </Button>
+            <Button
+              variant="filled"
+              className="w-24 bg-primary"
+              onClick={() => {
+                saveSite(site);
+              }}>
+              Save
+            </Button>
+          </div>
+          <DeleteDialog onClick={deleteSite} name={site.title}>
+            <Button variant="filled" className="w-24 bg-error h-full">
+              Delete
+            </Button>
+          </DeleteDialog>
         </footer>
       </div>
     );
