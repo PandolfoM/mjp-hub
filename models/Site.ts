@@ -8,9 +8,18 @@ export interface Site extends mongoose.Document {
   testURL: string;
   liveURL: string;
   appId: string;
+  deployments: { date: Date; title: string; type: string }[];
 }
 
-// const EnvSchema = new mongoose.Schema({ key: String, value: String });
+export const testSite = {
+  title: "",
+  repo: "",
+  liveURL: "",
+  testURL: "",
+  appId: "",
+  env: [],
+  deployments: [],
+};
 
 const siteSchema = new mongoose.Schema({
   title: { type: String, required: true },
@@ -24,6 +33,13 @@ const siteSchema = new mongoose.Schema({
   testURL: { type: String },
   liveURL: { type: String },
   appId: { type: String },
+  deployments: [
+    {
+      date: { type: Date },
+      title: { type: String },
+      type: { type: String },
+    },
+  ],
 });
 
 export default mongoose.models.Site || mongoose.model<Site>("Site", siteSchema);

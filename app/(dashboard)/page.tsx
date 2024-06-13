@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import NavDrawer from "../components/navdrawer";
 import Spinner from "../components/spinner";
+import { NewSiteDialog } from "../components/dialogs";
 
 export default function Home() {
   const [sites, setSites] = useState<Site[]>([]);
@@ -21,6 +22,7 @@ export default function Home() {
       try {
         const res = await fetch("/api/sites/getsites");
         const data = await res.json();
+
         setSites(data.data);
         setLoading(false);
       } catch (error) {
@@ -44,7 +46,9 @@ export default function Home() {
               size="xl"
             />
           </NavDrawer>
-          <Button>New Site</Button>
+          <NewSiteDialog>
+            <Button>New Site</Button>
+          </NewSiteDialog>
         </nav>
         <div className="px-2">
           <Input placeholder="Search..." className="w-[300px] m-auto" />

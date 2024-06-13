@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
 
     // const updateParams = {
     //   appId,
-    //   repository: repo,
-    //   environmentVariables: env,
+    //   repository: req.form.repo,
+    //   environmentVariables: req.form.env,
     // };
 
     // const updateSite = new UpdateAppCommand(updateParams);

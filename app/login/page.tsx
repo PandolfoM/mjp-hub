@@ -25,8 +25,9 @@ const formSchema = z.object({
 
 function Login() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,7 +44,9 @@ function Login() {
 
       router.push("/");
     } catch (error: any) {
-      console.log("Login failed", error.message);
+      console.log(error);
+
+      setError(error.response.data.error);
     } finally {
       setLoading(false);
     }
@@ -95,6 +98,7 @@ function Login() {
                   </FormItem>
                 )}
               />
+              {error && <p className="text-sm text-error">{error}</p>}
               <Button type="submit" disabled={loading} className="mt-[20px]">
                 Login
               </Button>

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
+import { DeployDialog } from "@/app/components/dialogs";
 
 const formSchema = z.object({
   repo: z.string().optional(),
@@ -59,14 +60,17 @@ export default function Page({ params }: { params: { id: string } }) {
   });
 
   const saveSite = async (site: Site) => {
+    setLoading(true);
     try {
-      const res = await axios.post("/api/sites/updatesite", {
+      const newSite = await axios.post("/api/sites/updatesite", {
         form: form.getValues(),
         site: site,
       });
-      console.log(res);
+      setSite(newSite.data);
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -112,9 +116,9 @@ export default function Page({ params }: { params: { id: string } }) {
   const NotEditing = ({ site }: { site: Site }) => {
     return (
       <>
-        <nav className="flex items-center justify-between gap-4 w-full">
-          <div className="flex gap-4">
-            <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-center w-full">
+        <nav className="flex items-start justify-between w-full flex-col">
+          <div className="flex gap-4 w-full justify-between items-center">
+            <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
               {site.title}
             </h3>
             <Button
@@ -259,8 +263,6 @@ export default function Page({ params }: { params: { id: string } }) {
             variant="filled"
             className="w-24 bg-primary"
             onClick={() => {
-              console.log("slick");
-
               saveSite(site);
             }}>
             Save
@@ -278,7 +280,11 @@ export default function Page({ params }: { params: { id: string } }) {
           <a onClick={() => router.back()} className="cursor-pointer">
             <FontAwesomeIcon icon={faChevronLeft} /> Back
           </a>
-          <Button>Deployments</Button>
+          {site && (
+            <DeployDialog site={site}>
+              <Button disabled={!site.repo}>Deployments</Button>
+            </DeployDialog>
+          )}
         </nav>
         <div className="flex items-center gap-2 flex-col h-full p-2">
           {site && (

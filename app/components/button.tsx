@@ -1,44 +1,46 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, forwardRef } from "react";
 
 type Props = {
   children: ReactNode;
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
-  type?: "submit" | "reset" | "button" | undefined;
+  type?: "submit" | "reset" | "button";
   variant?: "ghost" | "outline" | "filled";
 };
 
-function Button({
-  onClick,
-  children,
-  disabled,
-  type,
-  className,
-  variant,
-}: Props) {
-  const outline = "font-bold border-2 rounded-sm";
-  const customOutline = "font-bold custom-border";
-  const ghost = "underline hover:no-underline";
-  const filled = "bg-primary rounded-sm";
+const Button = forwardRef<HTMLButtonElement, Props>(
+  (
+    { onClick, children, disabled, type = "button", className = "", variant },
+    ref
+  ) => {
+    const outline = "font-bold border-2 rounded-sm";
+    const customOutline =
+      "font-bold custom-border disabled:opacity-50 transition-[opacity] duration-300 ease-in-out";
+    const ghost = "underline hover:no-underline";
+    const filled = "bg-primary rounded-sm";
 
-  return (
-    <button
-      onClick={onClick}
-      type={type}
-      disabled={disabled}
-      className={`py-1 px-3 ${
-        variant === "ghost"
-          ? ghost
-          : variant === "filled"
-          ? filled
-          : variant === "outline"
-          ? outline
-          : customOutline
-      } ${className}`}>
-      {children}
-    </button>
-  );
-}
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        type={type}
+        disabled={disabled}
+        className={`py-1 px-3 ${
+          variant === "ghost"
+            ? ghost
+            : variant === "filled"
+            ? filled
+            : variant === "outline"
+            ? outline
+            : customOutline
+        } ${className}`}>
+        {children}
+      </button>
+    );
+  }
+);
+
+Button.displayName = "Button";
 
 export default Button;

@@ -1,15 +1,59 @@
 import { connect } from "@/lib/db";
+import Site, { testSite } from "@/models/Site";
+import {
+  AmplifyClient,
+  CreateAppCommand,
+  CreateBranchCommand,
+  Platform,
+  Stage,
+} from "@aws-sdk/client-amplify";
 import { NextRequest, NextResponse } from "next/server";
-import Site from "@/models/Site";
+import { fromEnv } from "@aws-sdk/credential-providers";
 
 connect();
 
+const amplifyClient = new AmplifyClient({
+  region: "us-east-1",
+  credentials: fromEnv(),
+});
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
-    const { repo, env, title } = reqBody;
+    const { title } = reqBody;
 
-    const site = await Site.create({ repo, env, title });
+    const appParams = {
+      name: title,
+      oauthToken: process.env.GITHUB_OAUTH_TOKEN,
+      platform: Platform.WEB,
+    };
+
+    const createAppCommand = new CreateAppCommand(appParams);
+    const appResponse = await amplifyClient.send(createAppCommand);
+
+    if (!appResponse.app) {
+      throw new Error("Failed to create app");
+    }
+
+    const newAppId = appResponse.app.appId;
+
+    const branchParams = {
+      appId: newAppId,
+      branchName: "main",
+      stage: Stage.PRODUCTION,
+      enableAutoBuild: false,
+      framework: "Next.js - SSR",
+    };
+
+    const createBranchCommand = new CreateBranchCommand(branchParams);
+    await amplifyClient.send(createBranchCommand);
+
+    const newSite = {
+      ...testSite,
+      title,
+      appId: newAppId,
+    };
+
+    const site = await Site.create(newSite);
 
     if (!site) {
       return NextResponse.json(
@@ -18,12 +62,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       message: "Site created",
+      id: site._id,
       success: true,
     });
-
-    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
