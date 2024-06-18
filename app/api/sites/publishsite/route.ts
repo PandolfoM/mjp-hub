@@ -1,43 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AmplifyClient,
-  CreateAppCommand,
   CreateBranchCommand,
   JobType,
-  Platform,
   Stage,
   StartJobCommand,
 } from "@aws-sdk/client-amplify";
+import Site from "@/models/Site";
+import { fromEnv } from "@aws-sdk/credential-providers";
 
-const amplifyClient = new AmplifyClient({ region: "us-east-1" });
+const amplifyClient = new AmplifyClient({
+  region: "us-east-1",
+  credentials: fromEnv(),
+});
 
 export async function POST(request: NextRequest) {
   const req = await request.json();
-  const { repo, env, name, appId, message, type } = req;
+  const { appId, message, type, branchCreated } = req;
 
-  if (!appId) {
-    try {
-      const appParams = {
-        name: name,
-        repository: repo,
-        oauthToken: process.env.GITHUB_OAUTH_TOKEN,
-        environmentVariables: env,
-        platform: Platform.WEB,
-        description: `Amplify app for ${name}`,
-      };
-
-      const createAppCommand = new CreateAppCommand(appParams);
-      const appResponse = await amplifyClient.send(createAppCommand);
-
-      if (!appResponse.app) {
-        throw new Error("Failed to create app");
-      }
-
-      const newAppId = appResponse.app.appId;
-
-      // Create the main branch
+  try {
+    if (!branchCreated) {
       const branchParams = {
-        appId: newAppId,
+        appId,
         branchName: "main",
         stage: Stage.PRODUCTION,
         enableAutoBuild: false,
@@ -45,29 +29,37 @@ export async function POST(request: NextRequest) {
       };
 
       const createBranchCommand = new CreateBranchCommand(branchParams);
-      const branchResponse = await amplifyClient.send(createBranchCommand);
-
-      // Deploy app
-      const deployParams = {
-        appId: newAppId,
-        branchName: "main",
-        jobType: JobType.RELEASE,
-        jobReason: message,
-      };
-
-      const startDeployment = new StartJobCommand(deployParams);
-      const deployResponse = await amplifyClient.send(startDeployment);
-
-      return NextResponse.json({
-        message: "App starting deployment",
-        appId: newAppId,
-        app: appResponse,
-        branch: branchResponse,
-        deployment: deployResponse,
-      });
-    } catch (e: any) {
-      console.error("Error creating site and triggering deploy:", e);
-      return NextResponse.json({ error: e.message }, { status: 500 });
+      await amplifyClient.send(createBranchCommand);
     }
+
+    const deployParams = {
+      appId,
+      branchName: "main",
+      jobType: JobType.RELEASE,
+      jobReason: message,
+    };
+
+    const startDeployment = new StartJobCommand(deployParams);
+    await amplifyClient.send(startDeployment);
+
+    const newDeployment = {
+      date: new Date(),
+      title: message,
+      type,
+    };
+
+    const updatedSite = await Site.findOneAndUpdate(
+      { appId: appId },
+      { $push: { deployments: newDeployment } },
+      { new: true, useFindAndModify: false }
+    );
+
+    return NextResponse.json({
+      message: "App starting deployment",
+      updatedSite,
+    });
+  } catch (e: any) {
+    console.error("Error creating site and triggering deploy:", e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }

@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AmplifyClient, UpdateAppCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
+import { fromEnv } from "@aws-sdk/credential-providers";
 
-const amplifyClient = new AmplifyClient({ region: "us-east-1" });
+const amplifyClient = new AmplifyClient({
+  region: "us-east-1",
+  credentials: fromEnv(),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const req = await request.json();
-
-    console.log(req.form.env);
 
     const updateDB = await Site.findOneAndUpdate(
       { _id: req.site._id },
@@ -17,19 +19,29 @@ export async function POST(request: NextRequest) {
         env: req.form.env,
         testURL: req.form.testUrl,
         liveURL: req.form.liveUrl,
-      }
+      },
+      { new: true }
     );
 
-    // const updateParams = {
-    //   appId,
-    //   repository: req.form.repo,
-    //   environmentVariables: req.form.env,
-    // };
+    const environmentVariables = req.form.env.reduce((acc: any, curr: any) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
 
-    // const updateSite = new UpdateAppCommand(updateParams);
-    // const updateResponse = await amplifyClient.send(updateSite);
+    const updateParams = {
+      appId: req.site.appId,
+      repository: req.form.repo,
+      accessToken: process.env.GITHUB_OAUTH_TOKEN,
+      environmentVariables,
+    };
 
-    return NextResponse.json(updateDB);
+    const updateSite = new UpdateAppCommand(updateParams);
+    const updateRes = await amplifyClient.send(updateSite);
+
+    return NextResponse.json({
+      update: updateRes,
+      site: updateDB,
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

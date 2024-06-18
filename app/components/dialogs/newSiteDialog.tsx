@@ -20,16 +20,20 @@ type Props = {
 
 function NewSiteDialog({ children }: Props) {
   const [title, setTitle] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const createSite = async () => {
+    setIsLoading(true);
     try {
       const createSite = await axios.post("/api/sites/createsite", {
         title,
       });
+      setIsLoading(false);
       router.push(`/manage/${createSite.data.id}`);
     } catch (e) {
       console.log(e);
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +51,10 @@ function NewSiteDialog({ children }: Props) {
             onChange={(e: any) => setTitle(e.target.value)}
           />
           <DialogFooter>
-            <Button disabled={!title} className="w-20" onClick={createSite}>
+            <Button
+              disabled={!title || isLoading}
+              className="w-20"
+              onClick={createSite}>
               Create
             </Button>
           </DialogFooter>

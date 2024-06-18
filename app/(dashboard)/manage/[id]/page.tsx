@@ -66,7 +66,8 @@ export default function Page({ params }: { params: { id: string } }) {
         form: form.getValues(),
         site: site,
       });
-      setSite(newSite.data);
+      setIsEdit(false);
+      setSite(newSite.data.site);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -143,28 +144,39 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
           <p className="text-xs">ID: {site._id}</p>
         </nav>
-        <div className="flex flex-col gap-2">
-          <p>
+        <div className="flex flex-col gap-2 w-full">
+          <p className="flex gap-2 items-center">
             <strong>Repository: </strong>
-            <Link href={site.repo}>
-              <Button variant="ghost">{site.repo}</Button>
+            <Link
+              href={site.repo}
+              target="_blank"
+              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+              {site.repo}
             </Link>
           </p>
-          <p>
+          <p className="flex gap-2 items-center">
             <strong>Test URL: </strong>
-            <Link href={site.testURL}>
-              <Button variant="ghost">{site.testURL}</Button>
+            <Link
+              href={site.testURL}
+              target="_blank"
+              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+              {site.testURL}
             </Link>
           </p>
-          <p>
+          <p className="flex gap-2 items-center">
             <strong>Live URL: </strong>
-            <Link href={site.liveURL}>
-              <Button variant="ghost">{site.liveURL}</Button>
+            <Link
+              href={site.liveURL}
+              target="_blank"
+              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+              {site.liveURL}
             </Link>
           </p>
-          <p>
+          <p className="flex gap-2 items-center">
             <strong>Environment Variables: </strong>
-            <span className="px-3 py-1">{site.env.length}</span>
+            <span className="text-nowrap text-ellipsis overflow-hidden">
+              {site.env.length}
+            </span>
           </p>
         </div>
       </>
@@ -301,7 +313,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <FontAwesomeIcon icon={faChevronLeft} /> Back
           </a>
           {site && (
-            <DeployDialog site={site}>
+            <DeployDialog site={site} setSite={setSite}>
               <Button disabled={!site.repo}>Deployments</Button>
             </DeployDialog>
           )}
