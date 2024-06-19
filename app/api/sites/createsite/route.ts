@@ -12,7 +12,7 @@ connect();
 
 const amplifyClient = new AmplifyClient({
   region: "us-east-1",
-  credentials: fromEnv(),
+  // credentials: fromEnv(),
 });
 export async function POST(request: NextRequest) {
   try {
