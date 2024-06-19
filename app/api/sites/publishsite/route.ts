@@ -34,7 +34,9 @@ export async function POST(request: NextRequest) {
     };
 
     const updatedSite = await Site.findOneAndUpdate(
-      { appId: appId },
+      {
+        $or: [{ appId: appId }, { testAppId: appId }],
+      },
       { $push: { deployments: newDeployment } },
       { new: true, useFindAndModify: false }
     );

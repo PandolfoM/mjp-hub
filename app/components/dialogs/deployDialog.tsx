@@ -24,6 +24,7 @@ type Props = {
 function DeployDialog({ site, setSite, children }: Props) {
   const [deployMessage, setDeployMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const deploySite = async (type: "live" | "test") => {
     setIsLoading(true);
@@ -34,10 +35,18 @@ function DeployDialog({ site, setSite, children }: Props) {
         message: deployMessage,
         type,
       });
+
       setDeployMessage("");
+      setError("");
       setSite(deploySite.data.updatedSite);
       setIsLoading(false);
-    } catch (error) {
+    } catch (error: any) {
+      const err: string = error.response.data.error;
+      setError(
+        err.includes("already have pending or running jobs")
+          ? "Job already running"
+          : err
+      );
       setIsLoading(false);
     }
   };
@@ -85,9 +94,10 @@ function DeployDialog({ site, setSite, children }: Props) {
                 placeholder="Message"
                 onChange={(e: any) => setDeployMessage(e.target.value)}
               />
+              {error && <p className="text-sm text-error">{error}</p>}
               <div className="flex gap-2">
                 <Button
-                  disabled={!deployMessage || isLoading || !site.testURL}
+                  disabled={!deployMessage || isLoading}
                   className="w-20"
                   onClick={() => {
                     deploySite("test");

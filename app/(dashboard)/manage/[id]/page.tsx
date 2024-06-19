@@ -48,6 +48,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -67,10 +68,12 @@ export default function Page({ params }: { params: { id: string } }) {
         site: site,
       });
       setIsEdit(false);
+      setError("");
       setSite(newSite.data.site);
       setLoading(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error.response);
+      setError(error.response.data.error);
       setLoading(false);
     }
   };
@@ -81,6 +84,7 @@ export default function Page({ params }: { params: { id: string } }) {
       await axios.post("/api/sites/deletesite", {
         site: site,
       });
+      setError("");
       router.push("/");
       setLoading(false);
     } catch (error) {
@@ -208,6 +212,7 @@ export default function Page({ params }: { params: { id: string } }) {
                     onSubmit={saveSite}
                     deleteSite={deleteSite}
                     setIsEdit={setIsEdit}
+                    error={error}
                   />
                 ) : (
                   <NotEditing site={site} />
@@ -228,12 +233,14 @@ const EditingComponent = ({
   onSubmit,
   deleteSite,
   setIsEdit,
+  error,
 }: {
   form: UseFormReturn<FormValues>;
   site: Site;
   onSubmit: () => {};
   deleteSite: () => {};
   setIsEdit: Dispatch<SetStateAction<boolean>>;
+  error: string;
 }) => {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -242,7 +249,6 @@ const EditingComponent = ({
 
   return (
     <div className="flex flex-col gap-2 h-full w-full">
-      {/* <div className="flex-1"> */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -330,6 +336,7 @@ const EditingComponent = ({
               Add Environment Variable
             </Button>
           </div>
+          {error && <p className="text-error text-sm">{error}</p>}
           <footer className="flex justify-between items-center">
             <div className="flex gap-4">
               <Button
@@ -356,7 +363,6 @@ const EditingComponent = ({
           </footer>
         </form>
       </Form>
-      {/* </div> */}
     </div>
   );
 };

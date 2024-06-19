@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (req.form.testURL !== req.site.testURL) {
+    if (req.form.testURL !== req.site.testURL && req.form.testURL !== "") {
       const updateTestURL = new CreateDomainAssociationCommand({
         appId: req.site.testAppId,
         domainName: getDomainName(req.form.testURL),
@@ -108,13 +108,13 @@ export async function POST(request: NextRequest) {
       await amplifyClient.send(updateTestURL);
     }
 
-    if (req.form.liveURL !== req.site.liveURL) {
-      const updateLiveURL = new UpdateDomainAssociationCommand({
+    if (req.form.liveURL !== req.site.liveURL && req.form.liveURL !== "") {
+      const updateLiveURL = new CreateDomainAssociationCommand({
         appId: req.site.appId,
-        domainName: getDomainName(req.form.liveURL),
+        domainName: req.form.liveURL,
         subDomainSettings: [
           {
-            prefix: "www",
+            prefix: "",
             branchName: "main",
           },
         ],
