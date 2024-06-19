@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AmplifyClient, UpdateAppCommand } from "@aws-sdk/client-amplify";
+import {
+  AmplifyClient,
+  CreateBranchCommand,
+  CreateDomainAssociationCommand,
+  Stage,
+  UpdateAppCommand,
+  UpdateDomainAssociationCommand,
+} from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
 import { fromEnv } from "@aws-sdk/credential-providers";
 
@@ -17,8 +24,8 @@ export async function POST(request: NextRequest) {
       {
         repo: req.form.repo,
         env: req.form.env,
-        testURL: req.form.testUrl,
-        liveURL: req.form.liveUrl,
+        testURL: req.form.testURL,
+        liveURL: req.form.liveURL,
       },
       { new: true }
     );
@@ -28,21 +35,115 @@ export async function POST(request: NextRequest) {
       return acc;
     }, {});
 
-    const updateParams = {
+    const updateTestParams = {
+      appId: req.site.testAppId,
+      repository: req.form.repo,
+      accessToken: process.env.GITHUB_OAUTH_TOKEN,
+      environmentVariables,
+    };
+
+    const updateLiveParams = {
       appId: req.site.appId,
       repository: req.form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
     };
 
-    const updateSite = new UpdateAppCommand(updateParams);
-    const updateRes = await amplifyClient.send(updateSite);
+    const updateTestSite = new UpdateAppCommand(updateTestParams);
+    const updateTestRes = await amplifyClient.send(updateTestSite);
+    const updateLiveSite = new UpdateAppCommand(updateLiveParams);
+    const updateLiveRes = await amplifyClient.send(updateLiveSite);
+
+    if (!req.site.branchCreated) {
+      try {
+        const branchLiveParams = {
+          appId: req.site.appId,
+          branchName: "main",
+          stage: Stage.PRODUCTION,
+          enableAutoBuild: false,
+          framework: "Next.js - SSR",
+        };
+
+        const createLiveBranchCommand = new CreateBranchCommand(
+          branchLiveParams
+        );
+        await amplifyClient.send(createLiveBranchCommand);
+
+        const branchTestParams = {
+          appId: req.site.testAppId,
+          branchName: "main",
+          stage: Stage.PRODUCTION,
+          enableAutoBuild: false,
+          framework: "Next.js - SSR",
+        };
+
+        const createTestBranchCommand = new CreateBranchCommand(
+          branchTestParams
+        );
+        await amplifyClient.send(createTestBranchCommand);
+
+        await Site.findOneAndUpdate(
+          { _id: req.site._id },
+          {
+            branchCreated: true,
+          },
+          { new: true }
+        );
+      } catch (error) {
+        return NextResponse.json({ error }, { status: 500 });
+      }
+    }
+
+    if (req.form.testURL !== req.site.testURL) {
+      const updateTestURL = new CreateDomainAssociationCommand({
+        appId: req.site.testAppId,
+        domainName: getDomainName(req.form.testURL),
+        subDomainSettings: [
+          {
+            prefix: getSubDomain(req.form.testURL),
+            branchName: "main",
+          },
+        ],
+      });
+      await amplifyClient.send(updateTestURL);
+    }
+
+    if (req.form.liveURL !== req.site.liveURL) {
+      const updateLiveURL = new UpdateDomainAssociationCommand({
+        appId: req.site.appId,
+        domainName: getDomainName(req.form.liveURL),
+        subDomainSettings: [
+          {
+            prefix: "www",
+            branchName: "main",
+          },
+        ],
+      });
+      await amplifyClient.send(updateLiveURL);
+    }
 
     return NextResponse.json({
-      update: updateRes,
+      updateTest: updateTestRes,
+      updateLive: updateLiveRes,
       site: updateDB,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
+}
+
+function getSubDomain(domain: string) {
+  const parts = domain.split(".");
+  if (parts.length < 3) {
+    return domain; // If there are less than 3 parts, return the whole domain
+  }
+  return parts.slice(0, -2).join(".");
+}
+
+function getDomainName(domain: string) {
+  const parts = domain.split(".");
+  if (parts.length < 3) {
+    return domain; // If there are less than 3 parts, return the whole domain
+  }
+  return parts.slice(-2).join(".");
 }

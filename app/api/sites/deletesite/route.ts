@@ -13,8 +13,10 @@ export async function POST(request: NextRequest) {
     const req = await request.json();
     const { site } = req;
 
-    const deleteSite = new DeleteAppCommand({ appId: site.appId });
-    await amplifyClient.send(deleteSite);
+    const deleteLiveSite = new DeleteAppCommand({ appId: site.appId });
+    await amplifyClient.send(deleteLiveSite);
+    const deleteTestSite = new DeleteAppCommand({ appId: site.testAppId });
+    await amplifyClient.send(deleteTestSite);
 
     await Site.findOneAndDelete({ _id: site._id });
 

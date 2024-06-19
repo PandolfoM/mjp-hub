@@ -28,11 +28,11 @@ function DeployDialog({ site, setSite, children }: Props) {
   const deploySite = async (type: "live" | "test") => {
     setIsLoading(true);
     try {
+      const appId = type === "test" ? site.testAppId : site.appId;
       const deploySite = await axios.post("/api/sites/publishsite", {
-        appId: site.appId,
+        appId,
         message: deployMessage,
         type,
-        branchCreated: site.deployments.length > 0 ? true : false,
       });
       setDeployMessage("");
       setSite(deploySite.data.updatedSite);
@@ -87,7 +87,7 @@ function DeployDialog({ site, setSite, children }: Props) {
               />
               <div className="flex gap-2">
                 <Button
-                  disabled={!deployMessage || isLoading}
+                  disabled={!deployMessage || isLoading || !site.testURL}
                   className="w-20"
                   onClick={() => {
                     deploySite("test");
@@ -95,7 +95,7 @@ function DeployDialog({ site, setSite, children }: Props) {
                   Test
                 </Button>
                 <Button
-                  disabled={!deployMessage || isLoading}
+                  disabled={!deployMessage || isLoading || !site.liveURL}
                   className="w-20"
                   onClick={() => {
                     deploySite("live");

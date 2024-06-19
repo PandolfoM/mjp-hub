@@ -19,25 +19,39 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { title } = reqBody;
 
-    const appParams = {
-      name: title,
+    const liveAppParams = {
+      name: `${title}`,
       oauthToken: process.env.GITHUB_OAUTH_TOKEN,
       platform: Platform.WEB_COMPUTE,
     };
 
-    const createAppCommand = new CreateAppCommand(appParams);
-    const appResponse = await amplifyClient.send(createAppCommand);
+    const testAppParams = {
+      name: `${title}-test`,
+      oauthToken: process.env.GITHUB_OAUTH_TOKEN,
+      platform: Platform.WEB_COMPUTE,
+    };
 
-    if (!appResponse.app) {
-      throw new Error("Failed to create app");
+    const createLiveAppCommand = new CreateAppCommand(liveAppParams);
+    const liveAppResponse = await amplifyClient.send(createLiveAppCommand);
+    const createTestAppCommand = new CreateAppCommand(testAppParams);
+    const testAppResponse = await amplifyClient.send(createTestAppCommand);
+
+    if (!liveAppResponse.app) {
+      throw new Error("Failed to create live app");
     }
 
-    const newAppId = appResponse.app.appId;
+    if (!testAppResponse.app) {
+      throw new Error("Failed to create test app");
+    }
+
+    const newLiveAppId = liveAppResponse.app.appId;
+    const newTestAppId = testAppResponse.app.appId;
 
     const newSite = {
       ...testSite,
       title,
-      appId: newAppId,
+      appId: newLiveAppId,
+      testAppId: newTestAppId,
     };
 
     const site = await Site.create(newSite);

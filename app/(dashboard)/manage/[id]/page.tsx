@@ -6,11 +6,16 @@ import VerticalCard from "@/app/components/verticalcard";
 import { Site } from "@/models/Site";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faX } from "@fortawesome/free-solid-svg-icons";
 import Spinner from "@/app/components/spinner";
-import { useFieldArray, useForm } from "react-hook-form";
+import {
+  FieldArrayWithId,
+  UseFormReturn,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -25,9 +30,9 @@ import axios from "axios";
 import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
 
 const formSchema = z.object({
-  repo: z.string().optional(),
-  testUrl: z.string().optional(),
-  liveUrl: z.string().optional(),
+  repo: z.string().url(),
+  testURL: z.string().optional(),
+  liveURL: z.string().optional(),
   env: z
     .array(
       z.object({
@@ -48,18 +53,13 @@ export default function Page({ params }: { params: { id: string } }) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       repo: "",
-      testUrl: "",
-      liveUrl: "",
+      testURL: "",
+      liveURL: "",
       env: [{ key: "", value: "" }],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "env",
-  });
-
-  const saveSite = async (site: Site) => {
+  const saveSite = async () => {
     setLoading(true);
     try {
       const newSite = await axios.post("/api/sites/updatesite", {
@@ -103,8 +103,8 @@ export default function Page({ params }: { params: { id: string } }) {
           .then((data) => {
             if (data.success) {
               setSite(data.data);
-              form.setValue("liveUrl", data.data.liveURL);
-              form.setValue("testUrl", data.data.testURL);
+              form.setValue("liveURL", data.data.liveURL);
+              form.setValue("testURL", data.data.testURL);
               form.setValue("repo", data.data.repo);
               if (data.data.env) {
                 form.setValue("env", data.data.env);
@@ -157,7 +157,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <p className="flex gap-2 items-center">
             <strong>Test URL: </strong>
             <Link
-              href={site.testURL}
+              href={`https://${site.testURL}`}
               target="_blank"
               className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
               {site.testURL}
@@ -166,7 +166,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <p className="flex gap-2 items-center">
             <strong>Live URL: </strong>
             <Link
-              href={site.liveURL}
+              href={`https://${site.liveURL}`}
               target="_blank"
               className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
               {site.liveURL}
@@ -180,127 +180,6 @@ export default function Page({ params }: { params: { id: string } }) {
           </p>
         </div>
       </>
-    );
-  };
-
-  const Editing = ({ site }: { site: Site }) => {
-    return (
-      <div className="flex flex-col gap-2 h-full w-full">
-        <div className="flex-1">
-          <Form {...form}>
-            <form className="flex flex-col gap-[5px] text-left">
-              <FormField
-                control={form.control}
-                name="repo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Repository</FormLabel>
-                    <FormControl>
-                      <Input type="url" placeholder="Repository" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="testUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Test URL</FormLabel>
-                    <FormControl>
-                      <Input type="url" placeholder="Test URL" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="liveUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Live URL</FormLabel>
-                    <FormControl>
-                      <Input type="url" placeholder="Live URL" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormLabel className="my-2">Environment Variables</FormLabel>
-              {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-1">
-                  <FormField
-                    control={form.control}
-                    name={`env.${index}.key`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Key" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`env.${index}.value`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Value" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    variant="filled"
-                    className="w-10 bg-error"
-                    onClick={() => remove(index)}>
-                    <FontAwesomeIcon
-                      icon={faX}
-                      className="pointer-events-none text-white/80"
-                    />
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                onClick={() => append({ key: "", value: "" })}>
-                Add Environment Variable
-              </Button>
-            </form>
-          </Form>
-        </div>
-        <footer className="flex justify-between items-center">
-          <div className="flex gap-4">
-            <Button
-              variant="outline"
-              className="w-24 border-white/50"
-              onClick={() => {
-                setIsEdit(false);
-              }}>
-              Cancel
-            </Button>
-            <Button
-              variant="filled"
-              className="w-24 bg-primary"
-              onClick={() => {
-                saveSite(site);
-              }}>
-              Save
-            </Button>
-          </div>
-          <DeleteDialog onClick={deleteSite} name={site.title}>
-            <Button variant="filled" className="w-24 bg-error h-full">
-              Delete
-            </Button>
-          </DeleteDialog>
-        </footer>
-      </div>
     );
   };
 
@@ -322,7 +201,17 @@ export default function Page({ params }: { params: { id: string } }) {
           {site && (
             <VerticalCard className="min-h-full min-w-full">
               <>
-                {isEdit ? <Editing site={site} /> : <NotEditing site={site} />}
+                {isEdit ? (
+                  <Editing
+                    form={form}
+                    site={site}
+                    onSubmit={saveSite}
+                    deleteSite={deleteSite}
+                    setIsEdit={setIsEdit}
+                  />
+                ) : (
+                  <NotEditing site={site} />
+                )}
               </>
             </VerticalCard>
           )}
@@ -331,3 +220,145 @@ export default function Page({ params }: { params: { id: string } }) {
     </>
   );
 }
+
+type FormValues = z.infer<typeof formSchema>;
+const EditingComponent = ({
+  form,
+  site,
+  onSubmit,
+  deleteSite,
+  setIsEdit,
+}: {
+  form: UseFormReturn<FormValues>;
+  site: Site;
+  onSubmit: () => {};
+  deleteSite: () => {};
+  setIsEdit: Dispatch<SetStateAction<boolean>>;
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "env",
+  });
+
+  return (
+    <div className="flex flex-col gap-2 h-full w-full">
+      {/* <div className="flex-1"> */}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col h-full">
+          <div className="flex flex-col gap-[5px] text-left flex-1">
+            <FormField
+              control={form.control}
+              name="repo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Repository</FormLabel>
+                  <FormControl>
+                    <Input type="url" placeholder="Repository" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="testURL"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Test URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Test URL" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="liveURL"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Live URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Live URL" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormLabel className="my-2">Environment Variables</FormLabel>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex gap-1">
+                <FormField
+                  control={form.control}
+                  name={`env.${index}.key`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Key" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`env.${index}.value`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input placeholder="Value" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="filled"
+                  className="w-10 bg-error"
+                  onClick={() => remove(index)}>
+                  <FontAwesomeIcon icon={faX} className="pointer-events-none" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => append({ key: "", value: "" })}>
+              Add Environment Variable
+            </Button>
+          </div>
+          <footer className="flex justify-between items-center">
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                className="w-24 border-white/50"
+                onClick={() => {
+                  setIsEdit(false);
+                }}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={form.watch("repo") === ""}
+                variant="filled"
+                className="w-24 bg-primary">
+                Save
+              </Button>
+            </div>
+            <DeleteDialog onClick={deleteSite} name={site.title}>
+              <Button variant="filled" className="w-24 bg-error h-full">
+                Delete
+              </Button>
+            </DeleteDialog>
+          </footer>
+        </form>
+      </Form>
+      {/* </div> */}
+    </div>
+  );
+};
+const Editing = memo(EditingComponent);
+Editing.displayName = "Editing";

@@ -8,7 +8,9 @@ export interface Site extends mongoose.Document {
   testURL: string;
   liveURL: string;
   appId: string;
+  testAppId: string;
   deployments: { date: Date; title: string; type: string }[];
+  branchCreated: boolean;
 }
 
 export const testSite = {
@@ -17,8 +19,10 @@ export const testSite = {
   liveURL: "",
   testURL: "",
   appId: "",
+  testAppId: "",
   env: [],
   deployments: [],
+  branchCreated: false,
 };
 
 const siteSchema = new mongoose.Schema({
@@ -33,6 +37,8 @@ const siteSchema = new mongoose.Schema({
   testURL: { type: String },
   liveURL: { type: String },
   appId: { type: String },
+  testAppId: { type: String },
+  branchCreated: { type: Boolean },
   deployments: [
     {
       date: { type: Date },

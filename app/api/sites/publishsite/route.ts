@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   AmplifyClient,
-  CreateBranchCommand,
   JobType,
-  Stage,
   StartJobCommand,
 } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
@@ -16,22 +14,9 @@ const amplifyClient = new AmplifyClient({
 
 export async function POST(request: NextRequest) {
   const req = await request.json();
-  const { appId, message, type, branchCreated } = req;
+  const { appId, message, type } = req;
 
   try {
-    if (!branchCreated) {
-      const branchParams = {
-        appId,
-        branchName: "main",
-        stage: Stage.PRODUCTION,
-        enableAutoBuild: false,
-        framework: "Next.js - SSR",
-      };
-
-      const createBranchCommand = new CreateBranchCommand(branchParams);
-      await amplifyClient.send(createBranchCommand);
-    }
-
     const deployParams = {
       appId,
       branchName: "main",
