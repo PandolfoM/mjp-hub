@@ -1,19 +1,11 @@
 import { connect } from "@/lib/db";
 import Site, { testSite } from "@/models/Site";
-import {
-  AmplifyClient,
-  CreateAppCommand,
-  Platform,
-} from "@aws-sdk/client-amplify";
+import amplifyClient from "@/utils/amplifyClient";
+import { CreateAppCommand, Platform } from "@aws-sdk/client-amplify";
 import { NextRequest, NextResponse } from "next/server";
-import { fromEnv } from "@aws-sdk/credential-providers";
 
 connect();
 
-const amplifyClient = new AmplifyClient({
-  region: "us-east-1",
-  // credentials: fromEnv(),
-});
 export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();

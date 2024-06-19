@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  AmplifyClient,
   CreateBranchCommand,
   CreateDomainAssociationCommand,
   Stage,
   UpdateAppCommand,
-  UpdateDomainAssociationCommand,
 } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
-import { fromEnv } from "@aws-sdk/credential-providers";
-
-const amplifyClient = new AmplifyClient({
-  region: "us-east-1",
-  // credentials: fromEnv(),
-});
+import amplifyClient from "@/utils/amplifyClient";
 
 export async function POST(request: NextRequest) {
   try {
