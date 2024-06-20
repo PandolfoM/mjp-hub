@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "email": "email dev"
   },
   "dependencies": {
     "@aws-sdk/client-amplify": "^3.582.0",
@@ -19,6 +20,7 @@
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
+    "@react-email/components": "0.0.19",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
@@ -32,7 +34,9 @@
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
+    "react-email": "2.1.4",
     "react-hook-form": "^7.51.5",
+    "resend": "^3.3.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.1",

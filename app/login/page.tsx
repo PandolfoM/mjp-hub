@@ -40,9 +40,13 @@ function Login() {
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      await axios.post("/api/users/login", data);
+      const login = await axios.post("/api/users/login", data);
 
-      router.push("/");
+      if (login.data.user.tempPassword) {
+        router.push("/verify");
+      } else {
+        router.push("/");
+      }
     } catch (error: any) {
       console.log(error);
 

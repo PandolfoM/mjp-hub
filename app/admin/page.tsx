@@ -46,13 +46,17 @@ function Admin() {
       const createUser = await axios.post("/api/users/createuser", {
         email,
       });
-      console.log(createUser);
-
+      setUsers(createUser.data.users);
+      await axios.post("/api/sendemail", {
+        email,
+        password: createUser.data.password,
+      });
+      setEmail("");
+      setError("");
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
-      setError(error.message);
-      throw new Error(`Error creating user: ${error.message}`);
+      setError(error.response.data.error);
     }
   };
 
@@ -74,33 +78,48 @@ function Admin() {
             <Accordion type="single" collapsible className="w-full">
               {users.map((user, i) => (
                 <AccordionItem key={i} value={user.email}>
-                  <AccordionTrigger>{user.email}</AccordionTrigger>
-                  <AccordionContent className="flex gap-2 justify-end">
-                    <Button variant="filled" className="bg-primary h-10">
-                      Edit
-                    </Button>
-                    <Button variant="filled" className="bg-error h-10">
-                      Delete
-                    </Button>
+                  <AccordionTrigger
+                    className={user.tempPassword ? "text-error" : ""}>
+                    {user.email}
+                  </AccordionTrigger>
+                  <AccordionContent className="flex gap-2 justify-between items-center">
+                    {user.tempPassword && (
+                      <p className="text-md text-white/80">
+                        Account pending...
+                      </p>
+                    )}
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        variant="filled"
+                        className="bg-primary h-10"
+                        disabled={user.tempPassword}>
+                        Edit
+                      </Button>
+                      <Button variant="filled" className="bg-error h-10">
+                        Delete
+                      </Button>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               ))}
               <AccordionItem value="new-user">
                 <AccordionTrigger>Add User</AccordionTrigger>
-                <AccordionContent className="flex gap-2 justify-end">
-                  {error && <p className="text-sm text-error">{error}</p>}
+                <AccordionContent className="flex flex-col gap-2 justify-end">
+                  <div className="flex gap-2 justify-end">
+                    <Input
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <Button
+                      variant="filled"
+                      className="bg-success"
+                      onClick={createUser}>
+                      Create
+                    </Button>
+                  </div>
 
-                  <Input
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <Button
-                    variant="filled"
-                    className="bg-success"
-                    onClick={createUser}>
-                    Create
-                  </Button>
+                  {error && <p className="text-sm text-error">{error}</p>}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
