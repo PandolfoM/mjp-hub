@@ -1,5 +1,8 @@
+import { connect } from "@/lib/db";
 import Site from "@/models/Site";
 import { NextRequest, NextResponse } from "next/server";
+
+connect();
 
 export async function POST(req: NextRequest) {
   try {

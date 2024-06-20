@@ -41,9 +41,8 @@ export default function Home() {
         <nav className="flex justify-between h-8 px-2 mt-2 items-center">
           <NavDrawer>
             <FontAwesomeIcon
-              className="cursor-pointer sm:hidden"
+              className="cursor-pointer sm:hidden w-5 h-auto"
               icon={faBars}
-              size="xl"
             />
           </NavDrawer>
           <NewSiteDialog>

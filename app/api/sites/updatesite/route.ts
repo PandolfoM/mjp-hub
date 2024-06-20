@@ -7,6 +7,9 @@ import {
 } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
+import { connect } from "@/lib/db";
+
+connect();
 
 export async function POST(request: NextRequest) {
   try {

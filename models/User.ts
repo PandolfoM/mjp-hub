@@ -4,11 +4,13 @@ import bcrypt from "bcrypt";
 export interface User extends mongoose.Document {
   _id: string;
   email: string;
+  tempPassword: boolean;
 }
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
+  tempPassword: { type: Boolean },
 });
 
 userSchema.pre("save", async function (next) {

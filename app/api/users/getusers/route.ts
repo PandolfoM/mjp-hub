@@ -1,25 +1,25 @@
 import { connect } from "@/lib/db";
-import Site from "@/models/Site";
+import User from "@/models/User";
 import { NextResponse } from "next/server";
 
 connect();
 
 export async function GET() {
   try {
-    const sites = await Site.find();
+    const users = await User.find();
 
-    if (!sites) {
+    if (!users) {
       return NextResponse.json({
-        message: "No sites found",
+        message: "No users found",
         success: false,
         data: [],
       });
     }
 
     const response = NextResponse.json({
-      message: "Sites retrieved successfully",
+      message: "Users retrieved successfully",
       success: true,
-      data: sites,
+      data: users,
     });
 
     return response;
