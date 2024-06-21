@@ -3,7 +3,7 @@
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import NavDrawer from "../components/navdrawer";
+import NavDrawer, { SimpleUser } from "../components/navdrawer";
 import Spinner from "../components/spinner";
 import {
   Accordion,
@@ -15,12 +15,15 @@ import Button from "../components/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@/models/User";
 import axios from "axios";
+import { DeleteDialog } from "../components/dialogs";
 
 function Admin() {
   const [users, setUsers] = useState<User[]>([]);
+  const [currentUser, setCurrentUser] = useState<SimpleUser | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [ID, setID] = useState<string>("");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -28,8 +31,11 @@ function Admin() {
       try {
         const res = await fetch("/api/users/getusers");
         const data = await res.json();
-
         setUsers(data.data);
+
+        const me = await axios.get("/api/auth/me");
+        setCurrentUser(me.data.user);
+
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch users", error);
@@ -57,6 +63,20 @@ function Admin() {
     } catch (error: any) {
       setLoading(false);
       setError(error.response.data.error);
+    }
+  };
+
+  const deleteUser = async () => {
+    setLoading(true);
+    try {
+      const deleteUser = await axios.post("/api/users/deleteuser", {
+        _id: ID,
+      });
+
+      setUsers(deleteUser.data.users);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
     }
   };
 
@@ -95,9 +115,18 @@ function Admin() {
                         disabled={user.tempPassword}>
                         Edit
                       </Button>
-                      <Button variant="filled" className="bg-error h-10">
-                        Delete
-                      </Button>
+                      <DeleteDialog onClick={deleteUser} name={user.email}>
+                        <Button
+                          variant="filled"
+                          className="bg-error h-10"
+                          onClick={() => setID(user._id)}
+                          disabled={
+                            user.email === currentUser?.email ||
+                            users.length === 1
+                          }>
+                          Delete
+                        </Button>
+                      </DeleteDialog>
                     </div>
                   </AccordionContent>
                 </AccordionItem>

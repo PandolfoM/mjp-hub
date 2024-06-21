@@ -5,11 +5,14 @@ import {
   DrawerPortal,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import React, { ReactNode, createContext, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleUser,
+  faRightFromBracket,
+} from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -17,7 +20,7 @@ type Props = {
   children: ReactNode;
 };
 
-interface User {
+export interface SimpleUser {
   _id: string;
   email: string;
   tempPassword: boolean;
@@ -25,7 +28,7 @@ interface User {
 
 function NavDrawer({ children }: Props) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SimpleUser | null>(null);
 
   useEffect(() => {
     const getMe = async () => {
@@ -50,7 +53,7 @@ function NavDrawer({ children }: Props) {
       <DrawerTrigger asChild>{children}</DrawerTrigger>
       <DrawerPortal>
         <DrawerOverlay className="fixed inset-0 bg-background/40" />
-        <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 overflow-x-hidden">
+        <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
           <section className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-2 text-md">
               <Button variant="outline">
@@ -60,9 +63,16 @@ function NavDrawer({ children }: Props) {
                 <Link href="/admin">Admin</Link>
               </Button>
             </div>
-            <div className="mb-5 overflow-hidden flex flex-col gap-2">
-              {user && <p>{user.email}</p>}
-              <Button onClick={handleLogout} className="min-w-fit">
+            <div className="overflow-hidden flex flex-col gap-2">
+              {user && (
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <FontAwesomeIcon icon={faCircleUser} className="w-7 h-auto" />{" "}
+                  <p className="whitespace-nowrap text-ellipsis overflow-hidden">
+                    {user.email}
+                  </p>
+                </div>
+              )}
+              <Button onClick={handleLogout}>
                 <FontAwesomeIcon icon={faRightFromBracket} /> Log out
               </Button>
             </div>
