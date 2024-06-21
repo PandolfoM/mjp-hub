@@ -14,9 +14,6 @@ export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const { email, password } = await req.json();
 
-  console.log(password);
-  console.log(email);
-
   try {
     const { data, error } = await resend.emails.send({
       from: "MJP Hub <mjp@mattpandolfo.com>",
