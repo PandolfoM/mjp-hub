@@ -49,6 +49,10 @@ function NavDrawer({ children }: Props) {
     }
   };
 
+  const handleRedirect = (route: string) => {
+    router.push(`/${route}`);
+  };
+
   return (
     <Drawer direction="left">
       <DrawerTrigger asChild>{children}</DrawerTrigger>
@@ -57,11 +61,11 @@ function NavDrawer({ children }: Props) {
         <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
           <section className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-2 text-md">
-              <Button variant="outline">
-                <Link href="/">Dashboard</Link>
+              <Button variant="outline" onClick={() => handleRedirect("")}>
+                Dashboard
               </Button>
-              <Button variant="outline">
-                <Link href="/admin">Admin</Link>
+              <Button variant="outline" onClick={() => handleRedirect("admin")}>
+                Admin
               </Button>
             </div>
             <div className="overflow-hidden flex flex-col gap-2">
