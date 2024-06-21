@@ -52,7 +52,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    const tokenData = {
+      id: user._id,
+      email: user.email,
+      tempPassword: user.tempPassword,
+    };
+
+    const updateToken = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
+      expiresIn: "1h",
+    });
+
+    const response = NextResponse.json({ success: true });
+
+    response.cookies.set("token", updateToken, {
+      httpOnly: true,
+    });
+
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

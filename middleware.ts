@@ -1,7 +1,9 @@
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Define paths that are considered public (accessible without a token)
@@ -20,6 +22,21 @@ export function middleware(request: NextRequest) {
   if (!isPublicPath && !token) {
     return NextResponse.redirect(new URL("/login", request.nextUrl));
   }
+
+  if (token) {
+    try {
+      const decoded: any = jwtDecode(token);
+
+      if (decoded.tempPassword && path !== "/verify") {
+        return NextResponse.redirect(new URL("/verify", request.nextUrl));
+      }
+    } catch (error) {
+      console.error("Token verification or user fetching failed:", error);
+      return NextResponse.redirect(new URL("/login", request.nextUrl));
+    }
+  }
+
+  return NextResponse.next();
 }
 
 // It specifies the paths for which this middleware should be executed.
