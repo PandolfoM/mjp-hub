@@ -11,8 +11,16 @@ export async function POST(request: NextRequest) {
   try {
     const req = await request.json();
     const { user, email, password, updateSelf } = req;
-    // Get the token from cookies
+
+    if (user.email === email) {
+      return NextResponse.json(
+        { error: "Email is the same", success: false },
+        { status: 500 }
+      );
+    }
+
     if (updateSelf) {
+      // Get the token from cookies
       const token = request.cookies.get("token");
 
       if (!token) {
@@ -74,13 +82,6 @@ export async function POST(request: NextRequest) {
     } else {
       const password = generateTempPassword();
       const expireAt = new Date();
-
-      if (user.email === email) {
-        return NextResponse.json(
-          { error: "Email is the same", success: false },
-          { status: 500 }
-        );
-      }
 
       // Expires in 7 days
       expireAt.setDate(expireAt.getDate() + 7);
