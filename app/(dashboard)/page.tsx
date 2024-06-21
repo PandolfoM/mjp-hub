@@ -69,7 +69,7 @@ export default function Home() {
                   <p className="overflow-hidden text-ellipsis">
                     <strong>Test URL:</strong>{" "}
                     <a
-                      href={site.testURL}
+                      href={`https://${site.testURL}`}
                       target="_blank"
                       className="underline">
                       {site.testURL}
@@ -78,7 +78,7 @@ export default function Home() {
                   <p className="overflow-hidden text-ellipsis">
                     <strong>Live URL:</strong>{" "}
                     <a
-                      href={site.liveURL}
+                      href={`https://${site.liveURL}`}
                       target="_blank"
                       className="underline">
                       {site.liveURL}
