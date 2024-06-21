@@ -27,6 +27,19 @@ export async function middleware(request: NextRequest) {
     try {
       const decoded: any = jwtDecode(token);
 
+      // Check if the token is expired
+      const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+      if (decoded.exp && decoded.exp < currentTime) {
+        const response = NextResponse.redirect(
+          new URL("/login", request.nextUrl)
+        );
+        response.cookies.set("token", "", {
+          httpOnly: true,
+          expires: new Date(0),
+        }); // Delete the token
+        return response;
+      }
+
       if (decoded.tempPassword && path !== "/verify") {
         return NextResponse.redirect(new URL("/verify", request.nextUrl));
       }

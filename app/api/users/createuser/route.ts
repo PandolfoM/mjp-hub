@@ -19,8 +19,22 @@ export async function POST(request: NextRequest) {
     }
 
     const password = generateTempPassword();
-    const newUser = new User({ email, password, tempPassword: true });
+    const expireAt = new Date();
+
+    // Expires in 7 days
+    expireAt.setDate(expireAt.getDate() + 7);
+
+    // ! For testing only (expires in 1 minute)
+    // expireAt.setMinutes(expireAt.getMinutes() + 1);
+
+    const newUser = new User({
+      email,
+      password,
+      tempPassword: true,
+      expireAt,
+    });
     await newUser.save();
+
     const users = await User.find();
     return NextResponse.json({
       message: `User: ${email} created`,

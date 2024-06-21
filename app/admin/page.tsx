@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { User } from "@/models/User";
 import axios from "axios";
 import { DeleteDialog } from "../components/dialogs";
+import EditUserDialog from "../components/dialogs/editUserDialog";
 
 function Admin() {
   const [users, setUsers] = useState<User[]>([]);
@@ -109,12 +110,17 @@ function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2 justify-end">
-                      <Button
-                        variant="filled"
-                        className="bg-primary h-10"
-                        disabled={user.tempPassword}>
-                        Edit
-                      </Button>
+                      <EditUserDialog
+                        user={user}
+                        currentUser={currentUser}
+                        setUsers={setUsers}>
+                        <Button
+                          variant="filled"
+                          className="bg-primary h-10"
+                          disabled={user.tempPassword}>
+                          Edit
+                        </Button>
+                      </EditUserDialog>
                       <DeleteDialog onClick={deleteUser} name={user.email}>
                         <Button
                           variant="filled"

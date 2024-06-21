@@ -24,6 +24,7 @@ export interface SimpleUser {
   _id: string;
   email: string;
   tempPassword: boolean;
+  expireAt?: Date;
 }
 
 function NavDrawer({ children }: Props) {

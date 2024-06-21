@@ -5,12 +5,14 @@ export interface User extends mongoose.Document {
   _id: string;
   email: string;
   tempPassword: boolean;
+  expireAt?: Date;
 }
 
 const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   tempPassword: { type: Boolean },
+  expireAt: { type: Date },
 });
 
 userSchema.pre("save", async function (next) {

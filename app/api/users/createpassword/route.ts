@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
     // Fetch the user from the database and update the password
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { password: hashedPassword, tempPassword: false },
+      {
+        password: hashedPassword,
+        tempPassword: false,
+        $unset: { expireAt: "" },
+      },
       { new: true }
     );
 
