@@ -10,15 +10,15 @@ connect();
 export async function POST(request: NextRequest) {
   try {
     const req = await request.json();
-    const { user, email, password } = req;
+    const { user, email, password, updateSelf } = req;
     // Get the token from cookies
-    if (password) {
+    if (updateSelf) {
       const token = request.cookies.get("token");
 
       if (!token) {
         return NextResponse.json(
           { error: "No token found", success: false },
-          { status: 401 }
+          { status: 500 }
         );
       }
 
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       if (!decoded) {
         return NextResponse.json(
           { error: "Invalid token", success: false },
-          { status: 401 }
+          { status: 500 }
         );
       }
 
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       if (!updateUser) {
         return NextResponse.json(
           { error: "User not found", success: false },
-          { status: 404 }
+          { status: 500 }
         );
       }
 
@@ -72,10 +72,25 @@ export async function POST(request: NextRequest) {
 
       return response;
     } else {
+      const password = generateTempPassword();
+      const expireAt = new Date();
+
+      if (user.email === email) {
+        return NextResponse.json(
+          { error: "Email is the same", success: false },
+          { status: 500 }
+        );
+      }
+
+      // Expires in 7 days
+      expireAt.setDate(expireAt.getDate() + 7);
       const updateUser = await User.findOneAndUpdate(
         { _id: user._id },
         {
           email,
+          tempPassword: true,
+          password,
+          expireAt,
         },
         { new: true }
       );
@@ -83,7 +98,7 @@ export async function POST(request: NextRequest) {
       if (!updateUser) {
         return NextResponse.json(
           { error: "User not found", success: false },
-          { status: 404 }
+          { status: 500 }
         );
       }
 
@@ -92,4 +107,15 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+function generateTempPassword(length = 12) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let password = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    password += characters[randomIndex];
+  }
+  return password;
 }

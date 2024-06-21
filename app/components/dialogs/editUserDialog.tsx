@@ -30,7 +30,6 @@ type Props = {
 };
 
 function EditUserDialog({ user, currentUser, children, setUsers }: Props) {
-  const [deployMessage, setDeployMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -46,11 +45,12 @@ function EditUserDialog({ user, currentUser, children, setUsers }: Props) {
     }
 
     try {
-      const sameUser = currentUser?._id === user._id;
+      const updateSelf = currentUser?._id === user._id;
       const updateUser = await axios.post("/api/users/updateuser", {
         user,
         email,
-        password: sameUser ? password : null,
+        password: updateSelf ? password : null,
+        updateSelf,
       });
 
       setUsers((prevUsers) =>
@@ -61,8 +61,8 @@ function EditUserDialog({ user, currentUser, children, setUsers }: Props) {
         )
       );
       setIsLoading(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      setError(error.response.data.error);
       setIsLoading(false);
     }
   };
