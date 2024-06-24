@@ -18,6 +18,7 @@ const config: Config = {
       black: "#000000",
       error: "#B3001B",
       success: "#72C96E",
+      warning: "#E3B23C",
     },
     fontSize: {
       xxs: "8px",

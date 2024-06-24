@@ -3,7 +3,7 @@
 import { z } from "zod";
 import Button from "@/app/components/button";
 import VerticalCard from "@/app/components/verticalcard";
-import { Site } from "@/models/Site";
+import { DeploymentsI, Site, testSite } from "@/models/Site";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
@@ -187,6 +187,34 @@ export default function Page({ params }: { params: { id: string } }) {
     );
   };
 
+  const getDeployments = async () => {
+    setLoading(true);
+    if (!site) return;
+
+    try {
+      const res = await axios.post<{ deployments: DeploymentsI[] }>(
+        "/api/sites/getdeployments",
+        {
+          siteId: site._id,
+          appId: site.appId,
+          testAppId: site.testAppId,
+        }
+      );
+      const deployments = res.data.deployments;
+
+      // @ts-ignore
+      setSite((prevSite: Site) => ({
+        ...prevSite!,
+        deployments: deployments,
+      }));
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setError("There has been an error");
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       {loading && <Spinner />}
@@ -197,7 +225,9 @@ export default function Page({ params }: { params: { id: string } }) {
           </a>
           {site && (
             <DeployDialog site={site} setSite={setSite}>
-              <Button disabled={!site.repo}>Deployments</Button>
+              <Button disabled={!site.repo} onClick={getDeployments}>
+                Deployments
+              </Button>
             </DeployDialog>
           )}
         </nav>

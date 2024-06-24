@@ -9,11 +9,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Site } from "@/models/Site";
-import React, { Dispatch, ReactNode, useState } from "react";
+import React, { Dispatch, ReactNode, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import Button from "../button";
 import axios from "axios";
 import { format } from "date-fns";
+import Spinner from "../spinner";
 
 type Props = {
   site: Site;
@@ -52,72 +53,93 @@ function DeployDialog({ site, setSite, children }: Props) {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogPortal>
-        <DialogOverlay className="bg-background/40" />
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="text-lg">Deployments</DialogTitle>
-          </DialogHeader>
-          <div className="flex flex-col max-h-[30rem]">
-            <section className="flex-1 overflow-y-auto gap-1 flex flex-col">
-              {site.deployments.length > 0 ? (
-                <>
-                  {site.deployments.map((deploy, i) => (
-                    <div
-                      key={i}
-                      className="text-sm flex justify-between bg-card/[5%] p-2 rounded-sm">
-                      <div>
-                        <p>{deploy.title}</p>
-                        <p>{deploy.type}</p>
+    <>
+      {isLoading && <Spinner />}
+      <Dialog>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <DialogPortal>
+          <DialogOverlay className="bg-background/40" />
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Deployments</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col max-h-[30rem]">
+              <section className="flex-1 overflow-y-auto gap-1 flex flex-col">
+                {site.deployments.length > 0 ? (
+                  <>
+                    {site.deployments.map((deploy, i) => (
+                      <div
+                        key={i}
+                        className={`text-sm flex justify-between bg-card/[5%] p-2 rounded-sm ${
+                          deploy.status === "pending"
+                            ? "bg-warning/10"
+                            : deploy.status === "failed"
+                            ? "bg-error/10"
+                            : "bg-success/10"
+                        }`}>
+                        <div>
+                          <p className="font-bold">{deploy.title}</p>
+                          <p>{deploy.type}</p>
+                        </div>
+                        <div className="text-right">
+                          <div>
+                            <p>
+                              Started:{" "}
+                              {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                            </p>
+                            {deploy.endTime && (
+                              <p>
+                                Finished:{" "}
+                                {format(deploy.endTime, "M/d/y hh:mm:ss a")}
+                              </p>
+                            )}
+                          </div>
+                          <p className="capitalize">{deploy.status}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p>{format(deploy.date, "d/M/y hh:mm:ss a")}</p>
-                      </div>
-                    </div>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <p className="text-white/50 w-full text-center py-2">
-                    No deployments
-                  </p>
-                </>
-              )}
-            </section>
-          </div>
-          <DialogFooter>
-            <section className="flex flex-col gap-2">
-              <Input
-                value={deployMessage}
-                placeholder="Message"
-                onChange={(e: any) => setDeployMessage(e.target.value)}
-              />
-              {error && <p className="text-sm text-error">{error}</p>}
-              <div className="flex gap-2">
-                <Button
-                  disabled={!deployMessage || isLoading}
-                  className="w-20"
-                  onClick={() => {
-                    deploySite("test");
-                  }}>
-                  Test
-                </Button>
-                <Button
-                  disabled={!deployMessage || isLoading || !site.liveURL}
-                  className="w-20"
-                  onClick={() => {
-                    deploySite("live");
-                  }}>
-                  Live
-                </Button>
-              </div>
-            </section>
-          </DialogFooter>
-        </DialogContent>
-      </DialogPortal>
-    </Dialog>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-white/50 w-full text-center py-2">
+                      No deployments
+                    </p>
+                  </>
+                )}
+              </section>
+            </div>
+            <DialogFooter>
+              <section className="flex flex-col gap-2">
+                <Input
+                  value={deployMessage}
+                  placeholder="Message"
+                  onChange={(e: any) => setDeployMessage(e.target.value)}
+                />
+                {error && <p className="text-sm text-error">{error}</p>}
+                <div className="flex gap-2">
+                  <Button
+                    disabled={!deployMessage || isLoading}
+                    className="w-20"
+                    onClick={() => {
+                      deploySite("test");
+                    }}>
+                    Test
+                  </Button>
+                  <Button
+                    disabled={!deployMessage || isLoading || !site.liveURL}
+                    className="w-20"
+                    onClick={() => {
+                      deploySite("live");
+                    }}>
+                    Live
+                  </Button>
+                </div>
+              </section>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+    </>
   );
 }
 

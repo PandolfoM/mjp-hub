@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+export interface DeploymentsI {
+  startTime: Date;
+  title: string;
+  type: string;
+  jobId: string;
+  endTime?: Date;
+  status: string;
+}
+
 export interface Site extends mongoose.Document {
   _id: string;
   title: string;
@@ -9,7 +18,7 @@ export interface Site extends mongoose.Document {
   liveURL: string;
   appId: string;
   testAppId: string;
-  deployments: { date: Date; title: string; type: string }[];
+  deployments: DeploymentsI[];
   branchCreated: boolean;
 }
 
@@ -41,9 +50,12 @@ const siteSchema = new mongoose.Schema({
   branchCreated: { type: Boolean },
   deployments: [
     {
-      date: { type: Date },
+      startTime: { type: Date },
       title: { type: String },
       type: { type: String },
+      jobId: { type: String },
+      endTime: { type: Date },
+      status: { type: String },
     },
   ],
 });

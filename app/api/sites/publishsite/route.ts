@@ -19,12 +19,14 @@ export async function POST(request: NextRequest) {
     };
 
     const startDeployment = new StartJobCommand(deployParams);
-    await amplifyClient.send(startDeployment);
+    const startDeploymentRes = await amplifyClient.send(startDeployment);
 
     const newDeployment = {
-      date: new Date(),
+      startTime: new Date(),
       title: message,
       type,
+      jobId: startDeploymentRes.jobSummary?.jobId,
+      status: startDeploymentRes.jobSummary?.status?.toLowerCase(),
     };
 
     const updatedSite = await Site.findOneAndUpdate(
