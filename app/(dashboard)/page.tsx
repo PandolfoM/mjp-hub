@@ -2,28 +2,31 @@
 
 import { Input } from "@/components/ui/input";
 import { Site } from "@/models/Site";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "../components/button";
 import Link from "next/link";
 import VerticalCard from "../components/verticalcard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import NavDrawer from "../components/navdrawer";
 import Spinner from "../components/spinner";
 import { NewSiteDialog } from "../components/dialogs";
+import axios from "axios";
 
 export default function Home() {
   const [sites, setSites] = useState<Site[]>([]);
+  const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSites = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/sites/getsites");
-        const data = await res.json();
+        const res = await axios.post("/api/sites/getsites", {
+          search: "",
+        });
 
-        setSites(data.data);
+        setSites(res.data.sites);
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch sites", error);
@@ -33,6 +36,28 @@ export default function Home() {
 
     fetchSites();
   }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
+  const searchSites = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const res = await axios.post("/api/sites/getsites", {
+        search,
+      });
+
+      setSites(res.data.sites);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch sites", error);
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -49,9 +74,19 @@ export default function Home() {
             <Button>New Site</Button>
           </NewSiteDialog>
         </nav>
-        <div className="px-2">
-          <Input placeholder="Search..." className="w-[300px] m-auto" />
-        </div>
+        <form onClick={searchSites} className="px-2 flex mx-auto relative">
+          <Input
+            placeholder="Search..."
+            className="w-[300px] rounded-r-none"
+            onChange={handleSearchChange}
+          />
+          <Button
+            variant="filled"
+            type="submit"
+            className="bg-primary rounded-l-none">
+            <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
+          </Button>
+        </form>
         <div className="flex flex-col gap-2 px-5 items-center h-full overflow-y-auto">
           {sites.map((site) => (
             <VerticalCard key={site._id} className="overflow-hidden">

@@ -63,25 +63,34 @@ function DeployDialog({ site, setSite, children }: Props) {
             <DialogHeader>
               <DialogTitle className="text-lg">Deployments</DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col max-h-[30rem]">
+            <div className="flex flex-col max-h-[30rem] overflow-hidden">
               <section className="flex-1 overflow-y-auto gap-1 flex flex-col">
                 {site.deployments.length > 0 ? (
                   <>
                     {site.deployments.map((deploy, i) => (
                       <div
                         key={i}
-                        className={`text-sm flex justify-between bg-card/[5%] p-2 rounded-sm ${
+                        className={`text-sm flex justify-between bg-card/[5%] p-2 rounded-sm gap-2 text-nowrap ${
                           deploy.status === "pending"
                             ? "bg-warning/10"
                             : deploy.status === "failed"
                             ? "bg-error/10"
                             : "bg-success/10"
                         }`}>
-                        <div>
-                          <p className="font-bold">{deploy.title}</p>
-                          <p>{deploy.type}</p>
+                        <div className="w-1/2 overflow-hidden">
+                          <p className="text-ellipsis overflow-hidden">
+                            {deploy.title}
+                          </p>
+                          <p className="text-ellipsis overflow-hidden">
+                            Type: {deploy.type}
+                          </p>
+                          <p className="capitalize text-ellipsis overflow-hidden">
+                            {deploy.status === "succeed"
+                              ? "Completed"
+                              : deploy.status}
+                          </p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right w-1/2 overflow-hidden">
                           <div>
                             <p>
                               Started:{" "}
@@ -94,7 +103,6 @@ function DeployDialog({ site, setSite, children }: Props) {
                               </p>
                             )}
                           </div>
-                          <p className="capitalize">{deploy.status}</p>
                         </div>
                       </div>
                     ))}
