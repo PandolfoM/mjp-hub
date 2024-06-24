@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter } from "./fonts";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
   title: "MJP Hub",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html
       lang="en"
       className="dark dark:bg-background dark:text-white h-full w-full relative">
-      <body className={`h-full w-full ${inter.className}`}>{children}</body>
+      <body className={`h-full w-full ${inter.className}`}>
+        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

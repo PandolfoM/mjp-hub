@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { Site } from "./Site";
 
 export interface User extends mongoose.Document {
   _id: string;
   email: string;
   tempPassword: boolean;
   expireAt?: Date;
+  favorites: Site[];
 }
 
 const userSchema = new mongoose.Schema({

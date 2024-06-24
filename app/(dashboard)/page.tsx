@@ -8,15 +8,26 @@ import Link from "next/link";
 import VerticalCard from "../components/verticalcard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import NavDrawer from "../components/navdrawer";
+import NavDrawer, { SimpleUser } from "../components/navdrawer";
 import Spinner from "../components/spinner";
 import { NewSiteDialog } from "../components/dialogs";
 import axios from "axios";
+import SiteCard from "../components/siteCard";
 
 export default function Home() {
+  const [user, setUser] = useState<SimpleUser | null>(null);
   const [sites, setSites] = useState<Site[]>([]);
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const getMe = async () => {
+      const me = await axios.get("/api/auth/me");
+      setUser(me.data.user);
+    };
+
+    getMe();
+  }, []);
 
   useEffect(() => {
     const fetchSites = async () => {
@@ -45,7 +56,6 @@ export default function Home() {
     e.preventDefault();
 
     setLoading(true);
-
     try {
       const res = await axios.post("/api/sites/getsites", {
         search,
@@ -62,70 +72,69 @@ export default function Home() {
   return (
     <>
       {loading && <Spinner />}
-      <main className="flex flex-col gap-5 h-full">
-        <nav className="flex justify-between h-8 px-2 mt-2 items-center">
-          <NavDrawer>
-            <FontAwesomeIcon
-              className="cursor-pointer sm:hidden w-5 h-auto"
-              icon={faBars}
+      <main className="flex flex-col gap-5 h-full sm:flex-row">
+        <NavDrawer user={user} />
+        <div className="flex flex-col w-full gap-5">
+          <nav className="flex justify-between h-8 px-2 mt-2 items-center sm:justify-end sm:h-auto">
+            <NavDrawer user={user}>
+              <FontAwesomeIcon
+                className="cursor-pointer w-5 h-auto"
+                icon={faBars}
+              />
+            </NavDrawer>
+
+            <form
+              onClick={searchSites}
+              className="px-2 hidden relative sm:flex">
+              <Input
+                placeholder="Search..."
+                className="w-[300px] rounded-r-none"
+                onChange={handleSearchChange}
+              />
+              <Button
+                variant="filled"
+                type="submit"
+                className="bg-primary rounded-l-none">
+                <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
+              </Button>
+            </form>
+            <NewSiteDialog>
+              <Button className="sm:h-full">New Site</Button>
+            </NewSiteDialog>
+          </nav>
+          <form
+            onClick={searchSites}
+            className="px-2 flex mx-auto relative sm:hidden">
+            <Input
+              placeholder="Search..."
+              className="w-[300px] rounded-r-none"
+              onChange={handleSearchChange}
             />
-          </NavDrawer>
-          <NewSiteDialog>
-            <Button>New Site</Button>
-          </NewSiteDialog>
-        </nav>
-        <form onClick={searchSites} className="px-2 flex mx-auto relative">
-          <Input
-            placeholder="Search..."
-            className="w-[300px] rounded-r-none"
-            onChange={handleSearchChange}
-          />
-          <Button
-            variant="filled"
-            type="submit"
-            className="bg-primary rounded-l-none">
-            <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
-          </Button>
-        </form>
-        <div className="flex flex-col gap-2 px-5 items-center h-full overflow-y-auto">
-          {sites.map((site) => (
-            <VerticalCard key={site._id} className="overflow-hidden">
-              <>
-                <h3 className="text-md font-bold whitespace-nowrap text-ellipsis overflow-hidden text-center w-full">
-                  {site.title}
-                </h3>
-                <div className="text-md text-left flex flex-col gap-2 flex-1 whitespace-nowrap w-full">
-                  <p className="overflow-hidden text-ellipsis">
-                    <strong>Repository:</strong>{" "}
-                    <a href={site.repo} target="_blank" className="underline">
-                      {site.repo}
-                    </a>
-                  </p>
-                  <p className="overflow-hidden text-ellipsis">
-                    <strong>Test URL:</strong>{" "}
-                    <a
-                      href={`https://${site.testURL}`}
-                      target="_blank"
-                      className="underline">
-                      {site.testURL}
-                    </a>
-                  </p>
-                  <p className="overflow-hidden text-ellipsis">
-                    <strong>Live URL:</strong>{" "}
-                    <a
-                      href={`https://${site.liveURL}`}
-                      target="_blank"
-                      className="underline">
-                      {site.liveURL}
-                    </a>
-                  </p>
-                </div>
-                <Link href={`/manage/${site._id}`} className="w-full">
-                  <Button className="w-full">Manage</Button>
-                </Link>
-              </>
-            </VerticalCard>
-          ))}
+            <Button
+              variant="filled"
+              type="submit"
+              className="bg-primary rounded-l-none">
+              <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
+            </Button>
+          </form>
+          <section className="h-full flex flex-col items-center overflow-hidden sm:justify-around">
+            <div className="hidden sm:flex flex-col gap-5 px-5 items-center overflow-y-auto sm:flex-row h-fit w-full min-h-[350px]">
+              <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
+              <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
+                {user?.favorites.map((site) => (
+                  <SiteCard key={site._id} site={site} />
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-5 px-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
+              <h3 className="-rotate-90 hidden sm:block w-3">Results</h3>
+              <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
+                {sites.map((site) => (
+                  <SiteCard key={site._id} site={site} />
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
       </main>
     </>

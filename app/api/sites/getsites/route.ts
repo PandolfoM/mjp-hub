@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
 
     if (search) {
       const query = search ? { title: { $regex: search, $options: "i" } } : {};
-      sites = await Site.find(query);
+      sites = await Site.find(query).select("-deployments");
     } else {
-      sites = await Site.find().limit(20);
+      sites = await Site.find().limit(20).select("-deployments");
     }
 
     if (!sites) {

@@ -11,13 +11,29 @@ import Button from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleUser,
+  faGauge,
+  faHammer,
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Tooltip } from "@radix-ui/react-tooltip";
+import Popout from "./popout";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Site } from "@/models/Site";
 
 type Props = {
-  children: ReactNode;
+  children?: ReactNode;
+  user: SimpleUser | null;
 };
 
 export interface SimpleUser {
@@ -25,20 +41,11 @@ export interface SimpleUser {
   email: string;
   tempPassword: boolean;
   expireAt?: Date;
+  favorites: Site[];
 }
 
-function NavDrawer({ children }: Props) {
+function NavDrawer({ children, user }: Props) {
   const router = useRouter();
-  const [user, setUser] = useState<SimpleUser | null>(null);
-
-  useEffect(() => {
-    const getMe = async () => {
-      const me = await axios.get("/api/auth/me");
-      setUser(me.data.user);
-    };
-
-    getMe();
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -54,37 +61,96 @@ function NavDrawer({ children }: Props) {
   };
 
   return (
-    <Drawer direction="left">
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
-      <DrawerPortal>
-        <DrawerOverlay className="fixed inset-0 bg-background/40" />
-        <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
-          <section className="flex flex-col justify-between h-full">
-            <div className="flex flex-col gap-2 text-md">
-              <Button variant="outline" onClick={() => handleRedirect("")}>
-                Dashboard
-              </Button>
-              <Button variant="outline" onClick={() => handleRedirect("admin")}>
-                Admin
-              </Button>
-            </div>
-            <div className="overflow-hidden flex flex-col gap-2">
-              {user && (
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <FontAwesomeIcon icon={faCircleUser} className="w-7 h-auto" />{" "}
-                  <p className="whitespace-nowrap text-ellipsis overflow-hidden">
-                    {user.email}
-                  </p>
+    <>
+      {children ? (
+        <Drawer direction="left">
+          <DrawerTrigger asChild className="sm:hidden">
+            {children}
+          </DrawerTrigger>
+          <DrawerPortal>
+            <DrawerOverlay className="fixed inset-0 bg-background/40" />
+            <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
+              <section className="flex flex-col justify-between h-full">
+                <div className="flex flex-col gap-2 text-md">
+                  <Button variant="outline" onClick={() => handleRedirect("")}>
+                    Dashboard
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleRedirect("admin")}>
+                    Admin
+                  </Button>
                 </div>
-              )}
-              <Button onClick={handleLogout}>
-                <FontAwesomeIcon icon={faRightFromBracket} /> Log out
-              </Button>
-            </div>
-          </section>
-        </DrawerContent>
-      </DrawerPortal>
-    </Drawer>
+                <div className="overflow-hidden flex flex-col gap-2">
+                  {user && (
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <FontAwesomeIcon
+                        icon={faCircleUser}
+                        className="w-7 h-auto"
+                      />{" "}
+                      <p className="whitespace-nowrap text-ellipsis overflow-hidden">
+                        {user.email}
+                      </p>
+                    </div>
+                  )}
+                  <Button onClick={handleLogout}>
+                    <FontAwesomeIcon icon={faRightFromBracket} /> Log out
+                  </Button>
+                </div>
+              </section>
+            </DrawerContent>
+          </DrawerPortal>
+        </Drawer>
+      ) : (
+        <aside className="hidden sm:flex bg-card/5 h-full w-16 p-2 flex-col items-center justify-between">
+          <div className="flex flex-col w-full gap-5 text-md items-center">
+            <Popout text="Dashboard">
+              <FontAwesomeIcon
+                icon={faGauge}
+                className="w-1/2 h-auto cursor-pointer"
+              />
+            </Popout>
+            <Popout text="Admin">
+              <FontAwesomeIcon
+                icon={faHammer}
+                className="w-1/2 h-auto cursor-pointer"
+              />
+            </Popout>
+          </div>
+          <div className="overflow-hidden flex flex-col gap-2 w-full items-center">
+            <HoverCard>
+              <HoverCardTrigger>
+                <FontAwesomeIcon
+                  icon={faCircleUser}
+                  className="w-7 h-auto cursor-pointer"
+                />
+              </HoverCardTrigger>
+              <HoverCardContent side="right" align="end" sideOffset={20}>
+                <div className="flex flex-col w-full gap-5 text-md items-start">
+                  {user && (
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <FontAwesomeIcon
+                        icon={faCircleUser}
+                        className="w-7 h-auto"
+                      />{" "}
+                      <p className="whitespace-nowrap text-ellipsis overflow-hidden">
+                        {user.email}
+                      </p>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    className="no-underline py-0 px-0"
+                    onClick={handleLogout}>
+                    <FontAwesomeIcon icon={faRightFromBracket} /> Log out
+                  </Button>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+        </aside>
+      )}
+    </>
   );
 }
 

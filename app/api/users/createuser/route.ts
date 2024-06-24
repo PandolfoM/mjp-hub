@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
       password,
       tempPassword: true,
       expireAt,
+      favorites: [],
     });
     await newUser.save();
 
