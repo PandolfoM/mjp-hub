@@ -52,7 +52,7 @@ export default function Home() {
         <div className="px-2">
           <Input placeholder="Search..." className="w-[300px] m-auto" />
         </div>
-        <div className="flex flex-col px-5 items-center h-full overflow-y-auto">
+        <div className="flex flex-col gap-2 px-5 items-center h-full overflow-y-auto">
           {sites.map((site) => (
             <VerticalCard key={site._id} className="overflow-hidden">
               <>
