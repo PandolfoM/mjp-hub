@@ -22,7 +22,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
     }
 
-    const user = await User.findById(decoded.id).select("-password"); // Exclude the password field
+    const user = await User.findById(decoded.id)
+      .select("-password")
+      .populate("favorites");
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });

@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   tempPassword: { type: Boolean },
   expireAt: { type: Date },
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Site" }],
 });
 
 userSchema.pre("save", async function (next) {

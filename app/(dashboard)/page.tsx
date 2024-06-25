@@ -122,16 +122,30 @@ export default function Home() {
               <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
               <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
                 {user?.favorites.map((site) => (
-                  <SiteCard key={site._id} site={site} />
+                  <SiteCard
+                    key={site._id}
+                    site={site}
+                    user={user}
+                    setUser={setUser}
+                  />
                 ))}
               </div>
             </div>
             <div className="flex flex-col gap-5 px-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
               <h3 className="-rotate-90 hidden sm:block w-3">Results</h3>
               <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
-                {sites.map((site) => (
-                  <SiteCard key={site._id} site={site} />
-                ))}
+                {user && (
+                  <>
+                    {sites.map((site) => (
+                      <SiteCard
+                        key={site._id}
+                        site={site}
+                        user={user}
+                        setUser={setUser}
+                      />
+                    ))}
+                  </>
+                )}
               </div>
             </div>
           </section>
