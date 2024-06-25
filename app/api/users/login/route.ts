@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Create a token with expiration of 1 hour
     const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
 
     // Create a JSON response indicating successful login

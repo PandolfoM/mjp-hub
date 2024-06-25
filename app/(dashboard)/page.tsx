@@ -74,8 +74,8 @@ export default function Home() {
       {loading && <Spinner />}
       <main className="flex flex-col gap-5 h-full sm:flex-row">
         <NavDrawer user={user} />
-        <div className="flex flex-col h-full w-full gap-5">
-          <nav className="flex justify-between h-8 px-2 mt-2 items-center sm:justify-end sm:h-auto">
+        <div className="flex flex-col h-full w-full gap-5 px-5">
+          <nav className="flex justify-between h-8 mt-2 items-center sm:justify-end sm:h-auto">
             <NavDrawer user={user}>
               <FontAwesomeIcon
                 className="cursor-pointer w-5 h-auto"
@@ -118,7 +118,7 @@ export default function Home() {
             </Button>
           </form>
           <section className="h-full flex flex-col items-center overflow-hidden sm:justify-around">
-            <div className="hidden sm:flex flex-col gap-5 px-5 items-center overflow-y-auto sm:flex-row h-fit w-full min-h-[350px]">
+            <div className="hidden sm:flex flex-col gap-5 items-center overflow-y-auto sm:flex-row h-fit w-full min-h-[350px]">
               <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
               <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
                 {user?.favorites.map((site) => (
@@ -131,7 +131,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col gap-5 px-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
+            <div className="flex flex-col gap-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
               <h3 className="-rotate-90 hidden sm:block w-3">Results</h3>
               <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
                 {user && (

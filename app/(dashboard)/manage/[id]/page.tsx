@@ -226,8 +226,8 @@ export default function Page({ params }: { params: { id: string } }) {
       {loading && <Spinner />}
       <div className="flex flex-col gap-5 h-full sm:flex-row">
         <NavDrawer user={user} />
-        <div className="flex flex-col h-full w-full gap-5">
-          <nav className="flex justify-between h-8 px-2 mt-2 items-center">
+        <div className="flex flex-col h-full w-full gap-5 px-5">
+          <nav className="flex justify-between h-8 mt-2 items-center">
             <a onClick={() => router.back()} className="cursor-pointer">
               <FontAwesomeIcon icon={faChevronLeft} /> Back
             </a>
@@ -239,7 +239,7 @@ export default function Page({ params }: { params: { id: string } }) {
               </DeployDialog>
             )}
           </nav>
-          <div className="flex items-center gap-2 flex-col h-full  px-5">
+          <div className="flex items-center gap-2 flex-col h-full">
             {site && (
               <VerticalCard className="h-full w-full">
                 <>
