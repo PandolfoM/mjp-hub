@@ -26,7 +26,7 @@ function Verify() {
   };
   return (
     <div className="flex w-full h-full flex-col justify-center">
-      <div className="bg-gradient-radial to-80% from-card/[10%] to-card/[2%] rounded-sm p-2 h-72 flex flex-col gap-5">
+      <div className="bg-gradient-radial to-80% from-card/20 to-card/5 rounded-sm p-2 h-72 flex flex-col gap-5">
         <h3 className="text-center text-lg">Create Password</h3>
         <form className="h-full flex flex-col" onSubmit={handleSubmit}>
           <div className="flex flex-col h-full gap-2">

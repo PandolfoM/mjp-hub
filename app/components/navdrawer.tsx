@@ -101,12 +101,14 @@ function NavDrawer({ children, user }: Props) {
             <Popout text="Dashboard">
               <FontAwesomeIcon
                 icon={faGauge}
+                onClick={() => handleRedirect("")}
                 className="w-1/2 h-auto cursor-pointer"
               />
             </Popout>
             <Popout text="Admin">
               <FontAwesomeIcon
                 icon={faHammer}
+                onClick={() => handleRedirect("admin")}
                 className="w-1/2 h-auto cursor-pointer"
               />
             </Popout>

@@ -74,7 +74,7 @@ export default function Home() {
       {loading && <Spinner />}
       <main className="flex flex-col gap-5 h-full sm:flex-row">
         <NavDrawer user={user} />
-        <div className="flex flex-col w-full gap-5">
+        <div className="flex flex-col h-full w-full gap-5">
           <nav className="flex justify-between h-8 px-2 mt-2 items-center sm:justify-end sm:h-auto">
             <NavDrawer user={user}>
               <FontAwesomeIcon
@@ -84,7 +84,7 @@ export default function Home() {
             </NavDrawer>
 
             <form
-              onClick={searchSites}
+              onSubmit={searchSites}
               className="px-2 hidden relative sm:flex">
               <Input
                 placeholder="Search..."

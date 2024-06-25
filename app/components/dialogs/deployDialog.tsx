@@ -70,7 +70,7 @@ function DeployDialog({ site, setSite, children }: Props) {
                     {site.deployments.map((deploy, i) => (
                       <div
                         key={i}
-                        className={`text-sm flex justify-between bg-card/[5%] p-2 rounded-sm gap-2 text-nowrap ${
+                        className={`text-sm flex justify-between bg-card/5 p-2 rounded-sm gap-2 text-nowrap ${
                           deploy.status === "pending"
                             ? "bg-warning/10"
                             : deploy.status === "failed"
@@ -117,7 +117,7 @@ function DeployDialog({ site, setSite, children }: Props) {
               </section>
             </div>
             <DialogFooter>
-              <section className="flex flex-col gap-2">
+              <section className="flex flex-col gap-2 w-full">
                 <Input
                   value={deployMessage}
                   placeholder="Message"

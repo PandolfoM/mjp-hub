@@ -3,19 +3,14 @@
 import { z } from "zod";
 import Button from "@/app/components/button";
 import VerticalCard from "@/app/components/verticalcard";
-import { DeploymentsI, Site, testSite } from "@/models/Site";
+import { DeploymentsI, Site } from "@/models/Site";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faX } from "@fortawesome/free-solid-svg-icons";
 import Spinner from "@/app/components/spinner";
-import {
-  FieldArrayWithId,
-  UseFormReturn,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { UseFormReturn, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -28,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
+import NavDrawer, { SimpleUser } from "@/app/components/navdrawer";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -45,6 +41,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const [user, setUser] = useState<SimpleUser | null>(null);
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -91,6 +88,15 @@ export default function Page({ params }: { params: { id: string } }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const getMe = async () => {
+      const me = await axios.get("/api/auth/me");
+      setUser(me.data.user);
+    };
+
+    getMe();
+  }, []);
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -218,38 +224,41 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <>
       {loading && <Spinner />}
-      <div className="flex flex-col gap-5 h-full">
-        <nav className="flex justify-between h-8 px-2 mt-2 items-center">
-          <a onClick={() => router.back()} className="cursor-pointer">
-            <FontAwesomeIcon icon={faChevronLeft} /> Back
-          </a>
-          {site && (
-            <DeployDialog site={site} setSite={setSite}>
-              <Button disabled={!site.repo} onClick={getDeployments}>
-                Deployments
-              </Button>
-            </DeployDialog>
-          )}
-        </nav>
-        <div className="flex items-center gap-2 flex-col h-full p-2">
-          {site && (
-            <VerticalCard className="min-h-full min-w-full">
-              <>
-                {isEdit ? (
-                  <Editing
-                    form={form}
-                    site={site}
-                    onSubmit={saveSite}
-                    deleteSite={deleteSite}
-                    setIsEdit={setIsEdit}
-                    error={error}
-                  />
-                ) : (
-                  <NotEditing site={site} />
-                )}
-              </>
-            </VerticalCard>
-          )}
+      <div className="flex flex-col gap-5 h-full sm:flex-row">
+        <NavDrawer user={user} />
+        <div className="flex flex-col h-full w-full gap-5">
+          <nav className="flex justify-between h-8 px-2 mt-2 items-center">
+            <a onClick={() => router.back()} className="cursor-pointer">
+              <FontAwesomeIcon icon={faChevronLeft} /> Back
+            </a>
+            {site && (
+              <DeployDialog site={site} setSite={setSite}>
+                <Button disabled={!site.repo} onClick={getDeployments}>
+                  Deployments
+                </Button>
+              </DeployDialog>
+            )}
+          </nav>
+          <div className="flex items-center gap-2 flex-col h-full  px-5">
+            {site && (
+              <VerticalCard className="h-full w-full">
+                <>
+                  {isEdit ? (
+                    <Editing
+                      form={form}
+                      site={site}
+                      onSubmit={saveSite}
+                      deleteSite={deleteSite}
+                      setIsEdit={setIsEdit}
+                      error={error}
+                    />
+                  ) : (
+                    <NotEditing site={site} />
+                  )}
+                </>
+              </VerticalCard>
+            )}
+          </div>
         </div>
       </div>
     </>
@@ -330,7 +339,7 @@ const EditingComponent = ({
                   control={form.control}
                   name={`env.${index}.key`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="w-1/2">
                       <FormControl>
                         <Input placeholder="Key" {...field} />
                       </FormControl>
@@ -342,7 +351,7 @@ const EditingComponent = ({
                   control={form.control}
                   name={`env.${index}.value`}
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="w-1/2">
                       <FormControl>
                         <Input placeholder="Value" {...field} />
                       </FormControl>
