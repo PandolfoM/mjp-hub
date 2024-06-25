@@ -17,12 +17,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Tooltip } from "@radix-ui/react-tooltip";
 import Popout from "./popout";
 import {
   HoverCard,
@@ -118,7 +112,7 @@ function NavDrawer({ children, user }: Props) {
             </Popout>
           </div>
           <div className="overflow-hidden flex flex-col gap-2 w-full items-center">
-            <HoverCard>
+            <HoverCard openDelay={0}>
               <HoverCardTrigger>
                 <FontAwesomeIcon
                   icon={faCircleUser}
