@@ -68,7 +68,7 @@ function Login() {
     <>
       {loading && <Spinner />}
       <div className="flex flex-col gap-3 items-center justify-center h-full w-full text-center">
-        <div className="flex flex-col w-[90%]">
+        <div className="flex flex-col w-[90%] sm:w-1/4">
           <h1 className="font-bold text-md mb-[20px]">MJP Hub</h1>
           <Form {...form}>
             <form
