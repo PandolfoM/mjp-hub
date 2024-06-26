@@ -15,6 +15,14 @@ import Button from "../button";
 import axios from "axios";
 import { format } from "date-fns";
 import Spinner from "../spinner";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Props = {
   site: Site;
@@ -64,7 +72,7 @@ function DeployDialog({ site, setSite, children }: Props) {
               <DialogTitle className="text-lg">Deployments</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col max-h-[30rem] overflow-hidden">
-              <section className="flex-1 overflow-y-auto gap-1 flex flex-col">
+              <section className="flex-1 overflow-y-auto gap-1 flex flex-col sm:hidden">
                 {site.deployments.length > 0 ? (
                   <>
                     {site.deployments.map((deploy, i) => (
@@ -114,6 +122,50 @@ function DeployDialog({ site, setSite, children }: Props) {
                     </p>
                   </>
                 )}
+              </section>
+              <section className="flex-1 overflow-y-auto gap-1 hidden flex-col sm:flex">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Started At</TableHead>
+                      <TableHead>Finished At</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {site.deployments.map((deploy, i) => (
+                      <TableRow
+                        key={i}
+                        className={`${
+                          deploy.status === "pending"
+                            ? "bg-warning/10"
+                            : deploy.status === "failed"
+                            ? "bg-error/10"
+                            : "bg-success/10"
+                        }`}>
+                        <TableCell>{deploy.title}</TableCell>
+                        <TableCell className="capitalize">
+                          {deploy.type}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {deploy.endTime
+                            ? format(deploy.endTime, "M/d/y hh:mm:ss a")
+                            : ""}
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          {deploy.status === "succeed"
+                            ? "Completed"
+                            : deploy.status}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </section>
             </div>
             <DialogFooter>
