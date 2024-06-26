@@ -101,6 +101,9 @@ function DeployDialog({ site, setSite, children, user }: Props) {
                               ? "Completed"
                               : deploy.status}
                           </p>
+                          <p className="text-ellipsis overflow-hidden">
+                            {deploy.deployedBy}
+                          </p>
                         </div>
                         <div className="text-right w-1/2 overflow-hidden">
                           <div>
@@ -155,7 +158,9 @@ function DeployDialog({ site, setSite, children, user }: Props) {
                         <TableCell className="capitalize">
                           {deploy.type}
                         </TableCell>
-                        <TableCell>{deploy.deployedBy}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {deploy.deployedBy}
+                        </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {format(deploy.startTime, "M/d/y hh:mm:ss a")}
                         </TableCell>
