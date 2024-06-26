@@ -232,7 +232,7 @@ export default function Page({ params }: { params: { id: string } }) {
               <FontAwesomeIcon icon={faChevronLeft} /> Back
             </a>
             {site && (
-              <DeployDialog site={site} setSite={setSite}>
+              <DeployDialog site={site} setSite={setSite} user={user}>
                 <Button disabled={!site.repo} onClick={getDeployments}>
                   Deployments
                 </Button>

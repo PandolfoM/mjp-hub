@@ -7,6 +7,7 @@ export interface DeploymentsI {
   jobId: string;
   endTime?: Date;
   status: string;
+  deployedBy: string;
 }
 
 export interface Site extends mongoose.Document {
@@ -56,6 +57,7 @@ const siteSchema = new mongoose.Schema({
       jobId: { type: String },
       endTime: { type: Date },
       status: { type: String },
+      deployedBy: { type: String },
     },
   ],
 });

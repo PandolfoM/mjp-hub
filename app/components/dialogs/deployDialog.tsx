@@ -23,14 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SimpleUser } from "../navdrawer";
 
 type Props = {
   site: Site;
   setSite: Dispatch<Site>;
   children: ReactNode;
+  user: SimpleUser | null;
 };
 
-function DeployDialog({ site, setSite, children }: Props) {
+function DeployDialog({ site, setSite, children, user }: Props) {
   const [deployMessage, setDeployMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -43,6 +45,7 @@ function DeployDialog({ site, setSite, children }: Props) {
         appId,
         message: deployMessage,
         type,
+        user,
       });
 
       setDeployMessage("");
@@ -72,14 +75,15 @@ function DeployDialog({ site, setSite, children }: Props) {
               <DialogTitle className="text-lg">Deployments</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col max-h-[30rem] overflow-hidden">
-              <section className="flex-1 overflow-y-auto gap-1 flex flex-col sm:hidden">
+              <section className="flex-1 overflow-y-auto gap-1 flex flex-col md:hidden">
                 {site.deployments.length > 0 ? (
                   <>
                     {site.deployments.map((deploy, i) => (
                       <div
                         key={i}
                         className={`text-sm flex justify-between bg-card/5 p-2 rounded-sm gap-2 text-nowrap ${
-                          deploy.status === "pending"
+                          deploy.status === "pending" ||
+                          deploy.status === "running"
                             ? "bg-warning/10"
                             : deploy.status === "failed"
                             ? "bg-error/10"
@@ -123,12 +127,13 @@ function DeployDialog({ site, setSite, children }: Props) {
                   </>
                 )}
               </section>
-              <section className="flex-1 overflow-y-auto gap-1 hidden flex-col sm:flex">
+              <section className="flex-1 overflow-y-auto gap-1 hidden flex-col md:flex">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Title</TableHead>
                       <TableHead>Type</TableHead>
+                      <TableHead>Deployed By</TableHead>
                       <TableHead>Started At</TableHead>
                       <TableHead>Finished At</TableHead>
                       <TableHead>Status</TableHead>
@@ -139,7 +144,8 @@ function DeployDialog({ site, setSite, children }: Props) {
                       <TableRow
                         key={i}
                         className={`${
-                          deploy.status === "pending"
+                          deploy.status === "pending" ||
+                          deploy.status === "running"
                             ? "bg-warning/10"
                             : deploy.status === "failed"
                             ? "bg-error/10"
@@ -149,6 +155,7 @@ function DeployDialog({ site, setSite, children }: Props) {
                         <TableCell className="capitalize">
                           {deploy.type}
                         </TableCell>
+                        <TableCell>{deploy.deployedBy}</TableCell>
                         <TableCell className="whitespace-nowrap">
                           {format(deploy.startTime, "M/d/y hh:mm:ss a")}
                         </TableCell>

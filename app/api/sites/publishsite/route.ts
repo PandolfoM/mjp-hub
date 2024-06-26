@@ -8,7 +8,7 @@ connect();
 
 export async function POST(request: NextRequest) {
   const req = await request.json();
-  const { appId, message, type } = req;
+  const { appId, message, type, user } = req;
 
   try {
     const deployParams = {
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       type,
       jobId: startDeploymentRes.jobSummary?.jobId,
       status: startDeploymentRes.jobSummary?.status?.toLowerCase(),
+      deployedBy: user.email,
     };
 
     const updatedSite = await Site.findOneAndUpdate(
