@@ -224,41 +224,38 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <>
       {loading && <Spinner />}
-      <div className="flex flex-col h-full sm:flex-row">
-        <NavDrawer user={user} />
-        <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
-          <nav className="flex justify-between items-center">
-            <a onClick={() => router.back()} className="cursor-pointer">
-              <FontAwesomeIcon icon={faChevronLeft} /> Back
-            </a>
-            {site && (
-              <DeployDialog site={site} setSite={setSite} user={user}>
-                <Button disabled={!site.repo} onClick={getDeployments}>
-                  Deployments
-                </Button>
-              </DeployDialog>
-            )}
-          </nav>
-          <div className="flex items-center gap-2 flex-col h-full">
-            {site && (
-              <VerticalCard className="h-full w-full">
-                <>
-                  {isEdit ? (
-                    <Editing
-                      form={form}
-                      site={site}
-                      onSubmit={saveSite}
-                      deleteSite={deleteSite}
-                      setIsEdit={setIsEdit}
-                      error={error}
-                    />
-                  ) : (
-                    <NotEditing site={site} />
-                  )}
-                </>
-              </VerticalCard>
-            )}
-          </div>
+      <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
+        <nav className="flex justify-between items-center">
+          <a onClick={() => router.back()} className="cursor-pointer">
+            <FontAwesomeIcon icon={faChevronLeft} /> Back
+          </a>
+          {site && (
+            <DeployDialog site={site} setSite={setSite} user={user}>
+              <Button disabled={!site.repo} onClick={getDeployments}>
+                Deployments
+              </Button>
+            </DeployDialog>
+          )}
+        </nav>
+        <div className="flex items-center gap-2 flex-col h-full">
+          {site && (
+            <VerticalCard className="h-full w-full">
+              <>
+                {isEdit ? (
+                  <Editing
+                    form={form}
+                    site={site}
+                    onSubmit={saveSite}
+                    deleteSite={deleteSite}
+                    setIsEdit={setIsEdit}
+                    error={error}
+                  />
+                ) : (
+                  <NotEditing site={site} />
+                )}
+              </>
+            </VerticalCard>
+          )}
         </div>
       </div>
     </>

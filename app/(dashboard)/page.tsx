@@ -72,89 +72,84 @@ export default function Home() {
   return (
     <>
       {loading && <Spinner />}
-      <main className="flex flex-col h-full sm:flex-row">
-        <NavDrawer user={user} />
-        <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
-          <nav className="flex justify-between items-center sm:justify-end sm:h-auto gap-2">
-            <NavDrawer user={user}>
-              <FontAwesomeIcon
-                className="cursor-pointer w-5 h-auto"
-                icon={faBars}
-              />
-            </NavDrawer>
+      <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
+        <nav className="flex justify-between items-center sm:justify-end sm:h-auto gap-2">
+          <NavDrawer user={user}>
+            <FontAwesomeIcon
+              className="cursor-pointer w-5 h-auto"
+              icon={faBars}
+            />
+          </NavDrawer>
 
-            <form
-              onSubmit={searchSites}
-              className="px-2 hidden relative sm:flex">
-              <Input
-                placeholder="Search..."
-                className="w-[300px] rounded-r-none"
-                onChange={handleSearchChange}
-              />
-              <Button
-                variant="filled"
-                type="submit"
-                className="bg-primary rounded-l-none">
-                <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
-              </Button>
-            </form>
+          <form onSubmit={searchSites} className="px-2 hidden relative sm:flex">
+            <Input
+              placeholder="Search..."
+              className="w-[300px] rounded-r-none"
+              onChange={handleSearchChange}
+            />
+            <Button
+              variant="filled"
+              type="submit"
+              className="bg-primary rounded-l-none">
+              <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
+            </Button>
+          </form>
 
-            <form
-              onSubmit={searchSites}
-              className="flex w-full relative sm:hidden">
-              <Input
-                placeholder="Search..."
-                className="flex-1 rounded-r-none"
-                onChange={handleSearchChange}
-              />
-              <Button
-                variant="filled"
-                type="submit"
-                className="bg-primary rounded-l-none aspect-square">
-                <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
-              </Button>
-            </form>
-            <NewSiteDialog>
-              <Button className="sm:h-full whitespace-nowrap h-full">
-                New Site
-              </Button>
-            </NewSiteDialog>
-          </nav>
+          {/* <form
+            onSubmit={searchSites}
+            className="flex w-full relative sm:hidden">
+            <Input
+              placeholder="Search..."
+              className="flex-1 rounded-r-none"
+              onChange={handleSearchChange}
+            />
+            <Button
+              variant="filled"
+              type="submit"
+              className="bg-primary rounded-l-none aspect-square">
+              <FontAwesomeIcon icon={faPaperPlane} className="w-4" />
+            </Button>
+          </form> */}
+          <NewSiteDialog>
+            <Button className="sm:h-full whitespace-nowrap h-full">
+              New Site
+            </Button>
+          </NewSiteDialog>
+        </nav>
 
-          <section className="h-full flex flex-col items-center overflow-hidden sm:justify-around">
-            <div className="hidden sm:flex flex-col gap-5 items-center overflow-y-auto sm:flex-row h-fit w-full min-h-[350px]">
-              <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
-              <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
-                {user?.favorites.map((site) => (
-                  <SiteCard
-                    key={site._id}
-                    site={site}
-                    user={user}
-                    setUser={setUser}
-                  />
-                ))}
-              </div>
+        <section className="h-full flex flex-col items-center overflow-hidden sm:justify-around">
+          <div className="hidden sm:flex flex-col gap-5 items-center overflow-y-auto sm:flex-row h-fit w-full min-h-[350px]">
+            <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
+            <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
+              {user?.favorites.map((site) => (
+                <SiteCard
+                  key={site._id}
+                  site={site}
+                  user={user}
+                  setUser={setUser}
+                />
+              ))}
             </div>
-            <div className="flex flex-col gap-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
-              <h3 className="-rotate-90 hidden sm:block w-3">Results</h3>
-              <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
-                {user && (
-                  <>
-                    {sites.map((site) => (
-                      <SiteCard
-                        key={site._id}
-                        site={site}
-                        user={user}
-                        setUser={setUser}
-                      />
-                    ))}
-                  </>
-                )}
-              </div>
+          </div>
+          <div className="flex flex-col gap-5 items-center overflow-y-auto sm:flex-row w-full h-full sm:h-fit min-h-[350px]">
+            <h3 className="-rotate-90 hidden sm:block w-3">Results</h3>
+            <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
+              {user && (
+                <>
+                  {sites.map((site) => (
+                    <SiteCard
+                      key={site._id}
+                      site={site}
+                      user={user}
+                      setUser={setUser}
+                    />
+                  ))}
+                </>
+              )}
             </div>
-          </section>
-        </div>
-      </main>
+          </div>
+        </section>
+      </div>
     </>
   );
 }
