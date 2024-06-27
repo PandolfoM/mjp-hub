@@ -1,6 +1,7 @@
 import { connect } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { jwtDecode } from "jwt-decode";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
@@ -13,10 +14,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "No token found" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(
-      token.value,
-      process.env.TOKEN_SECRET as string
-    ) as jwt.JwtPayload;
+    const decoded = jwtDecode(token.value) as jwt.JwtPayload;
 
     if (!decoded || !decoded.id) {
       return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
