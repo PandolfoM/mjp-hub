@@ -143,39 +143,45 @@ function DeployDialog({ site, setSite, children, user }: Props) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {site.deployments.map((deploy, i) => (
-                      <TableRow
-                        key={i}
-                        className={`${
-                          deploy.status === "pending" ||
-                          deploy.status === "running"
-                            ? "bg-warning/10"
-                            : deploy.status === "failed"
-                            ? "bg-error/10"
-                            : "bg-success/10"
-                        }`}>
-                        <TableCell>{deploy.title}</TableCell>
-                        <TableCell className="capitalize">
-                          {deploy.type}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {deploy.deployedBy}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {format(deploy.startTime, "M/d/y hh:mm:ss a")}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {deploy.endTime
-                            ? format(deploy.endTime, "M/d/y hh:mm:ss a")
-                            : ""}
-                        </TableCell>
-                        <TableCell className="capitalize">
-                          {deploy.status === "succeed"
-                            ? "Completed"
-                            : deploy.status}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {site.deployments
+                      .sort(
+                        (a, b) =>
+                          new Date(b.startTime).getTime() -
+                          new Date(a.startTime).getTime()
+                      )
+                      .map((deploy, i) => (
+                        <TableRow
+                          key={i}
+                          className={`${
+                            deploy.status === "pending" ||
+                            deploy.status === "running"
+                              ? "bg-warning/10"
+                              : deploy.status === "failed"
+                              ? "bg-error/10"
+                              : "bg-success/10"
+                          }`}>
+                          <TableCell>{deploy.title}</TableCell>
+                          <TableCell className="capitalize">
+                            {deploy.type}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {deploy.deployedBy}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {deploy.endTime
+                              ? format(deploy.endTime, "M/d/y hh:mm:ss a")
+                              : ""}
+                          </TableCell>
+                          <TableCell className="capitalize">
+                            {deploy.status === "succeed"
+                              ? "Completed"
+                              : deploy.status}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </section>
