@@ -17,6 +17,12 @@ export default function RootLayout({
     <html
       lang="en"
       className="dark dark:bg-background dark:text-white h-full w-full relative">
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
+      </head>
       <body className={`h-full w-full ${inter.className}`}>
         <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
       </body>
