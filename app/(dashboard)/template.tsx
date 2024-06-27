@@ -13,9 +13,15 @@ export default function Template({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const getMe = async () => {
       setLoading(true);
-      const me = await axios.get("/api/auth/me");
-      setLoading(false);
-      setUser(me.data.user);
+      try {
+        const me = await axios.get("/api/auth/me");
+        setUser(me.data.user);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+        setUser(null);
+        setLoading(false);
+      }
     };
 
     getMe();
