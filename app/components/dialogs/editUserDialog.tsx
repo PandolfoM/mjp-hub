@@ -24,10 +24,10 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useUser } from "@/app/context/UserContext";
 
 type Props = {
   user: SimpleUser;
-  currentUser: SimpleUser | null;
   children: ReactNode;
   setUsers: Dispatch<SetStateAction<User[]>>;
 };
@@ -41,7 +41,8 @@ const formSchema = z.object({
   name: z.string().min(1, { message: "Required" }),
 });
 
-function EditUserDialog({ user, currentUser, children, setUsers }: Props) {
+function EditUserDialog({ user, children, setUsers }: Props) {
+  const { user: currentUser } = useUser();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");

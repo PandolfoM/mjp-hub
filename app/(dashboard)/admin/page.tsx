@@ -27,6 +27,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useUser } from "@/app/context/UserContext";
 
 const formSchema = z.object({
   email: z
@@ -36,8 +37,8 @@ const formSchema = z.object({
 });
 
 function Admin() {
+  const { user: currentUser } = useUser();
   const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<SimpleUser | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [ID, setID] = useState<string>("");
@@ -57,9 +58,6 @@ function Admin() {
         const res = await fetch("/api/users/getusers");
         const data = await res.json();
         setUsers(data.data);
-
-        const me = await axios.get("/api/auth/me");
-        setCurrentUser(me.data.user);
 
         setLoading(false);
       } catch (error) {
@@ -111,7 +109,7 @@ function Admin() {
       {loading && <Spinner />}
       <div className="flex flex-col h-full w-full gap-5">
         <nav className="flex justify-between h-8 px-2 mt-2 items-center">
-          <NavDrawer user={currentUser}>
+          <NavDrawer>
             <FontAwesomeIcon
               className="cursor-pointer sm:hidden w-5 h-auto"
               icon={faBars}
@@ -144,10 +142,7 @@ function Admin() {
                       </p>
                     )}
                     <div className="flex gap-2 justify-end">
-                      <EditUserDialog
-                        user={user}
-                        currentUser={currentUser}
-                        setUsers={setUsers}>
+                      <EditUserDialog user={user} setUsers={setUsers}>
                         <Button
                           variant="filled"
                           className="bg-primary h-10"

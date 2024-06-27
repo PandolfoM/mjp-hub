@@ -26,10 +26,10 @@ import {
 import { Site } from "@/models/Site";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "../context/UserContext";
 
 type Props = {
   children?: ReactNode;
-  user: SimpleUser | null;
 };
 
 export interface SimpleUser {
@@ -41,7 +41,8 @@ export interface SimpleUser {
   favorites: Site[];
 }
 
-function NavDrawer({ children, user }: Props) {
+function NavDrawer({ children }: Props) {
+  const { user } = useUser();
   const router = useRouter();
 
   const handleLogout = async () => {

@@ -2,24 +2,32 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import NavDrawer, { SimpleUser } from "../components/navdrawer";
+import NavDrawer from "../components/navdrawer";
+import Spinner from "../components/spinner";
+import { UserProvider, useUser } from "../context/UserContext";
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<SimpleUser | null>(null);
+  const { user, setUser } = useUser();
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getMe = async () => {
+      setLoading(true);
       const me = await axios.get("/api/auth/me");
+      setLoading(false);
       setUser(me.data.user);
     };
 
     getMe();
-  }, []);
+  }, [setUser]);
 
   return (
-    <main className="flex flex-col h-full sm:flex-row">
-      <NavDrawer user={user} />
-      {children}
-    </main>
+    <>
+      {loading && <Spinner />}
+      <main className="flex flex-col h-full sm:flex-row">
+        <NavDrawer />
+        {children}
+      </main>
+    </>
   );
 }
