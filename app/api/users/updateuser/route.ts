@@ -10,75 +10,100 @@ connect();
 export async function POST(request: NextRequest) {
   try {
     const req = await request.json();
-    const { user, email, password, updateSelf } = req;
+    const { user, email, name, password, updateSelf } = req;
 
-    if (user.email === email) {
+    if (user.email === email && user.name === name) {
       return NextResponse.json(
-        { error: "Email is the same", success: false },
+        { error: "No data has changed", success: false },
         { status: 500 }
       );
     }
 
     if (updateSelf) {
-      // Get the token from cookies
-      const token = request.cookies.get("token");
+      if (password) {
+        // Get the token from cookies
+        const token = request.cookies.get("token");
 
-      if (!token) {
-        return NextResponse.json(
-          { error: "No token found", success: false },
-          { status: 500 }
+        if (!token) {
+          return NextResponse.json(
+            { error: "No token found", success: false },
+            { status: 500 }
+          );
+        }
+
+        // Verify and decode the token
+        const decoded: any = jwtDecode(token.value);
+
+        if (!decoded) {
+          return NextResponse.json(
+            { error: "Invalid token", success: false },
+            { status: 500 }
+          );
+        }
+
+        // Get the user ID from the decoded token
+        // const userId = decoded.id as string;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Fetch the user from the database and update the password
+        const updateUser = await User.findOneAndUpdate(
+          { _id: user._id },
+          {
+            password: hashedPassword,
+            name,
+            email,
+          },
+          { new: true }
         );
-      }
 
-      // Verify and decode the token
-      const decoded: any = jwtDecode(token.value);
+        if (!updateUser) {
+          return NextResponse.json(
+            { error: "User not found", success: false },
+            { status: 500 }
+          );
+        }
 
-      if (!decoded) {
-        return NextResponse.json(
-          { error: "Invalid token", success: false },
-          { status: 500 }
+        const tokenData = {
+          id: user._id,
+          email: user.email,
+          tempPassword: user.tempPassword,
+        };
+
+        const updateToken = await jwt.sign(
+          tokenData,
+          process.env.TOKEN_SECRET!,
+          {
+            expiresIn: "1d",
+          }
         );
-      }
 
-      // Get the user ID from the decoded token
-      // const userId = decoded.id as string;
+        const response = NextResponse.json({ success: true, user: updateUser });
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+        response.cookies.set("token", updateToken, {
+          httpOnly: true,
+        });
 
-      // Fetch the user from the database and update the password
-      const updateUser = await User.findOneAndUpdate(
-        { _id: user._id },
-        {
-          password: hashedPassword,
-          email,
-        },
-        { new: true }
-      );
-
-      if (!updateUser) {
-        return NextResponse.json(
-          { error: "User not found", success: false },
-          { status: 500 }
+        return response;
+      } else {
+        const updateUser = await User.findOneAndUpdate(
+          { _id: user._id },
+          {
+            name,
+            email,
+          },
+          { new: true }
         );
+
+        if (!updateUser) {
+          return NextResponse.json(
+            { error: "User not found", success: false },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({ success: true, user: updateUser });
       }
-
-      const tokenData = {
-        id: user._id,
-        email: user.email,
-        tempPassword: user.tempPassword,
-      };
-
-      const updateToken = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, {
-        expiresIn: "1d",
-      });
-
-      const response = NextResponse.json({ success: true, user: updateUser });
-
-      response.cookies.set("token", updateToken, {
-        httpOnly: true,
-      });
-
-      return response;
     } else {
       const password = generateTempPassword();
       const expireAt = new Date();
@@ -89,6 +114,7 @@ export async function POST(request: NextRequest) {
         { _id: user._id },
         {
           email,
+          name,
           tempPassword: true,
           password,
           expireAt,

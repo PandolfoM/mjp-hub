@@ -33,6 +33,7 @@ type Props = {
 export interface SimpleUser {
   _id: string;
   email: string;
+  name: string;
   tempPassword: boolean;
   expireAt?: Date;
   favorites: Site[];
