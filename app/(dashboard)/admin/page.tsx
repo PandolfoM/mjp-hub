@@ -17,14 +17,38 @@ import { User } from "@/models/User";
 import axios from "axios";
 import { DeleteDialog } from "../../components/dialogs";
 import EditUserDialog from "../../components/dialogs/editUserDialog";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  email: z
+    .string({ required_error: "Required" })
+    .email({ message: "Not a valid email" }),
+  name: z.string().min(1, { message: "Required" }),
+});
 
 function Admin() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<SimpleUser | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [ID, setID] = useState<string>("");
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -47,19 +71,20 @@ function Admin() {
     fetchUsers();
   }, []);
 
-  const createUser = async () => {
+  const createUser = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
       const createUser = await axios.post("/api/users/createuser", {
-        email,
+        email: data.email,
+        name: data.name,
       });
+
       setUsers(createUser.data.users);
       await axios.post("/api/sendemail", {
-        email,
+        email: data.email,
         password: createUser.data.password,
       });
-      setEmail("");
-      setError("");
+      form.reset();
       setLoading(false);
     } catch (error: any) {
       setLoading(false);
@@ -100,8 +125,17 @@ function Admin() {
               {users.map((user, i) => (
                 <AccordionItem key={i} value={user.email}>
                   <AccordionTrigger
-                    className={user.tempPassword ? "text-error" : ""}>
-                    {user.email}
+                    className={
+                      user.tempPassword
+                        ? "text-error overflow-hidden"
+                        : "overflow-hidden"
+                    }>
+                    <div className="whitespace-nowrap overflow-hidden text-ellipsis">
+                      {user.name}{" "}
+                      <span className="text-sm text-white/50  ">
+                        ({user.email})
+                      </span>
+                    </div>
                   </AccordionTrigger>
                   <AccordionContent className="flex gap-2 justify-between items-center">
                     {user.tempPassword && (
@@ -140,20 +174,51 @@ function Admin() {
               <AccordionItem value="new-user">
                 <AccordionTrigger>Add User</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 justify-end">
-                  <div className="flex gap-2 justify-end">
-                    <Input
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <Button
-                      variant="filled"
-                      className="bg-success"
-                      onClick={createUser}>
-                      Create
-                    </Button>
-                  </div>
-
+                  <Form {...form}>
+                    <form
+                      onSubmit={form.handleSubmit(createUser)}
+                      className="flex flex-col gap-2 justify-end sm:flex-row">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem className="sm:w-full space-y-0">
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder="Email"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem className="sm:w-full space-y-0">
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Name"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="submit"
+                        variant="filled"
+                        className="bg-success sm:mt-0 h-[40px]"
+                        disabled={loading}>
+                        Create
+                      </Button>
+                    </form>
+                  </Form>
                   {error && <p className="text-sm text-error">{error}</p>}
                 </AccordionContent>
               </AccordionItem>

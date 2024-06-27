@@ -7,7 +7,7 @@ connect();
 export async function POST(request: NextRequest) {
   try {
     const req = await request.json();
-    const { email } = req;
+    const { email, name } = req;
 
     const existingUser = await User.findOne({ email });
 
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     const newUser = new User({
       email,
+      name,
       password,
       tempPassword: true,
       expireAt,
