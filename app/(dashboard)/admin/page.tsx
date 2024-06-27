@@ -3,20 +3,20 @@
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import NavDrawer, { SimpleUser } from "../components/navdrawer";
-import Spinner from "../components/spinner";
+import NavDrawer, { SimpleUser } from "../../components/navdrawer";
+import Spinner from "../../components/spinner";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Button from "../components/button";
+import Button from "../../components/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@/models/User";
 import axios from "axios";
-import { DeleteDialog } from "../components/dialogs";
-import EditUserDialog from "../components/dialogs/editUserDialog";
+import { DeleteDialog } from "../../components/dialogs";
+import EditUserDialog from "../../components/dialogs/editUserDialog";
 
 function Admin() {
   const [users, setUsers] = useState<User[]>([]);
