@@ -24,6 +24,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Site } from "@/models/Site";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   children?: ReactNode;
@@ -117,19 +119,23 @@ function NavDrawer({ children, user }: Props) {
           <div className="overflow-hidden flex flex-col gap-2 w-full items-center">
             <HoverCard openDelay={0}>
               <HoverCardTrigger>
-                <FontAwesomeIcon
-                  icon={faCircleUser}
-                  className="w-7 h-auto cursor-pointer"
-                />
+                {user ? (
+                  <Avatar className="bg-primary cursor-pointer w-9 h-auto aspect-square">
+                    <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Skeleton className="rounded-full w-9 h-auto aspect-square" />
+                )}
               </HoverCardTrigger>
               <HoverCardContent side="right" align="end" sideOffset={20}>
                 <div className="flex flex-col w-full gap-5 text-md items-start">
                   {user && (
                     <div className="flex items-center gap-2 overflow-hidden">
-                      <FontAwesomeIcon
-                        icon={faCircleUser}
-                        className="w-7 h-auto"
-                      />{" "}
+                      <Avatar className="bg-primary cursor-pointer w-7 h-7 text-sm">
+                        <AvatarFallback>
+                          {getInitials(user.name)}
+                        </AvatarFallback>
+                      </Avatar>
                       <p className="whitespace-nowrap text-ellipsis overflow-hidden">
                         {user.email}
                       </p>
@@ -150,5 +156,15 @@ function NavDrawer({ children, user }: Props) {
     </>
   );
 }
+
+const getInitials = (name: string) => {
+  const words = name.split(" ");
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  } else if (words.length >= 2) {
+    return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+  }
+  return "";
+};
 
 export default NavDrawer;
