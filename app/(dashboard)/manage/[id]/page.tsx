@@ -224,10 +224,10 @@ export default function Page({ params }: { params: { id: string } }) {
   return (
     <>
       {loading && <Spinner />}
-      <div className="flex flex-col gap-5 h-full sm:flex-row">
+      <div className="flex flex-col h-full sm:flex-row">
         <NavDrawer user={user} />
-        <div className="flex flex-col h-full w-full gap-5 px-5">
-          <nav className="flex justify-between h-8 mt-2 items-center">
+        <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
+          <nav className="flex justify-between items-center">
             <a onClick={() => router.back()} className="cursor-pointer">
               <FontAwesomeIcon icon={faChevronLeft} /> Back
             </a>
