@@ -3,15 +3,16 @@ import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const createPassword = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
-    const { password } = req;
+    const request = await req.json();
+    const { password } = request;
     // Get the token from cookies
-    const token = request.cookies.get("token");
+    const token = req.cookies.get("token");
 
     if (!token) {
       return NextResponse.json(
@@ -76,4 +77,6 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(createPassword);

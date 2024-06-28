@@ -1,13 +1,14 @@
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const createUser = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
-    const { email, name } = req;
+    const request = await req.json();
+    const { email, name } = request;
 
     const existingUser = await User.findOne({ email });
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error, success: false }, { status: 500 });
   }
-}
+};
 
 function generateTempPassword(length = 12) {
   const characters =
@@ -59,3 +60,5 @@ function generateTempPassword(length = 12) {
   }
   return password;
 }
+
+export const POST = withAuth(createUser);

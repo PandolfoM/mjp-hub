@@ -3,13 +3,14 @@ import { DeleteAppCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const deleteSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
-    const { site } = req;
+    const reqBody = await req.json();
+    const { site } = reqBody;
 
     const deleteLiveSite = new DeleteAppCommand({ appId: site.appId });
     await amplifyClient.send(deleteLiveSite);
@@ -24,4 +25,6 @@ export async function POST(request: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(deleteSite);

@@ -1,4 +1,5 @@
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 import Site, { testSite } from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
 import { CreateAppCommand, Platform } from "@aws-sdk/client-amplify";
@@ -6,9 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const createSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const reqBody = await request.json();
+    const reqBody = await req.json();
     const { title } = reqBody;
 
     const liveAppParams = {
@@ -63,4 +64,6 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(createSite);

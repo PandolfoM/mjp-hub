@@ -1,10 +1,11 @@
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 import User from "@/models/User";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
-export async function GET() {
+const getUsers = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const users = await User.find();
 
@@ -26,4 +27,6 @@ export async function GET() {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+};
+
+export const GET = withAuth(getUsers);

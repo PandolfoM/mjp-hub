@@ -8,39 +8,41 @@ import {
 import Site from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const updateSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
+    const reqBody = await req.json();
+    const { site, form } = reqBody;
 
     const updateDB = await Site.findOneAndUpdate(
-      { _id: req.site._id },
+      { _id: site._id },
       {
-        repo: req.form.repo,
-        env: req.form.env,
-        testURL: req.form.testURL,
-        liveURL: req.form.liveURL,
+        repo: form.repo,
+        env: form.env,
+        testURL: form.testURL,
+        liveURL: form.liveURL,
       },
       { new: true }
     );
 
-    const environmentVariables = req.form.env.reduce((acc: any, curr: any) => {
+    const environmentVariables = form.env.reduce((acc: any, curr: any) => {
       acc[curr.key] = curr.value;
       return acc;
     }, {});
 
     const updateTestParams = {
-      appId: req.site.testAppId,
-      repository: req.form.repo,
+      appId: site.testAppId,
+      repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
     };
 
     const updateLiveParams = {
-      appId: req.site.appId,
-      repository: req.form.repo,
+      appId: site.appId,
+      repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
     };
@@ -50,10 +52,10 @@ export async function POST(request: NextRequest) {
     const updateLiveSite = new UpdateAppCommand(updateLiveParams);
     const updateLiveRes = await amplifyClient.send(updateLiveSite);
 
-    if (!req.site.branchCreated) {
+    if (!site.branchCreated) {
       try {
         const branchLiveParams = {
-          appId: req.site.appId,
+          appId: site.appId,
           branchName: "main",
           stage: Stage.PRODUCTION,
           enableAutoBuild: false,
@@ -66,7 +68,7 @@ export async function POST(request: NextRequest) {
         await amplifyClient.send(createLiveBranchCommand);
 
         const branchTestParams = {
-          appId: req.site.testAppId,
+          appId: site.testAppId,
           branchName: "main",
           stage: Stage.PRODUCTION,
           enableAutoBuild: false,
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
         await amplifyClient.send(createTestBranchCommand);
 
         await Site.findOneAndUpdate(
-          { _id: req.site._id },
+          { _id: site._id },
           {
             branchCreated: true,
           },
@@ -90,13 +92,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (req.form.testURL !== req.site.testURL && req.form.testURL !== "") {
+    if (form.testURL !== site.testURL && form.testURL !== "") {
       const updateTestURL = new CreateDomainAssociationCommand({
-        appId: req.site.testAppId,
-        domainName: getDomainName(req.form.testURL),
+        appId: site.testAppId,
+        domainName: getDomainName(form.testURL),
         subDomainSettings: [
           {
-            prefix: getSubDomain(req.form.testURL),
+            prefix: getSubDomain(form.testURL),
             branchName: "main",
           },
         ],
@@ -104,10 +106,10 @@ export async function POST(request: NextRequest) {
       await amplifyClient.send(updateTestURL);
     }
 
-    if (req.form.liveURL !== req.site.liveURL && req.form.liveURL !== "") {
+    if (form.liveURL !== site.liveURL && form.liveURL !== "") {
       const updateLiveURL = new CreateDomainAssociationCommand({
-        appId: req.site.appId,
-        domainName: req.form.liveURL,
+        appId: site.appId,
+        domainName: form.liveURL,
         subDomainSettings: [
           {
             prefix: "",
@@ -126,7 +128,7 @@ export async function POST(request: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+};
 
 function getSubDomain(domain: string) {
   const parts = domain.split(".");
@@ -143,3 +145,5 @@ function getDomainName(domain: string) {
   }
   return parts.slice(-2).join(".");
 }
+
+export const POST = withAuth(updateSite);

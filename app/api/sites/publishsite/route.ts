@@ -3,12 +3,13 @@ import { JobType, StartJobCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
-  const req = await request.json();
-  const { appId, message, type, user } = req;
+const publishSite = async (req: NextRequest): Promise<NextResponse> => {
+  const reqBody = await req.json();
+  const { appId, message, type, user } = reqBody;
 
   try {
     const deployParams = {
@@ -46,4 +47,6 @@ export async function POST(request: NextRequest) {
     console.error("Error creating site and triggering deploy:", e);
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(publishSite);

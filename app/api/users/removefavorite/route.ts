@@ -1,13 +1,13 @@
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
-
-export async function POST(request: NextRequest) {
+const removeFavorite = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
-    const { uid, siteId } = req;
+    const request = await req.json();
+    const { uid, siteId } = request;
 
     const updateUser = await User.findOneAndUpdate(
       {
@@ -28,6 +28,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, user: updateUser });
   } catch (error) {
+    console.error("Error in removeFavorite:", error);
     return NextResponse.json({ error, success: false }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(removeFavorite);

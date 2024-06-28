@@ -4,13 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { jwtDecode } from "jwt-decode";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
+const updateUser = async (req: NextRequest): Promise<NextResponse> => {
   try {
-    const req = await request.json();
-    const { user, email, name, password, updateSelf } = req;
+    const request = await req.json();
+    const { user, email, name, password, updateSelf } = request;
 
     if (user.email === email && user.name === name) {
       return NextResponse.json(
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-}
+};
 
 function generateTempPassword(length = 12) {
   const characters =
@@ -146,3 +147,5 @@ function generateTempPassword(length = 12) {
   }
   return password;
 }
+
+export const POST = withAuth(updateUser);

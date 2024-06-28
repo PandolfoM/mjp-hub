@@ -1,8 +1,9 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 import AccountCreated from "@/emails/accountCreated";
+import { withAuth } from "@/middleware/auth";
 
-export async function POST(req: NextRequest) {
+const sendEmail = async (req: NextRequest): Promise<NextResponse> => {
   if (!process.env.RESEND_API_KEY) {
     console.error("no resend api key");
     return NextResponse.json(
@@ -33,4 +34,6 @@ export async function POST(req: NextRequest) {
     console.error("Unexpected error:", error);
     return NextResponse.json({ error }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(sendEmail);

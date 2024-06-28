@@ -23,8 +23,6 @@ const formSchema = z.object({
 
 function Verify() {
   const router = useRouter();
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({

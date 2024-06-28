@@ -1,10 +1,11 @@
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 import Site from "@/models/Site";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
-export async function POST(req: NextRequest) {
+const getSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
     const { id } = reqBody;
@@ -28,4 +29,6 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(getSite);

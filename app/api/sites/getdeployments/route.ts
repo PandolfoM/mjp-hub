@@ -3,12 +3,13 @@ import { GetJobCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
 import amplifyClient from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
+import { withAuth } from "@/middleware/auth";
 
 connect();
 
-export async function POST(request: NextRequest) {
-  const req = await request.json();
-  const { siteId, appId, testAppId } = req;
+const getDeployments = async (req: NextRequest): Promise<NextResponse> => {
+  const reqBody = await req.json();
+  const { siteId, appId, testAppId } = reqBody;
 
   try {
     const deploymentsRes = await Site.findById(siteId);
@@ -57,4 +58,6 @@ export async function POST(request: NextRequest) {
     console.error("Error getting deployments:", error);
     return NextResponse.json({ error }, { status: 500 });
   }
-}
+};
+
+export const POST = withAuth(getDeployments);
