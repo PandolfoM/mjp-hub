@@ -103,26 +103,20 @@ function NavDrawer({ children }: Props) {
         <aside className="hidden sm:flex bg-card/5 h-full w-16 p-2 flex-col items-center justify-between">
           <div className="flex flex-col w-full gap-5 text-md items-center">
             <Popout text="Dashboard">
-              <Button
-                variant="ghost"
-                className="p-0"
-                onClick={() => handleRedirect("")}>
+              <div onClick={() => handleRedirect("")}>
                 <FontAwesomeIcon
                   icon={faGauge}
                   className="w-1/2 h-auto cursor-pointer"
                 />
-              </Button>
+              </div>
             </Popout>
             <Popout text="Admin">
-              <Button
-                variant="ghost"
-                className="p-0"
-                onClick={() => handleRedirect("admin")}>
+              <div onClick={() => handleRedirect("admin")}>
                 <FontAwesomeIcon
                   icon={faHammer}
                   className="w-1/2 h-auto cursor-pointer"
                 />
-              </Button>
+              </div>
             </Popout>
           </div>
           <div className="overflow-hidden flex flex-col gap-2 w-full items-center">
