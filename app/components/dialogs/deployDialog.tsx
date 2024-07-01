@@ -24,15 +24,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SimpleUser } from "../navdrawer";
+import { useUser } from "@/app/context/UserContext";
 
 type Props = {
   site: Site;
   setSite: Dispatch<Site>;
   children: ReactNode;
-  user: SimpleUser | null;
 };
 
-function DeployDialog({ site, setSite, children, user }: Props) {
+function DeployDialog({ site, setSite, children }: Props) {
+  const { user } = useUser();
   const [deployMessage, setDeployMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
