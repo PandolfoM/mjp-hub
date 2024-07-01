@@ -2,13 +2,14 @@ import { connect } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { jwtDecode } from "jwt-decode";
-import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 connect();
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const token = req.cookies.get("token");
+    const token = cookies().get("token");
 
     if (!token) {
       return NextResponse.json({ error: "No token found" }, { status: 401 });

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { jwtDecode } from "jwt-decode";
 import { withAuth } from "@/middleware/auth";
+import { cookies } from "next/headers";
 
 connect();
 
@@ -23,7 +24,7 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
     if (updateSelf) {
       if (password) {
         // Get the token from cookies
-        const token = request.cookies.get("token");
+        const token = cookies().get("token");
 
         if (!token) {
           return NextResponse.json(

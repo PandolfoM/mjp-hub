@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -10,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const isPublicPath = path === "/login";
 
   // Get the token from the cookies
-  const token = request.cookies.get("token")?.value || "";
+  const token = cookies().get("token")?.value || "";
 
   // Redirect logic based on the path and token presence
   if (isPublicPath && token) {

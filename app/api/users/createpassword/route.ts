@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { withAuth } from "@/middleware/auth";
+import { cookies } from "next/headers";
 
 connect();
 
@@ -12,7 +13,7 @@ const createPassword = async (req: NextRequest): Promise<NextResponse> => {
     const request = await req.json();
     const { password } = request;
     // Get the token from cookies
-    const token = req.cookies.get("token");
+    const token = cookies().get("token");
 
     if (!token) {
       return NextResponse.json(

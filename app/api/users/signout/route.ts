@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE() {
   try {
     // Check if the token is present in cookies
-    const token = req.cookies.get("token");
+    const token = cookies().get("token");
 
     if (!token) {
       return NextResponse.json({ error: "No token found" }, { status: 401 });
