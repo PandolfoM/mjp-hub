@@ -4,10 +4,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import NavDrawer from "../components/navdrawer";
 import Spinner from "../components/spinner";
-import { UserProvider, useUser } from "../context/UserContext";
+import { useUser } from "../context/UserContext";
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -19,7 +19,13 @@ export default function Template({ children }: { children: React.ReactNode }) {
         setLoading(false);
       } catch (error) {
         console.log(error);
-        setUser(null);
+        setUser({
+          _id: "0",
+          email: "",
+          favorites: [],
+          name: "",
+          tempPassword: false,
+        });
         setLoading(false);
       }
     };

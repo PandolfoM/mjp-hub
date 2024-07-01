@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ user });
   } catch (error: any) {
-    return NextResponse.json({ error }, { status: 500 });
+    throw new Error(error);
+
+    // return NextResponse.json({ error }, { status: 500 });
   }
 }
