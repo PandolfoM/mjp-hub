@@ -135,7 +135,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     fetchSite();
-  }, [params.id, router]);
+  }, [params.id, router, form]);
 
   const NotEditing = ({ site }: { site: Site }) => {
     return (
