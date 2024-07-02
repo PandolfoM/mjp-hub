@@ -15,6 +15,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
       setLoading(true);
       try {
         const me = await axios.post("/api/auth/me");
+        console.log(me.data.user);
+
         setUser(me.data.user);
         setLoading(false);
       } catch (error) {
