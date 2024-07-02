@@ -5,10 +5,9 @@ import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-connect();
-
 export async function GET() {
   try {
+    await connect();
     const token = cookies().get("token")?.value;
 
     if (!token) {
