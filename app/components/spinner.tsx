@@ -1,6 +1,6 @@
 function Spinner() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-[99999] bg-black bg-opacity-70 pointer-events-none">
+    <div className="absolute inset-0 flex items-center justify-center z-[99999] bg-black bg-opacity-70">
       <div className="w-full min-h-screen flex items-center justify-center">
         <div className="flex space-x-2">
           <span className="sr-only">Loading...</span>
