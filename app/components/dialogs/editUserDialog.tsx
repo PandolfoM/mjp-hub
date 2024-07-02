@@ -27,7 +27,7 @@ import {
 import { useUser } from "@/app/context/UserContext";
 
 type Props = {
-  user: SimpleUser;
+  user: User;
   children: ReactNode;
   setUsers: Dispatch<SetStateAction<User[]>>;
 };
