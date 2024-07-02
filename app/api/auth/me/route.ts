@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 export async function POST() {
   try {
     await connect();
+
     const token = cookies().get("token")?.value;
 
     if (!token) {
