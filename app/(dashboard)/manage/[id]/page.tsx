@@ -41,7 +41,6 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [user, setUser] = useState<SimpleUser | null>(null);
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -88,15 +87,6 @@ export default function Page({ params }: { params: { id: string } }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const getMe = async () => {
-      const me = await axios.get("/api/auth/me");
-      setUser(me.data.user);
-    };
-
-    getMe();
-  }, []);
 
   useEffect(() => {
     const fetchSite = async () => {

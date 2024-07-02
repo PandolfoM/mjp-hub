@@ -9,13 +9,19 @@ connect();
 
 export async function GET() {
   try {
-    const token = cookies().get("token");
+    const token = cookies().get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "No token found" }, { status: 401 });
     }
 
-    const decoded = jwtDecode(token.value) as jwt.JwtPayload;
+    let decoded;
+    try {
+      decoded = jwtDecode(token) as jwt.JwtPayload;
+    } catch (error) {
+      console.error("JWT Error:", error);
+      return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
+    }
 
     if (!decoded || !decoded.id) {
       return NextResponse.json({ error: "Invalid Token" }, { status: 401 });
@@ -31,6 +37,11 @@ export async function GET() {
 
     return NextResponse.json({ user });
   } catch (error: any) {
-    return NextResponse.json({ error }, { status: 500 });
+    console.log(error);
+
+    return NextResponse.json(
+      { error: error.message || "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

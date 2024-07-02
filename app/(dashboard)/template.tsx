@@ -19,13 +19,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         setLoading(false);
       } catch (error) {
         console.log(error);
-        setUser({
-          _id: "0",
-          email: "",
-          favorites: [],
-          name: "",
-          tempPassword: false,
-        });
+        setUser(null);
         setLoading(false);
       }
     };
