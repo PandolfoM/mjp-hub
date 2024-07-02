@@ -29,7 +29,8 @@ export async function POST() {
 
     const user = await User.findById(decoded.id)
       .select("-password")
-      .populate("favorites");
+      .populate("favorites")
+      .exec();
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });

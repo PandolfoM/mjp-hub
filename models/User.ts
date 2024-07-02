@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
-import { Site } from "./Site";
 
 export interface User extends mongoose.Document {
   _id: string;
@@ -8,7 +7,7 @@ export interface User extends mongoose.Document {
   name: string;
   tempPassword: boolean;
   expireAt?: Date;
-  favorites: Site[];
+  favorites: mongoose.Types.ObjectId[];
 }
 
 const userSchema = new mongoose.Schema({
