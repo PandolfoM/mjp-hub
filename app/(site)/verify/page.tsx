@@ -2,7 +2,6 @@
 
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
-import Button from "../components/button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -15,6 +14,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import Button from "@/app/components/button";
 
 const formSchema = z.object({
   password: z.string().min(1, { message: "Required" }),

@@ -2,27 +2,22 @@
 
 import { Input } from "@/components/ui/input";
 import { Site } from "@/models/Site";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBars,
-  faChevronLeft,
-  faChevronRight,
-  faPaperPlane,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import NavDrawer from "../components/navdrawer";
-import Spinner from "../components/spinner";
 import { NewSiteDialog } from "../components/dialogs";
 import axios from "axios";
 import SiteCard from "../components/siteCard";
 import { useUser } from "../context/UserContext";
+import { useSite } from "../context/SiteContext";
 
 export default function Home() {
+  const { setLoading } = useSite();
   const { user, favorites } = useUser();
   const [sites, setSites] = useState<Site[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchSites = async () => {
@@ -41,7 +36,7 @@ export default function Home() {
     };
 
     fetchSites();
-  }, []);
+  }, [setLoading]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -66,7 +61,6 @@ export default function Home() {
 
   return (
     <>
-      {loading && <Spinner />}
       <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5 overflow-hidden">
         <nav className="flex justify-between items-center sm:justify-end sm:h-auto gap-2">
           <NavDrawer>

@@ -3,20 +3,20 @@
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import NavDrawer, { SimpleUser } from "../../components/navdrawer";
-import Spinner from "../../components/spinner";
+import NavDrawer, { SimpleUser } from "../../../components/navdrawer";
+import Spinner from "../../../components/spinner";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Button from "../../components/button";
+import Button from "../../../components/button";
 import { Input } from "@/components/ui/input";
 import { User } from "@/models/User";
 import axios from "axios";
-import { DeleteDialog } from "../../components/dialogs";
-import EditUserDialog from "../../components/dialogs/editUserDialog";
+import { DeleteDialog } from "../../../components/dialogs";
+import EditUserDialog from "../../../components/dialogs/editUserDialog";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useUser } from "@/app/context/UserContext";
+import { useSite } from "@/app/context/SiteContext";
 
 const formSchema = z.object({
   email: z
@@ -38,8 +39,8 @@ const formSchema = z.object({
 
 function Admin() {
   const { user: currentUser } = useUser();
+  const { loading, setLoading } = useSite();
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [ID, setID] = useState<string>("");
 
@@ -67,7 +68,7 @@ function Admin() {
     };
 
     fetchUsers();
-  }, []);
+  }, [setLoading]);
 
   const createUser = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
@@ -106,7 +107,6 @@ function Admin() {
 
   return (
     <>
-      {loading && <Spinner />}
       <div className="flex flex-col h-full w-full gap-5">
         <nav className="flex justify-between h-8 px-2 mt-2 items-center">
           <NavDrawer>

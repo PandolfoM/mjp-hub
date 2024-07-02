@@ -1,5 +1,6 @@
 "use client";
 
+import { SiteProvider } from "../context/SiteContext";
 import { UserProvider } from "../context/UserContext";
 
 export default function DashboardLayout({
@@ -7,5 +8,9 @@ export default function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <UserProvider>{children}</UserProvider>;
+  return (
+    <UserProvider>
+      <SiteProvider>{children}</SiteProvider>
+    </UserProvider>
+  );
 }

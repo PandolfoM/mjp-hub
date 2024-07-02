@@ -1,10 +1,9 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { z } from "zod";
 import axios from "axios";
-import Button from "../components/button";
-import Spinner from "../components/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -15,6 +14,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useSite } from "@/app/context/SiteContext";
+import Button from "@/app/components/button";
 
 const formSchema = z.object({
   email: z
@@ -25,8 +26,8 @@ const formSchema = z.object({
 
 function Login() {
   const router = useRouter();
+  const { loading, setLoading } = useSite();
   const [isMounted, setIsMounted] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,7 +67,6 @@ function Login() {
 
   return (
     <>
-      {loading && <Spinner />}
       <div className="flex flex-col gap-3 items-center justify-center h-full w-full text-center">
         <div className="flex flex-col w-[90%] md:w-2/4 lg:w-1/4">
           <h1 className="font-bold text-md mb-[20px]">MJP Hub</h1>

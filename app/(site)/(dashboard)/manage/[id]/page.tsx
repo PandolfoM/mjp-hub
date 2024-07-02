@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
-import NavDrawer, { SimpleUser } from "@/app/components/navdrawer";
+import { useSite } from "@/app/context/SiteContext";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -41,9 +41,9 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { setLoading } = useSite();
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -125,7 +125,7 @@ export default function Page({ params }: { params: { id: string } }) {
     };
 
     fetchSite();
-  }, [params.id, router, form]);
+  }, [params.id, router, form, setLoading]);
 
   const NotEditing = ({ site }: { site: Site }) => {
     return (
@@ -213,7 +213,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <>
-      {loading && <Spinner />}
       <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
         <nav className="flex justify-between items-center">
           <a onClick={() => router.back()} className="cursor-pointer">
