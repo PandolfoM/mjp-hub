@@ -79,49 +79,55 @@ function DeployDialog({ site, setSite, children }: Props) {
               <section className="flex-1 overflow-y-auto gap-1 flex flex-col md:hidden">
                 {site.deployments.length > 0 ? (
                   <>
-                    {site.deployments.map((deploy, i) => (
-                      <div
-                        key={i}
-                        className={`text-sm flex justify-between bg-card/5 p-2 rounded-sm gap-2 text-nowrap ${
-                          deploy.status === "pending" ||
-                          deploy.status === "running"
-                            ? "bg-warning/10"
-                            : deploy.status === "failed"
-                            ? "bg-error/10"
-                            : "bg-success/10"
-                        }`}>
-                        <div className="w-1/2 overflow-hidden">
-                          <p className="text-ellipsis overflow-hidden">
-                            {deploy.title}
-                          </p>
-                          <p className="text-ellipsis overflow-hidden">
-                            Type: {deploy.type}
-                          </p>
-                          <p className="capitalize text-ellipsis overflow-hidden">
-                            {deploy.status === "succeed"
-                              ? "Completed"
-                              : deploy.status}
-                          </p>
-                          <p className="text-ellipsis overflow-hidden">
-                            {deploy.deployedBy}
-                          </p>
-                        </div>
-                        <div className="text-right w-1/2 overflow-hidden">
-                          <div>
-                            <p>
-                              Started:{" "}
-                              {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                    {site.deployments
+                      .sort(
+                        (a, b) =>
+                          new Date(b.startTime).getTime() -
+                          new Date(a.startTime).getTime()
+                      )
+                      .map((deploy, i) => (
+                        <div
+                          key={i}
+                          className={`text-sm flex justify-between bg-card/5 p-2 rounded-sm gap-2 text-nowrap ${
+                            deploy.status === "pending" ||
+                            deploy.status === "running"
+                              ? "bg-warning/10"
+                              : deploy.status === "failed"
+                              ? "bg-error/10"
+                              : "bg-success/10"
+                          }`}>
+                          <div className="w-1/2 overflow-hidden">
+                            <p className="text-ellipsis overflow-hidden">
+                              {deploy.title}
                             </p>
-                            {deploy.endTime && (
+                            <p className="text-ellipsis overflow-hidden">
+                              Type: {deploy.type}
+                            </p>
+                            <p className="capitalize text-ellipsis overflow-hidden">
+                              {deploy.status === "succeed"
+                                ? "Completed"
+                                : deploy.status}
+                            </p>
+                            <p className="text-ellipsis overflow-hidden">
+                              {deploy.deployedBy}
+                            </p>
+                          </div>
+                          <div className="text-right w-1/2 overflow-hidden">
+                            <div>
                               <p>
-                                Finished:{" "}
-                                {format(deploy.endTime, "M/d/y hh:mm:ss a")}
+                                Started:{" "}
+                                {format(deploy.startTime, "M/d/y hh:mm:ss a")}
                               </p>
-                            )}
+                              {deploy.endTime && (
+                                <p>
+                                  Finished:{" "}
+                                  {format(deploy.endTime, "M/d/y hh:mm:ss a")}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </>
                 ) : (
                   <>
