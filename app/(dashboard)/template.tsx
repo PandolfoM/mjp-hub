@@ -7,17 +7,21 @@ import Spinner from "../components/spinner";
 import { useUser } from "../context/UserContext";
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  const { setUser } = useUser();
+  const { user, setUser, setFavorites } = useUser();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getMe = async () => {
       setLoading(true);
       try {
-        const me = await axios.post("/api/auth/me");
-        console.log(me.data.user);
-
+        const me = await axios.get("/api/auth/me");
         setUser(me.data.user);
+
+        const favs = await axios.post("/api/auth/getfavorites", {
+          favs: me.data.user.favorites,
+        });
+        setFavorites(favs.data.favorites);
+
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -26,8 +30,8 @@ export default function Template({ children }: { children: React.ReactNode }) {
       }
     };
 
-    getMe();
-  }, [setUser]);
+    !user && getMe();
+  }, [user, setUser, setFavorites]);
 
   return (
     <>

@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function POST() {
+export async function GET() {
   try {
     await connect();
 
