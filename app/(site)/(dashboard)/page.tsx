@@ -90,7 +90,7 @@ export default function Home() {
           </NewSiteDialog>
         </nav>
 
-        <section className="h-full flex flex-col items-center gap-1 overflow-y-auto sm:justify-around">
+        <section className="h-full flex flex-col items-center gap-1 overflow-y-auto sm:justify-around heightSm:pt-10 heightXs:pt-20 heightXxs:pt-32">
           <div className="hidden sm:flex flex-col gap-5 items-center sm:flex-row h-fit w-full min-h-[350px]">
             <h3 className="-rotate-90 hidden sm:block w-3">Favorites</h3>
             <div className="flex flex-col gap-2 w-full items-center h-full overflow-y-auto sm:flex-row sm:justify-start">
