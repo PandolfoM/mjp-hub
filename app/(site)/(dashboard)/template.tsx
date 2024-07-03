@@ -1,14 +1,14 @@
 "use client";
 
 import axios from "axios";
-import { useEffect, useState } from "react";
-import NavDrawer from "../components/navdrawer";
-import Spinner from "../components/spinner";
-import { useUser } from "../context/UserContext";
+import { useEffect } from "react";
+import { useUser } from "../../context/UserContext";
+import NavDrawer from "@/app/components/navdrawer";
+import { useSite } from "@/app/context/SiteContext";
 
 export default function Template({ children }: { children: React.ReactNode }) {
   const { user, setUser, setFavorites } = useUser();
-  const [loading, setLoading] = useState<boolean>(false);
+  const { setLoading } = useSite();
 
   useEffect(() => {
     const getMe = async () => {
@@ -31,11 +31,10 @@ export default function Template({ children }: { children: React.ReactNode }) {
     };
 
     !user && getMe();
-  }, [user, setUser, setFavorites]);
+  }, [user, setUser, setFavorites, setLoading]);
 
   return (
     <>
-      {loading && <Spinner />}
       <main className="flex flex-col h-full sm:flex-row">
         <NavDrawer />
         {children}

@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -25,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { SimpleUser } from "../navdrawer";
 import { useUser } from "@/app/context/UserContext";
+import { useSite } from "@/app/context/SiteContext";
 
 type Props = {
   site: Site;
@@ -34,12 +36,12 @@ type Props = {
 
 function DeployDialog({ site, setSite, children }: Props) {
   const { user } = useUser();
+  const { loading, setLoading } = useSite();
   const [deployMessage, setDeployMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const deploySite = async (type: "live" | "test") => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const appId = type === "test" ? site.testAppId : site.appId;
       const deploySite = await axios.post("/api/sites/publishsite", {
@@ -52,7 +54,7 @@ function DeployDialog({ site, setSite, children }: Props) {
       setDeployMessage("");
       setError("");
       setSite(deploySite.data.updatedSite);
-      setIsLoading(false);
+      setLoading(false);
     } catch (error: any) {
       const err: string = error.response.data.error;
       setError(
@@ -60,13 +62,12 @@ function DeployDialog({ site, setSite, children }: Props) {
           ? "Job already running"
           : err
       );
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <>
-      {isLoading && <Spinner />}
       <Dialog>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogPortal>
@@ -201,23 +202,33 @@ function DeployDialog({ site, setSite, children }: Props) {
                   onChange={(e: any) => setDeployMessage(e.target.value)}
                 />
                 {error && <p className="text-sm text-error">{error}</p>}
-                <div className="flex gap-2">
-                  <Button
-                    disabled={!deployMessage || isLoading}
-                    className="w-20"
-                    onClick={() => {
-                      deploySite("test");
-                    }}>
-                    Test
-                  </Button>
-                  <Button
-                    disabled={!deployMessage || isLoading || !site.liveURL}
-                    className="w-20"
-                    onClick={() => {
-                      deploySite("live");
-                    }}>
-                    Live
-                  </Button>
+                <div className="flex gap-2 justify-between">
+                  <div className="flex gap-2">
+                    <Button
+                      disabled={!deployMessage || loading}
+                      className="w-20"
+                      onClick={() => {
+                        deploySite("test");
+                      }}>
+                      Test
+                    </Button>
+                    <Button
+                      disabled={!deployMessage || loading || !site.liveURL}
+                      className="w-20"
+                      onClick={() => {
+                        deploySite("live");
+                      }}>
+                      Live
+                    </Button>
+                  </div>
+                  <DialogClose asChild>
+                    <Button
+                      variant="outline"
+                      disabled={loading}
+                      className="w-20 border-white/50">
+                      Close
+                    </Button>
+                  </DialogClose>
                 </div>
               </section>
             </DialogFooter>

@@ -3,7 +3,7 @@
 import { SiteProvider } from "../context/SiteContext";
 import { UserProvider } from "../context/UserContext";
 
-export default function DashboardLayout({
+export default function HomeLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

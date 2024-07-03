@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogOverlay,
@@ -25,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useUser } from "@/app/context/UserContext";
+import { useSite } from "@/app/context/SiteContext";
 
 type Props = {
   user: User;
@@ -36,14 +38,12 @@ const formSchema = z.object({
   email: z
     .string({ required_error: "Required" })
     .email({ message: "Not a valid email" }),
-  password: z.string().min(1, { message: "Required" }).optional(),
-  confirmPassword: z.string().min(1, { message: "Required" }).optional(),
   name: z.string().min(1, { message: "Required" }),
 });
 
 function EditUserDialog({ user, children, setUsers }: Props) {
-  const { user: currentUser } = useUser();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { user: currentUser, setUser } = useUser();
+  const { loading, setLoading } = useSite();
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
 
@@ -52,12 +52,7 @@ function EditUserDialog({ user, children, setUsers }: Props) {
   });
 
   const updateUser = async (data: z.infer<typeof formSchema>) => {
-    setIsLoading(true);
-
-    if (data.password !== data.confirmPassword) {
-      setIsLoading(false);
-      return setError("Passwords do not match");
-    }
+    setLoading(true);
 
     try {
       const updateSelf = currentUser?._id === user._id;
@@ -65,7 +60,6 @@ function EditUserDialog({ user, children, setUsers }: Props) {
         user,
         email: data.email,
         name: data.name,
-        password: updateSelf ? data.password : null,
         updateSelf,
       });
 
@@ -76,20 +70,24 @@ function EditUserDialog({ user, children, setUsers }: Props) {
             : user
         )
       );
+
+      if (updateSelf) {
+        setUser(updateUser.data.user);
+      }
+
       setSuccess("Saved");
       setTimeout(() => {
         setSuccess("");
       }, 2000);
-      setIsLoading(false);
+      setLoading(false);
     } catch (error: any) {
       setError(error.response.data.error);
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <>
-      {isLoading && <Spinner />}
       <Dialog>
         <DialogTrigger asChild>{children}</DialogTrigger>
         <DialogPortal>
@@ -112,7 +110,6 @@ function EditUserDialog({ user, children, setUsers }: Props) {
                         <FormItem className="sm:w-full space-y-0">
                           <FormControl>
                             <Input
-                              autoFocus
                               type="email"
                               placeholder="Email"
                               {...field}
@@ -129,66 +126,32 @@ function EditUserDialog({ user, children, setUsers }: Props) {
                       render={({ field }) => (
                         <FormItem className="sm:w-full space-y-0">
                           <FormControl>
-                            <Input
-                              autoFocus
-                              type="text"
-                              placeholder="Name"
-                              {...field}
-                            />
+                            <Input type="text" placeholder="Name" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    {currentUser?._id === user._id && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="password"
-                          render={({ field }) => (
-                            <FormItem className="sm:w-full space-y-0">
-                              <FormControl>
-                                <Input
-                                  type="password"
-                                  placeholder="Password"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="confirmPassword"
-                          render={({ field }) => (
-                            <FormItem className="sm:w-full space-y-0">
-                              <FormControl>
-                                <Input
-                                  autoFocus
-                                  type="password"
-                                  placeholder="Confirm Password"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </>
-                    )}
                     <section className="flex flex-col gap-2">
                       {success && (
                         <p className="text-sm text-success">{success}</p>
                       )}
                       {error && <p className="text-sm text-error">{error}</p>}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 justify-between">
                         <Button
-                          disabled={isLoading}
+                          disabled={loading}
                           className="w-20"
                           type="submit">
                           Save
                         </Button>
+                        <DialogClose asChild>
+                          <Button
+                            variant="outline"
+                            disabled={loading}
+                            className="sm:w-20 border-white/50">
+                            Close
+                          </Button>
+                        </DialogClose>
                       </div>
                     </section>
                   </form>

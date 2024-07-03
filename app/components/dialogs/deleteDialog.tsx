@@ -33,19 +33,17 @@ function DeleteDialog({ name, children, onClick }: Props) {
             <p>Are you sure you want to delete {name}</p>
           </div>
           <DialogFooter>
-            <section className="flex gap-2">
-              <DialogClose asChild>
-                <Button variant="outline" className="w-20 border-white/50">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                variant="filled"
-                className="w-20 bg-error"
-                onClick={onClick}>
-                Confirm
+            <Button
+              variant="filled"
+              className="w-20 bg-error"
+              onClick={onClick}>
+              Confirm
+            </Button>
+            <DialogClose asChild>
+              <Button variant="outline" className="w-20 border-white/50">
+                Cancel
               </Button>
-            </section>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </DialogPortal>

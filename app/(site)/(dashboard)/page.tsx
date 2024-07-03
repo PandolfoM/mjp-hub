@@ -3,15 +3,15 @@
 import { Input } from "@/components/ui/input";
 import { Site } from "@/models/Site";
 import { useEffect, useState } from "react";
-import Button from "../components/button";
+import Button from "../../components/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import NavDrawer from "../components/navdrawer";
-import { NewSiteDialog } from "../components/dialogs";
+import NavDrawer from "../../components/navdrawer";
+import { NewSiteDialog } from "../../components/dialogs";
 import axios from "axios";
-import SiteCard from "../components/siteCard";
-import { useUser } from "../context/UserContext";
-import { useSite } from "../context/SiteContext";
+import SiteCard from "../../components/siteCard";
+import { useUser } from "../../context/UserContext";
+import { useSite } from "../../context/SiteContext";
 
 export default function Home() {
   const { setLoading } = useSite();

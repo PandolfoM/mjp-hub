@@ -6,12 +6,12 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import React, { ReactNode, useEffect, useState } from "react";
-import Link from "next/link";
 import Button from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleUser,
   faGauge,
+  faGear,
   faHammer,
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
@@ -27,6 +27,8 @@ import { Site } from "@/models/Site";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "../context/UserContext";
+import { useSite } from "../context/SiteContext";
+import SettingsDialog from "./dialogs/settingsDialog";
 
 type Props = {
   children?: ReactNode;
@@ -42,24 +44,31 @@ export interface SimpleUser {
 }
 
 function NavDrawer({ children }: Props) {
+  const { setLoading } = useSite();
   const { user } = useUser();
   const router = useRouter();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const handleLogout = async () => {
+    setLoading(true);
     try {
       await axios.delete("/api/users/signout");
       router.push("/login");
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
   const handleRedirect = (route: string) => {
+    setLoading(true);
     router.push(`/${route}`);
   };
 
   return (
     <>
+      <SettingsDialog isOpen={isOpen} setIsOpen={setIsOpen} />
       {children ? (
         <Drawer direction="left">
           <DrawerTrigger asChild className="sm:hidden">
@@ -89,6 +98,9 @@ function NavDrawer({ children }: Props) {
                       <p className="whitespace-nowrap text-ellipsis overflow-hidden">
                         {user.email}
                       </p>
+                      <Button onClick={handleLogout}>
+                        <FontAwesomeIcon icon={faGear} />
+                      </Button>
                     </div>
                   )}
                   <Button onClick={handleLogout}>
@@ -142,6 +154,12 @@ function NavDrawer({ children }: Props) {
                       <p className="whitespace-nowrap text-ellipsis overflow-hidden">
                         {user.email}
                       </p>
+                      <Button
+                        variant="ghost"
+                        className="no-underline py-0 px-0"
+                        onClick={() => setIsOpen(true)}>
+                        <FontAwesomeIcon icon={faGear} />
+                      </Button>
                     </div>
                   )}
                   <Button

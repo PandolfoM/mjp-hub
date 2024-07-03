@@ -1,5 +1,6 @@
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import Button from "../button";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSite } from "@/app/context/SiteContext";
 
 type Props = {
   children: ReactNode;
@@ -20,20 +22,20 @@ type Props = {
 
 function NewSiteDialog({ children }: Props) {
   const [title, setTitle] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { setLoading, loading } = useSite();
   const router = useRouter();
 
   const createSite = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const createSite = await axios.post("/api/sites/createsite", {
         title,
       });
-      setIsLoading(false);
+      setLoading(false);
       router.push(`/manage/${createSite.data.id}`);
     } catch (e) {
       console.log(e);
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -52,11 +54,19 @@ function NewSiteDialog({ children }: Props) {
           />
           <DialogFooter>
             <Button
-              disabled={!title || isLoading}
-              className="w-20"
+              disabled={!title || loading}
+              className="sm:w-20"
               onClick={createSite}>
               Create
             </Button>
+            <DialogClose asChild>
+              <Button
+                variant="outline"
+                disabled={loading}
+                className="sm:w-20 border-white/50">
+                Close
+              </Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </DialogPortal>
