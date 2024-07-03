@@ -12,7 +12,7 @@ connect();
 const updateUser = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const request = await req.json();
-    const { user, email, name, password, updateSelf } = request;
+    const { user, email, name, password, permissions, updateSelf } = request;
 
     if (user.email === email && user.name === name) {
       return NextResponse.json(

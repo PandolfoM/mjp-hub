@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/dialog";
 import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import Button from "../button";
-import { SimpleUser } from "../navdrawer";
-import Spinner from "../spinner";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { User } from "@/models/User";
@@ -27,6 +25,7 @@ import {
 } from "@/components/ui/form";
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
+import MultipleSelector from "@/components/ui/multipleselctor";
 
 type Props = {
   user: User;
@@ -34,12 +33,25 @@ type Props = {
   setUsers: Dispatch<SetStateAction<User[]>>;
 };
 
+const permissionsSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  disable: z.boolean().optional(),
+});
+
 const formSchema = z.object({
   email: z
     .string({ required_error: "Required" })
     .email({ message: "Not a valid email" }),
   name: z.string().min(1, { message: "Required" }),
+  permissions: z.array(permissionsSchema).optional(),
 });
+
+const Permissions = [
+  { label: "Admin", value: "admin" },
+  { label: "Developer", value: "dev" },
+  { label: "Users", value: "users" },
+];
 
 function EditUserDialog({ user, children, setUsers }: Props) {
   const { user: currentUser, setUser } = useUser();
@@ -60,6 +72,7 @@ function EditUserDialog({ user, children, setUsers }: Props) {
         user,
         email: data.email,
         name: data.name,
+        permissions: data.permissions,
         updateSelf,
       });
 
@@ -97,7 +110,7 @@ function EditUserDialog({ user, children, setUsers }: Props) {
               <DialogTitle className="text-lg">Edit User</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col max-h-[30rem]">
-              <section className="flex-1 overflow-y-auto flex flex-col">
+              <section className="flex-1 overflow-y-visible flex flex-col">
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(updateUser)}
@@ -127,6 +140,24 @@ function EditUserDialog({ user, children, setUsers }: Props) {
                         <FormItem className="sm:w-full space-y-0">
                           <FormControl>
                             <Input type="text" placeholder="Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="permissions"
+                      render={({ field }) => (
+                        <FormItem className="sm:w-full space-y-0">
+                          <FormControl>
+                            <MultipleSelector
+                              {...field}
+                              defaultOptions={Permissions}
+                              placeholder="Permissions"
+                              hidePlaceholderWhenSelected={true}
+                              emptyIndicator={<p>No results.</p>}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
