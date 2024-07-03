@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
 import { useSite } from "@/app/context/SiteContext";
+import { useUser } from "@/app/context/UserContext";
+import { Permissions } from "@/utils/permissions";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -41,6 +43,7 @@ const formSchema = z.object({
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { hasPermission } = useUser();
   const { setLoading } = useSite();
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -138,6 +141,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <Button
               variant="ghost"
               className="text-sm"
+              disabled={hasPermission(Permissions.User)}
               onClick={() => setIsEdit(true)}>
               Edit
             </Button>
@@ -220,7 +224,13 @@ export default function Page({ params }: { params: { id: string } }) {
           </a>
           {site && (
             <DeployDialog site={site} setSite={setSite}>
-              <Button disabled={!site.repo} onClick={getDeployments}>
+              <Button
+                disabled={
+                  !site.repo ||
+                  hasPermission(Permissions.User) ||
+                  hasPermission(Permissions.Manage)
+                }
+                onClick={getDeployments}>
                 Deployments
               </Button>
             </DeployDialog>

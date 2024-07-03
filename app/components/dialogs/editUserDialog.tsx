@@ -55,7 +55,7 @@ const formSchema = z.object({
     .string({ required_error: "Required" })
     .email({ message: "Not a valid email" }),
   name: z.string().min(1, { message: "Required" }),
-  permission: z.string().optional(),
+  permission: z.string().min(1, { message: "Required" }),
 });
 
 const FormPermissions = [

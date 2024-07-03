@@ -148,7 +148,11 @@ function NavDrawer({ children }: Props) {
                   <Skeleton className="rounded-full w-9 h-auto aspect-square" />
                 )}
               </HoverCardTrigger>
-              <HoverCardContent side="right" align="end" sideOffset={20}>
+              <HoverCardContent
+                side="right"
+                align="end"
+                sideOffset={20}
+                className="w-fit">
                 <div className="flex flex-col w-full gap-5 text-md items-start">
                   {user && (
                     <div className="flex items-center gap-2 overflow-hidden">
