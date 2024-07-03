@@ -23,8 +23,9 @@ export async function POST(request: NextRequest) {
 
     //check if password is correct
     const validPassword = await bcrypt.compare(password, user.password);
+
     if (!validPassword) {
-      return NextResponse.json({ error: "Invlid password" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid password" }, { status: 400 });
     }
 
     //create token data
@@ -53,6 +54,9 @@ export async function POST(request: NextRequest) {
     // Set the token as an HTTP-only cookie
     response.cookies.set("token", token, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict", // CSRF protection
+      maxAge: 60 * 60 * 24,
     });
 
     return response;

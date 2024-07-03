@@ -1,6 +1,7 @@
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 import User from "@/models/User";
+import bcrypt from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
@@ -35,6 +36,7 @@ const createUser = async (req: NextRequest): Promise<NextResponse> => {
       tempPassword: true,
       expireAt,
       favorites: [],
+      permission: "user",
     });
     await newUser.save();
 
@@ -50,7 +52,7 @@ const createUser = async (req: NextRequest): Promise<NextResponse> => {
   }
 };
 
-function generateTempPassword(length = 12) {
+function generateTempPassword(length = 8) {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let password = "";

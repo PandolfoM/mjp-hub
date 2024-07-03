@@ -12,9 +12,13 @@ connect();
 const updateUser = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const request = await req.json();
-    const { user, email, name, password, permissions, updateSelf } = request;
+    const { user, email, name, password, permission, updateSelf } = request;
 
-    if (user.email === email && user.name === name) {
+    if (
+      user.email === email &&
+      user.name === name &&
+      user.permission === permission
+    ) {
       return NextResponse.json(
         { error: "No data has changed", success: false },
         { status: 500 }
@@ -55,6 +59,7 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
             password: hashedPassword,
             name,
             email,
+            permission,
           },
           { new: true }
         );
@@ -84,6 +89,9 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
 
         response.cookies.set("token", updateToken, {
           httpOnly: true,
+          secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
+          sameSite: "strict", // CSRF protection
+          maxAge: 60 * 60 * 24,
         });
 
         return response;
@@ -93,6 +101,7 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
           {
             name,
             email,
+            permission,
           },
           { new: true }
         );
@@ -107,19 +116,12 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
         return NextResponse.json({ success: true, user: updateUser });
       }
     } else {
-      const password = generateTempPassword();
-      const expireAt = new Date();
-
-      // Expires in 7 days
-      expireAt.setDate(expireAt.getDate() + 7);
       const updateUser = await User.findOneAndUpdate(
         { _id: user._id },
         {
           email,
           name,
-          tempPassword: true,
-          password,
-          expireAt,
+          permission,
         },
         { new: true }
       );

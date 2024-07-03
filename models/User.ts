@@ -8,6 +8,7 @@ export interface User extends mongoose.Document {
   tempPassword: boolean;
   expireAt?: Date;
   favorites: mongoose.Types.ObjectId[];
+  permission: string;
 }
 
 const userSchema = new mongoose.Schema({
@@ -17,6 +18,7 @@ const userSchema = new mongoose.Schema({
   tempPassword: { type: Boolean },
   expireAt: { type: Date },
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Site" }],
+  permission: { type: String },
 });
 
 userSchema.pre("save", async function (next) {

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import React, { Dispatch, ReactNode, SetStateAction, useState } from "react";
 import Button from "../button";
+import { Button as ComboButton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { User } from "@/models/User";
@@ -26,6 +27,22 @@ import {
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
 import MultipleSelector from "@/components/ui/multipleselctor";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { Permissions } from "@/utils/permissions";
 
 type Props = {
   user: User;
@@ -33,28 +50,23 @@ type Props = {
   setUsers: Dispatch<SetStateAction<User[]>>;
 };
 
-const permissionsSchema = z.object({
-  label: z.string(),
-  value: z.string(),
-  disable: z.boolean().optional(),
-});
-
 const formSchema = z.object({
   email: z
     .string({ required_error: "Required" })
     .email({ message: "Not a valid email" }),
   name: z.string().min(1, { message: "Required" }),
-  permissions: z.array(permissionsSchema).optional(),
+  permission: z.string().optional(),
 });
 
-const Permissions = [
+const FormPermissions = [
   { label: "Admin", value: "admin" },
   { label: "Developer", value: "dev" },
-  { label: "Users", value: "users" },
+  { label: "Manage", value: "manage" },
+  { label: "User", value: "user" },
 ];
 
 function EditUserDialog({ user, children, setUsers }: Props) {
-  const { user: currentUser, setUser } = useUser();
+  const { user: currentUser, setUser, hasPermission } = useUser();
   const { loading, setLoading } = useSite();
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -72,7 +84,7 @@ function EditUserDialog({ user, children, setUsers }: Props) {
         user,
         email: data.email,
         name: data.name,
-        permissions: data.permissions,
+        permission: data.permission,
         updateSelf,
       });
 
@@ -147,18 +159,71 @@ function EditUserDialog({ user, children, setUsers }: Props) {
                     />
                     <FormField
                       control={form.control}
-                      name="permissions"
+                      name="permission"
+                      defaultValue={user.permission}
                       render={({ field }) => (
                         <FormItem className="sm:w-full space-y-0">
-                          <FormControl>
-                            <MultipleSelector
-                              {...field}
-                              defaultOptions={Permissions}
-                              placeholder="Permissions"
-                              hidePlaceholderWhenSelected={true}
-                              emptyIndicator={<p>No results.</p>}
-                            />
-                          </FormControl>
+                          <Popover>
+                            <PopoverTrigger
+                              asChild
+                              disabled={
+                                (currentUser?._id === user._id &&
+                                  hasPermission(Permissions.Manage)) ||
+                                (hasPermission(Permissions.Manage) &&
+                                  user.permission === Permissions.Admin)
+                              }>
+                              <FormControl>
+                                <Button
+                                  variant="filled"
+                                  className={cn(
+                                    "h-10 w-full bg-white/5 text-left text-sm text-white flex items-center justify-between",
+                                    !field.value && "text-white/50"
+                                  )}>
+                                  {field.value
+                                    ? FormPermissions.find(
+                                        (perm) => perm.value === field.value
+                                      )?.label
+                                    : "Select Permission"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              align="start"
+                              className="w-[200px] p-0">
+                              <Command>
+                                <CommandInput placeholder="Search permission..." />
+                                <CommandEmpty>
+                                  No permission found.
+                                </CommandEmpty>
+                                <CommandList>
+                                  <CommandGroup>
+                                    {FormPermissions.map((perm) => (
+                                      <CommandItem
+                                        value={perm.label}
+                                        key={perm.value}
+                                        onSelect={() => {
+                                          form.setValue(
+                                            "permission",
+                                            perm.value
+                                          );
+                                        }}>
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            perm.value === field.value
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {perm.label}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <FormMessage />
                         </FormItem>
                       )}

@@ -72,6 +72,9 @@ const createPassword = async (req: NextRequest): Promise<NextResponse> => {
 
     response.cookies.set("token", updateToken, {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Ensure the cookie is only sent over HTTPS in production
+      sameSite: "strict", // CSRF protection
+      maxAge: 60 * 60 * 24,
     });
 
     return response;

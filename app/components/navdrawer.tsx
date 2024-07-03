@@ -29,6 +29,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "../context/UserContext";
 import { useSite } from "../context/SiteContext";
 import SettingsDialog from "./dialogs/settingsDialog";
+import { cn } from "@/lib/utils";
+import { Permissions } from "@/utils/permissions";
 
 type Props = {
   children?: ReactNode;
@@ -41,11 +43,12 @@ export interface SimpleUser {
   tempPassword: boolean;
   expireAt?: Date;
   favorites: Site[];
+  permission: string;
 }
 
 function NavDrawer({ children }: Props) {
   const { setLoading } = useSite();
-  const { user } = useUser();
+  const { user, hasPermission } = useUser();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -83,6 +86,7 @@ function NavDrawer({ children }: Props) {
                     Dashboard
                   </Button>
                   <Button
+                    className={cn(hasPermission(Permissions.User) && "hidden")}
                     variant="outline"
                     onClick={() => handleRedirect("admin")}>
                     Admin
@@ -123,7 +127,9 @@ function NavDrawer({ children }: Props) {
               </div>
             </Popout>
             <Popout text="Admin">
-              <div onClick={() => handleRedirect("admin")}>
+              <div
+                onClick={() => handleRedirect("admin")}
+                className={cn(hasPermission(Permissions.User) && "hidden")}>
                 <FontAwesomeIcon
                   icon={faHammer}
                   className="w-1/2 h-auto cursor-pointer"

@@ -3,8 +3,7 @@
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
-import NavDrawer, { SimpleUser } from "../../../components/navdrawer";
-import Spinner from "../../../components/spinner";
+import NavDrawer from "../../../components/navdrawer";
 import {
   Accordion,
   AccordionContent,
@@ -29,6 +28,8 @@ import {
 } from "@/components/ui/form";
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
+import { Permissions } from "@/utils/permissions";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   email: z
@@ -38,7 +39,7 @@ const formSchema = z.object({
 });
 
 function Admin() {
-  const { user: currentUser } = useUser();
+  const { user: currentUser, hasPermission } = useUser();
   const { loading, setLoading } = useSite();
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string>("");
@@ -119,7 +120,14 @@ function Admin() {
         <div className="flex flex-col px-5 items-center h-full overflow-y-auto">
           <div className="flex flex-col gap-2 w-full">
             <h2 className="text-center w-full text-lg">Users</h2>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              disabled={
+                !hasPermission(Permissions.Manage) &&
+                !hasPermission(Permissions.Admin)
+              }>
               {users.map((user, i) => (
                 <AccordionItem key={i} value={user.email}>
                   <AccordionTrigger
@@ -166,7 +174,13 @@ function Admin() {
                   </AccordionContent>
                 </AccordionItem>
               ))}
-              <AccordionItem value="new-user">
+              <AccordionItem
+                value="new-user"
+                className={cn(
+                  !hasPermission(Permissions.Manage) &&
+                    !hasPermission(Permissions.Admin) &&
+                    "hidden"
+                )}>
                 <AccordionTrigger>Add User</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 justify-end">
                   <Form {...form}>
