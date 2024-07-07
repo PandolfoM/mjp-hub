@@ -5,7 +5,7 @@ import {
   DrawerPortal,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Button from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -94,20 +94,28 @@ function NavDrawer({ children }: Props) {
                 </div>
                 <div className="overflow-hidden flex flex-col gap-2">
                   {user && (
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <FontAwesomeIcon
-                        icon={faCircleUser}
-                        className="w-7 h-auto"
-                      />{" "}
-                      <p className="whitespace-nowrap text-ellipsis overflow-hidden">
-                        {user.email}
-                      </p>
-                      <Button onClick={handleLogout}>
+                    <div className="flex items-center justify-between overflow-hidden">
+                      <div className="flex items-center gap-2">
+                        <FontAwesomeIcon
+                          icon={faCircleUser}
+                          className="w-7 h-auto"
+                        />{" "}
+                        <p className="whitespace-nowrap text-ellipsis overflow-hidden">
+                          {user.email}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        className="no-underline py-0 px-0"
+                        onClick={() => setIsOpen(true)}>
                         <FontAwesomeIcon icon={faGear} />
                       </Button>
                     </div>
                   )}
-                  <Button onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    className="no-underline py-0 px-0 text-start"
+                    onClick={handleLogout}>
                     <FontAwesomeIcon icon={faRightFromBracket} /> Log out
                   </Button>
                 </div>
