@@ -117,12 +117,12 @@ function DeployDialog({ site, setSite, children }: Props) {
                             <div>
                               <p>
                                 Started:{" "}
-                                {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                                {format(deploy.startTime, "M/d/y hh:mm a")}
                               </p>
                               {deploy.endTime && (
                                 <p>
                                   Finished:{" "}
-                                  {format(deploy.endTime, "M/d/y hh:mm:ss a")}
+                                  {format(deploy.endTime, "M/d/y hh:mm a")}
                                 </p>
                               )}
                             </div>
@@ -176,11 +176,11 @@ function DeployDialog({ site, setSite, children }: Props) {
                             {deploy.deployedBy}
                           </TableCell>
                           <TableCell className="whitespace-nowrap">
-                            {format(deploy.startTime, "M/d/y hh:mm:ss a")}
+                            {format(deploy.startTime, "M/d/y hh:mm a")}
                           </TableCell>
                           <TableCell className="whitespace-nowrap">
                             {deploy.endTime
-                              ? format(deploy.endTime, "M/d/y hh:mm:ss a")
+                              ? format(deploy.endTime, "M/d/y hh:mm a")
                               : ""}
                           </TableCell>
                           <TableCell className="capitalize">
