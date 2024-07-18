@@ -9,6 +9,7 @@ import React, { ReactNode, useState } from "react";
 import Button from "./button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBook,
   faCircleUser,
   faGauge,
   faGear,
@@ -68,7 +69,8 @@ function NavDrawer({ children }: Props) {
   };
 
   const handleRedirect = (route: string) => {
-    if (pathname === route) return;
+    if (route.includes("/")) route = "";
+    if (pathname === `/${route}`) return;
     setLoading(true);
     router.push(`/${route}`);
   };
@@ -145,6 +147,14 @@ function NavDrawer({ children }: Props) {
                 className={cn(hasPermission(Permissions.User) && "hidden")}>
                 <FontAwesomeIcon
                   icon={faHammer}
+                  className="w-1/2 h-auto cursor-pointer"
+                />
+              </div>
+            </Popout>
+            <Popout text="Docs">
+              <div onClick={() => handleRedirect("docs")}>
+                <FontAwesomeIcon
+                  icon={faBook}
                   className="w-1/2 h-auto cursor-pointer"
                 />
               </div>
