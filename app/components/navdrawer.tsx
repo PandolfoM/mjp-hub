@@ -16,7 +16,7 @@ import {
   faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Popout from "./popout";
 import {
   HoverCard,
@@ -31,6 +31,8 @@ import { useSite } from "../context/SiteContext";
 import SettingsDialog from "./dialogs/settingsDialog";
 import { cn } from "@/lib/utils";
 import { Permissions } from "@/utils/permissions";
+import Image from "next/image";
+import logo from "../assets/logo.png";
 
 type Props = {
   children?: ReactNode;
@@ -48,6 +50,7 @@ export interface SimpleUser {
 
 function NavDrawer({ children }: Props) {
   const { setLoading } = useSite();
+  const pathname = usePathname();
   const { user, hasPermission } = useUser();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -65,6 +68,7 @@ function NavDrawer({ children }: Props) {
   };
 
   const handleRedirect = (route: string) => {
+    if (pathname === route) return;
     setLoading(true);
     router.push(`/${route}`);
   };
@@ -82,7 +86,7 @@ function NavDrawer({ children }: Props) {
             <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
               <section className="flex flex-col justify-between h-full">
                 <div className="flex flex-col gap-2 text-md">
-                  <Button variant="outline" onClick={() => handleRedirect("")}>
+                  <Button variant="outline" onClick={() => handleRedirect("/")}>
                     Dashboard
                   </Button>
                   <Button
@@ -126,8 +130,9 @@ function NavDrawer({ children }: Props) {
       ) : (
         <aside className="hidden sm:flex bg-card/5 h-full w-16 p-2 flex-col items-center justify-between">
           <div className="flex flex-col w-full gap-5 text-md items-center">
+            <Image src={logo} alt="MJP Hub logo" className="pb-4 w-[90%]" />
             <Popout text="Dashboard">
-              <div onClick={() => handleRedirect("")}>
+              <div onClick={() => handleRedirect("/")}>
                 <FontAwesomeIcon
                   icon={faGauge}
                   className="w-1/2 h-auto cursor-pointer"

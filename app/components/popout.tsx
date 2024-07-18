@@ -13,7 +13,9 @@ type Props = {
 function Popout({ children, text }: Props) {
   return (
     <Tooltip>
-      <TooltipTrigger>{children}</TooltipTrigger>
+      <TooltipTrigger className="flex justify-center">
+        {children}
+      </TooltipTrigger>
       <TooltipContent side="right">
         <p>{text}</p>
       </TooltipContent>
