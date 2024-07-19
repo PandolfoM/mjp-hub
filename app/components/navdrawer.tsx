@@ -3,6 +3,7 @@ import {
   DrawerContent,
   DrawerOverlay,
   DrawerPortal,
+  DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import React, { ReactNode, useState } from "react";
@@ -74,28 +75,43 @@ function NavDrawer({ children }: Props) {
     setLoading(true);
     router.push(`/${route}`);
   };
-
   return (
     <>
       <SettingsDialog isOpen={isOpen} setIsOpen={setIsOpen} />
       {children ? (
         <Drawer direction="left">
+          <DrawerTitle className="hidden">Nav</DrawerTitle>
           <DrawerTrigger asChild className="sm:hidden">
-            {children}
+            <div className="flex gap-4">
+              {children}
+              <p>MJP Hub</p>
+            </div>
           </DrawerTrigger>
           <DrawerPortal>
             <DrawerOverlay className="fixed inset-0 bg-background/40" />
             <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
               <section className="flex flex-col justify-between h-full">
                 <div className="flex flex-col gap-2 text-md">
-                  <Button variant="outline" onClick={() => handleRedirect("/")}>
+                  <Button
+                    variant="ghost"
+                    className="text-left"
+                    onClick={() => handleRedirect("/")}>
                     Dashboard
                   </Button>
                   <Button
-                    className={cn(hasPermission(Permissions.User) && "hidden")}
-                    variant="outline"
+                    className={cn(
+                      hasPermission(Permissions.User) && "hidden",
+                      "text-left"
+                    )}
+                    variant="ghost"
                     onClick={() => handleRedirect("admin")}>
                     Admin
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-left"
+                    onClick={() => handleRedirect("docs")}>
+                    Docs
                   </Button>
                 </div>
                 <div className="overflow-hidden flex flex-col gap-2">
