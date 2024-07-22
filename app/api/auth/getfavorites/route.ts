@@ -11,9 +11,6 @@ const getFavorites = async (req: NextRequest): Promise<NextResponse> => {
     const favorites: TypeSite[] = [];
 
     for (let i = 0; i < favs.length; i++) {
-      const element = favs[i];
-      console.log(element);
-
       const site = await Site.findById(favs[i]);
       favorites.push(site);
     }
