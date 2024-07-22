@@ -10,7 +10,7 @@ import { Doc } from "@/models/Doc";
 
 function DocPage({ params }: { params: { doc: string } }) {
   const { setLoading } = useSite();
-  const [doc, setDoc] = useState<Doc>();
+  const [doc, setDoc] = useState<Doc | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { quill, quillRef, editor } = useQuill({
     theme: "bubble",
@@ -27,7 +27,7 @@ function DocPage({ params }: { params: { doc: string } }) {
         });
 
         setDoc(res.data.data);
-        if (quill) {
+        if (quill && res.data.data) {
           quill.clipboard.dangerouslyPasteHTML(res.data.data.pages[0].content);
         }
         setLoading(false);
@@ -60,7 +60,7 @@ function DocPage({ params }: { params: { doc: string } }) {
   return (
     <div className="w-full h-full flex flex-col gap-2">
       <div className="w-full flex justify-between items-center gap-2">
-        <h1 className="font-bold text-lg">{doc?.pages[0].name}</h1>
+        {doc && <h1 className="font-bold text-lg">{doc.pages[0].name}</h1>}
         <div className="flex gap-2">
           {isEditing && (
             <Button
@@ -74,14 +74,16 @@ function DocPage({ params }: { params: { doc: string } }) {
               Save
             </Button>
           )}
-          <Button
-            className="hidden sm:block"
-            onClick={() => {
-              isEditing ? editor?.disable() : editor?.enable();
-              setIsEditing(!isEditing);
-            }}>
-            {isEditing ? "Cancel" : "Edit"}
-          </Button>
+          {doc && (
+            <Button
+              className="hidden sm:block"
+              onClick={() => {
+                isEditing ? editor?.disable() : editor?.enable();
+                setIsEditing(!isEditing);
+              }}>
+              {isEditing ? "Cancel" : "Edit"}
+            </Button>
+          )}
         </div>
       </div>
       <div ref={quillRef} />

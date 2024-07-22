@@ -25,7 +25,7 @@ const newDoc = async (req: NextRequest): Promise<NextResponse> => {
       pages: [
         {
           name: title,
-          route: route,
+          route: title.toLowerCase().replace(/\s+/g, ""),
           content: `<p>${title}</p>`,
         },
       ],

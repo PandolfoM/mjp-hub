@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-interface PagesI {
+export interface PagesI {
   name: string;
   route: string;
   content: string;
@@ -14,13 +14,13 @@ export interface Doc extends mongoose.Document {
 }
 
 const docSchema = new mongoose.Schema({
-  category: { type: String },
-  categoryRoute: { type: String },
+  category: { type: String, required: true },
+  categoryRoute: { type: String, required: true },
   pages: [
     {
-      name: { type: String },
-      route: { type: String, unique: true },
-      content: { type: String },
+      name: { type: String, required: true },
+      route: { type: String, required: true, unique: true },
+      content: { type: String, default: "" },
     },
   ],
 });

@@ -13,7 +13,7 @@ const getDocs = async (): Promise<NextResponse> => {
       return NextResponse.json({
         message: "No docs found",
         success: false,
-        data: {},
+        data: [],
       });
     }
 

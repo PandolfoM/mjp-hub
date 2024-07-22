@@ -48,7 +48,6 @@ type Props = {
 const formSchema = z
   .object({
     title: z.string().min(1, { message: "Required" }),
-    route: z.string().min(1, { message: "Required" }),
     category: z.string().min(1, { message: "Required" }),
     newCategory: z.string().optional(),
   })
@@ -92,11 +91,12 @@ function NewDocDialog({ children }: Props) {
         category: category,
         categoryRoute:
           data.category === "new" ? data.category : category?.label,
-        route: data.route,
         newCategory: data.newCategory,
       });
       setLoading(false);
-      router.push(`/docs/${data.category}/${data.route}`);
+      router.push(
+        `/docs/${data.category}/${data.title.toLowerCase().replace(/\s+/g, "")}`
+      );
       router.refresh();
     } catch (e) {
       console.log(e);
@@ -130,7 +130,7 @@ function NewDocDialog({ children }: Props) {
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="route"
                 defaultValue={""}
@@ -151,7 +151,7 @@ function NewDocDialog({ children }: Props) {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name="category"

@@ -9,7 +9,7 @@ import { faBars, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import axios from "axios";
-import { Doc } from "@/models/Doc";
+import { Doc, PagesI } from "@/models/Doc";
 import { useUser } from "@/app/context/UserContext";
 import Button from "@/app/components/button";
 import NewDocDialog from "@/app/components/dialogs/newDocDialog";
@@ -20,6 +20,8 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Permissions } from "@/utils/permissions";
+import { log } from "console";
+import { useRouter } from "next/navigation";
 
 export default function DocsLayout({
   children,
@@ -35,7 +37,6 @@ export default function DocsLayout({
     const getDocs = async () => {
       try {
         const res = await axios.get("/api/docs/getdocs");
-        console.log(res);
         setDocs(res.data.data);
         setLoading(false);
       } catch (err) {
@@ -84,7 +85,11 @@ export default function DocsLayout({
               className={
                 "px-2 pb-28 absolute bottom-0 translate-y-full gap-2 border-b border-white/30 bg-background w-full overflow-y-auto h-dvh"
               }>
-              <DocsList onClick={() => setIsOpen(!isOpen)} docs={docs} />
+              <DocsList
+                onClick={() => setIsOpen(!isOpen)}
+                docs={docs}
+                setDocs={setDocs}
+              />
             </motion.div>
           )}
         </section>
@@ -93,7 +98,7 @@ export default function DocsLayout({
       {/* Desktop */}
       <div className="hidden md:block w-0.5 h-full bg-primary" />
       <div className="hidden md:flex md:flex-col justify-between w-60 h-full bg-card/5 p-2">
-        <DocsList docs={docs} />
+        <DocsList docs={docs} setDocs={setDocs} />
         <NewDocDialog>
           <Button>Add New Doc</Button>
         </NewDocDialog>
@@ -105,8 +110,30 @@ export default function DocsLayout({
   );
 }
 
-const DocsList = ({ onClick, docs }: { onClick?: () => void; docs: Doc[] }) => {
+const DocsList = ({
+  onClick,
+  docs,
+  setDocs,
+}: {
+  onClick?: () => void;
+  docs: Doc[];
+  setDocs: Dispatch<SetStateAction<Doc[]>>;
+}) => {
   const { hasPermission } = useUser();
+  const router = useRouter();
+
+  const deleteDoc = async (page: PagesI) => {
+    try {
+      const res = await axios.post("/api/docs/deletedoc", {
+        page,
+      });
+
+      router.push("/docs");
+      setDocs(res.data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <ul className="flex flex-col gap-2 w-full overflow-y-auto h-full">
@@ -130,7 +157,11 @@ const DocsList = ({ onClick, docs }: { onClick?: () => void; docs: Doc[] }) => {
                 </Link>
               </ContextMenuTrigger>
               <ContextMenuContent>
-                <ContextMenuItem>Delete</ContextMenuItem>
+                <ContextMenuItem
+                  onClick={() => deleteDoc(page)}
+                  className="cursor-pointer">
+                  Delete
+                </ContextMenuItem>
               </ContextMenuContent>
             </ContextMenu>
           ))}

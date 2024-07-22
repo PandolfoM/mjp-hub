@@ -18,7 +18,7 @@ const getDoc = async (req: NextRequest): Promise<NextResponse> => {
       return NextResponse.json({
         message: "No doc found",
         success: false,
-        data: {},
+        data: null,
       });
     }
 
