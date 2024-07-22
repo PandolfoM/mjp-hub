@@ -12,6 +12,14 @@ import axios from "axios";
 import { Doc } from "@/models/Doc";
 import { useUser } from "@/app/context/UserContext";
 import Button from "@/app/components/button";
+import NewDocDialog from "@/app/components/dialogs/newDocDialog";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { Permissions } from "@/utils/permissions";
 
 export default function DocsLayout({
   children,
@@ -86,7 +94,9 @@ export default function DocsLayout({
       <div className="hidden md:block w-0.5 h-full bg-primary" />
       <div className="hidden md:flex md:flex-col justify-between w-60 h-full bg-card/5 p-2">
         <DocsList docs={docs} />
-        <Button>Add New Doc</Button>
+        <NewDocDialog>
+          <Button>Add New Doc</Button>
+        </NewDocDialog>
       </div>
       <div className="flex px-5 items-center overflow-y-auto h-full w-full md:p-5">
         {children}
@@ -96,6 +106,8 @@ export default function DocsLayout({
 }
 
 const DocsList = ({ onClick, docs }: { onClick?: () => void; docs: Doc[] }) => {
+  const { hasPermission } = useUser();
+
   return (
     <ul className="flex flex-col gap-2 w-full overflow-y-auto h-full">
       <li className="flex flex-col gap-2">
@@ -108,13 +120,19 @@ const DocsList = ({ onClick, docs }: { onClick?: () => void; docs: Doc[] }) => {
         <li key={i} className="flex flex-col gap-2">
           <p className="text-white cursor-default">{doc.category}</p>
           {doc.pages.map((page, i) => (
-            <Link
-              key={i}
-              href={`/docs/${page.route}`}
-              onClick={onClick}
-              className="text-white/50 ml-2">
-              {page.name}
-            </Link>
+            <ContextMenu key={i}>
+              <ContextMenuTrigger disabled={hasPermission(Permissions.User)}>
+                <Link
+                  href={`/docs/${doc.categoryRoute}/${page.route}`}
+                  onClick={onClick}
+                  className="text-white/50 ml-2">
+                  {page.name}
+                </Link>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem>Delete</ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
           ))}
         </li>
       ))}

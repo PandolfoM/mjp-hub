@@ -61,7 +61,7 @@ function DocPage({ params }: { params: { doc: string } }) {
     <div className="w-full h-full flex flex-col gap-2">
       <div className="w-full flex justify-between items-center gap-2">
         <h1 className="font-bold text-lg">{doc?.pages[0].name}</h1>
-        <div>
+        <div className="flex gap-2">
           {isEditing && (
             <Button
               variant="filled"

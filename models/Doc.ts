@@ -9,11 +9,13 @@ interface PagesI {
 export interface Doc extends mongoose.Document {
   _id: string;
   category: string;
+  categoryRoute: string;
   pages: PagesI[];
 }
 
 const docSchema = new mongoose.Schema({
   category: { type: String },
+  categoryRoute: { type: String },
   pages: [
     {
       name: { type: String },
