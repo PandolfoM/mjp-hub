@@ -1,0 +1,37 @@
+.ql-editor {
+  padding: 0;
+}
+
+.ql-container {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.ql-editor pre {
+  background-color: #282c34; /* Background color */
+  color: #abb2bf; /* Text color */
+  padding: 16px; /* Padding */
+  border-radius: 5px; /* Rounded corners */
+  overflow: auto; /* Scrollable if the content is too wide */
+  font-family: "JetBrainsMono", monospace;
+  line-height: 1.5; /* Line height */
+  margin: 16px 0; /* Margin */
+}
+
+.ql-editor code {
+  background-color: rgba(123, 97, 255, 0.05) !important; /* Background color */
+  color: white;
+  padding: theme("padding.1") theme("padding.2") !important;
+  border-radius: 2px !important;
+  font-family: "JetBrainsMono", monospace !important;
+  font-size: inherit !important;
+}
+
+.ql-code-block-container {
+  background-color: rgba(123, 97, 255, 0.05) !important;
+  color: white;
+  font-size: inherit !important;
+  padding: theme("padding.1") theme("padding.2") !important;
+  border-radius: 2px !important;
+  font-family: "JetBrainsMono", monospace !important;
+}

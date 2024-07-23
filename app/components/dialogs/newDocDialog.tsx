@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { ReactNode, useState } from "react";
+import React, { Dispatch, ReactNode, SetStateAction } from "react";
 import { Input } from "@/components/ui/input";
 import Button from "../button";
 import axios from "axios";
@@ -40,9 +40,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
+import { Doc } from "@/models/Doc";
 
 type Props = {
   children: ReactNode;
+  setDocs: Dispatch<SetStateAction<Doc[]>>;
+  categories: { label: string; value: string }[];
 };
 
 const formSchema = z
@@ -64,12 +67,7 @@ const formSchema = z
     }
   );
 
-const Categories = [
-  { label: "Deployments", value: "deployments" },
-  { label: "New Category", value: "new" },
-];
-
-function NewDocDialog({ children }: Props) {
+function NewDocDialog({ children, setDocs, categories }: Props) {
   const { setLoading, loading } = useSite();
   const router = useRouter();
 
@@ -85,19 +83,22 @@ function NewDocDialog({ children }: Props) {
   const createDoc = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
     try {
-      const category = Categories.find((cat) => cat.value === data.category);
-      await axios.post("/api/docs/newdoc", {
+      const category = categories.find((cat) => cat.value === data.category);
+      const res = await axios.post("/api/docs/newdoc", {
         title: data.title,
         category: category,
         categoryRoute:
           data.category === "new" ? data.category : category?.label,
         newCategory: data.newCategory,
       });
-      setLoading(false);
+      console.log(res.data.data);
+
+      setDocs(res.data.data);
       router.push(
         `/docs/${data.category}/${data.title.toLowerCase().replace(/\s+/g, "")}`
       );
       router.refresh();
+      setLoading(false);
     } catch (e) {
       console.log(e);
       setLoading(false);
@@ -130,28 +131,6 @@ function NewDocDialog({ children }: Props) {
                   </FormItem>
                 )}
               />
-              {/* <FormField
-                control={form.control}
-                name="route"
-                defaultValue={""}
-                render={({ field }) => (
-                  <FormItem className="sm:w-full space-y-0">
-                    <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="Route"
-                        {...field}
-                        onInput={(e) => {
-                          e.currentTarget.value = e.currentTarget.value
-                            .toLowerCase()
-                            .replace(/[^a-z]/g, "");
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
               <FormField
                 control={form.control}
                 name="category"
@@ -168,10 +147,10 @@ function NewDocDialog({ children }: Props) {
                               !field.value && "text-white/50"
                             )}>
                             {field.value
-                              ? Categories.find(
-                                  (perm) => perm.value === field.value
+                              ? categories.find(
+                                  (cat) => cat.value === field.value
                                 )?.label
-                              : "Select Permission"}
+                              : "Select Category"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </FormControl>
@@ -182,7 +161,7 @@ function NewDocDialog({ children }: Props) {
                           <CommandEmpty>No permission found.</CommandEmpty>
                           <CommandList>
                             <CommandGroup>
-                              {Categories.map((cat) => (
+                              {categories.map((cat) => (
                                 <CommandItem
                                   value={cat.label}
                                   key={cat.value}

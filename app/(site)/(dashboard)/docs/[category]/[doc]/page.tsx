@@ -2,11 +2,44 @@
 
 import { useQuill } from "react-quilljs";
 import "quill/dist/quill.bubble.css";
+import "@/app/quill.css";
 import { useSite } from "@/app/context/SiteContext";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Button from "@/app/components/button";
 import { Doc } from "@/models/Doc";
+import Quill from "quill";
+
+const modules = {
+  toolbar: [
+    ["bold", "italic", "underline", "strike"], // toggled buttons
+    ["blockquote", "code-block", "code"],
+    ["link", "image", "video"],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
+    [{ direction: "rtl" }], // text direction
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ color: [] }, { background: [] }], // dropdown with defaults from theme
+    [{ align: [] }],
+
+    ["clean"], // remove formatting button
+  ],
+};
+
+const formats = [
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "code-block",
+  "code",
+  "list",
+  "bullet",
+  "color",
+  "background",
+];
 
 function DocPage({ params }: { params: { doc: string } }) {
   const { setLoading } = useSite();
@@ -15,6 +48,9 @@ function DocPage({ params }: { params: { doc: string } }) {
   const { quill, quillRef, editor } = useQuill({
     theme: "bubble",
     readOnly: true,
+    bounds: "#quillContainer",
+    formats,
+    modules,
   });
 
   useEffect(() => {
@@ -86,7 +122,9 @@ function DocPage({ params }: { params: { doc: string } }) {
           )}
         </div>
       </div>
-      <div ref={quillRef} />
+      <div className="flex flex-col w-full h-full" id="quillContainer">
+        <div ref={quillRef} />
+      </div>
     </div>
   );
 }

@@ -10,8 +10,6 @@ const deleteDoc = async (req: NextRequest): Promise<NextResponse> => {
     const reqBody = await req.json();
     const { page } = reqBody;
 
-    console.log(page);
-
     const doc = await Doc.findOneAndUpdate(
       { "pages._id": page._id },
       { $pull: { pages: { _id: page._id } } },
@@ -27,10 +25,13 @@ const deleteDoc = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     if (doc.pages.length === 0) {
-      await Doc.findByIdAndDelete(doc._id);
+      const deletedCategory = await Doc.findByIdAndDelete(doc._id);
+      console.log(deletedCategory);
+
       return NextResponse.json({
         message: "Document deleted as it has no pages left",
         success: true,
+        deletedCategory,
         data: [],
       });
     }

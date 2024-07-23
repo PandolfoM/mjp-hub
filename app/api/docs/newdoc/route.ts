@@ -16,9 +16,6 @@ const newDoc = async (req: NextRequest): Promise<NextResponse> => {
         ? newCategory.toLowerCase().replace(/\s+/g, "")
         : category.value;
 
-    console.log(docCategory);
-    console.log(docCategoryRoute);
-
     const doc = await Doc.create({
       category: docCategory,
       categoryRoute: docCategoryRoute,
@@ -31,10 +28,13 @@ const newDoc = async (req: NextRequest): Promise<NextResponse> => {
       ],
     });
 
+    const docs = await Doc.find();
+
     const response = NextResponse.json({
       message: "Doc created successfully",
       success: true,
-      data: doc,
+      newDoc: doc,
+      data: docs,
     });
 
     return response;

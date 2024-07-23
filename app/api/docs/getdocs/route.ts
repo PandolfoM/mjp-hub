@@ -7,9 +7,19 @@ connect();
 
 const getDocs = async (): Promise<NextResponse> => {
   try {
-    const doc = await Doc.find();
+    const docs = await Doc.find();
 
-    if (!doc) {
+    const uniqueCategories = Array.from(
+      new Set(
+        docs.map((doc) =>
+          JSON.stringify({ label: doc.category, value: doc.categoryRoute })
+        )
+      )
+    ).map((str) => JSON.parse(str));
+
+    uniqueCategories.push({ label: "New Category", value: "new" });
+
+    if (!docs) {
       return NextResponse.json({
         message: "No docs found",
         success: false,
@@ -20,7 +30,7 @@ const getDocs = async (): Promise<NextResponse> => {
     const response = NextResponse.json({
       message: "Docs retrieved successfully",
       success: true,
-      data: doc,
+      data: { docs, categories: uniqueCategories },
     });
 
     return response;

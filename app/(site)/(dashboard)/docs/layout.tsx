@@ -20,7 +20,6 @@ import {
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Permissions } from "@/utils/permissions";
-import { log } from "console";
 import { useRouter } from "next/navigation";
 
 export default function DocsLayout({
@@ -30,6 +29,9 @@ export default function DocsLayout({
 }) {
   const { setLoading } = useSite();
   const [docs, setDocs] = useState<Doc[]>([]);
+  const [categories, setCategories] = useState<
+    { label: string; value: string }[]
+  >([]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -37,7 +39,9 @@ export default function DocsLayout({
     const getDocs = async () => {
       try {
         const res = await axios.get("/api/docs/getdocs");
-        setDocs(res.data.data);
+        const { docs, categories } = res.data.data;
+        setDocs(docs);
+        setCategories(categories);
         setLoading(false);
       } catch (err) {
         console.log(err);
@@ -86,6 +90,7 @@ export default function DocsLayout({
                 "px-2 pb-28 absolute bottom-0 translate-y-full gap-2 border-b border-white/30 bg-background w-full overflow-y-auto h-dvh"
               }>
               <DocsList
+                setCategories={setCategories}
                 onClick={() => setIsOpen(!isOpen)}
                 docs={docs}
                 setDocs={setDocs}
@@ -98,8 +103,8 @@ export default function DocsLayout({
       {/* Desktop */}
       <div className="hidden md:block w-0.5 h-full bg-primary" />
       <div className="hidden md:flex md:flex-col justify-between w-60 h-full bg-card/5 p-2">
-        <DocsList docs={docs} setDocs={setDocs} />
-        <NewDocDialog>
+        <DocsList setCategories={setCategories} docs={docs} setDocs={setDocs} />
+        <NewDocDialog setDocs={setDocs} categories={categories}>
           <Button>Add New Doc</Button>
         </NewDocDialog>
       </div>
@@ -114,10 +119,12 @@ const DocsList = ({
   onClick,
   docs,
   setDocs,
+  setCategories,
 }: {
   onClick?: () => void;
   docs: Doc[];
   setDocs: Dispatch<SetStateAction<Doc[]>>;
+  setCategories: Dispatch<SetStateAction<{ label: string; value: string }[]>>;
 }) => {
   const { hasPermission } = useUser();
   const router = useRouter();
@@ -127,6 +134,15 @@ const DocsList = ({
       const res = await axios.post("/api/docs/deletedoc", {
         page,
       });
+
+      if (res.data.data.deletedCategory) {
+        setCategories((prevCategories) =>
+          prevCategories.filter(
+            (category) =>
+              category.value !== res.data.data.deletedCategory.categoryRoute
+          )
+        );
+      }
 
       router.push("/docs");
       setDocs(res.data.data);
