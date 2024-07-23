@@ -1,62 +1,19 @@
 "use client";
 
-import { useQuill } from "react-quilljs";
-import "quill/dist/quill.bubble.css";
-import "@/app/quill.css";
 import { useSite } from "@/app/context/SiteContext";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Button from "@/app/components/button";
 import { Doc } from "@/models/Doc";
-import Quill from "quill";
+import dynamic from "next/dynamic";
 
-const modules = {
-  toolbar: [
-    ["bold", "italic", "underline", "strike"], // toggled buttons
-    ["blockquote", "code-block", "code"],
-    ["link", "image", "video"],
-    [{ list: "ordered" }, { list: "bullet" }],
-    [{ indent: "-1" }, { indent: "+1" }], // outdent/indent
-    [{ direction: "rtl" }], // text direction
-    [{ header: [1, 2, 3, 4, 5, 6, false] }],
-    [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-    [{ align: [] }],
-
-    ["clean"], // remove formatting button
-  ],
-};
-
-const formats = [
-  "header",
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "blockquote",
-  "code-block",
-  "code",
-  "list",
-  "bullet",
-  "color",
-  "background",
-  "indent",
-  "link",
-  "image",
-  "align",
-  "direction",
-];
+const Editor = dynamic(() => import("@/app/components/editor"), { ssr: false });
 
 function DocPage({ params }: { params: { doc: string } }) {
   const { setLoading } = useSite();
   const [doc, setDoc] = useState<Doc | null>(null);
+  const [editorTxt, setEditorTxt] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { quill, quillRef, editor } = useQuill({
-    theme: "bubble",
-    readOnly: true,
-    bounds: "#quillContainer",
-    formats,
-    modules,
-  });
 
   useEffect(() => {
     const fetchDoc = async () => {
@@ -67,9 +24,9 @@ function DocPage({ params }: { params: { doc: string } }) {
           route: params.doc,
         });
 
-        setDoc(res.data.data);
-        if (quill && res.data.data) {
-          quill.clipboard.dangerouslyPasteHTML(res.data.data.pages[0].content);
+        if (res.data.data) {
+          setDoc(res.data.data);
+          setEditorTxt(res.data.data.pages[0].content);
         }
         setLoading(false);
       } catch (err) {
@@ -79,24 +36,22 @@ function DocPage({ params }: { params: { doc: string } }) {
     };
 
     fetchDoc();
-  }, [params.doc, setLoading, quill]);
+  }, [params.doc, setLoading]);
 
-  const saveDoc = async () => {
+  const saveDoc = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.post("/api/docs/savedoc", {
         route: params.doc,
-        content: quill?.root.innerHTML,
+        content: editorTxt,
       });
 
-      if (quill) {
-        quill.clipboard.dangerouslyPasteHTML(res.data.data.pages[0].content);
-      }
+      setEditorTxt(res.data.data.pages[0].content);
       setLoading(false);
     } catch (err) {
       console.log(err);
     }
-  };
+  }, [editorTxt, params.doc, setLoading]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {
@@ -108,13 +63,17 @@ function DocPage({ params }: { params: { doc: string } }) {
     };
 
     // Register the event listener
-    window.addEventListener("keydown", handleKeydown);
+    if (isEditing) {
+      window.addEventListener("keydown", handleKeydown);
+    }
 
     // Cleanup the event listener on component unmount
     return () => {
-      window.removeEventListener("keydown", handleKeydown);
+      if (isEditing) {
+        window.removeEventListener("keydown", handleKeydown);
+      }
     };
-  }, [quill, params.doc]);
+  }, [params.doc, isEditing, saveDoc]);
 
   return (
     <div className="w-full h-full flex flex-col gap-2">
@@ -127,8 +86,7 @@ function DocPage({ params }: { params: { doc: string } }) {
               className="hidden sm:block bg-primary"
               onClick={() => {
                 saveDoc();
-                editor?.disable();
-                setIsEditing(!isEditing);
+                setIsEditing(false);
               }}>
               Save
             </Button>
@@ -137,7 +95,6 @@ function DocPage({ params }: { params: { doc: string } }) {
             <Button
               className="hidden sm:block"
               onClick={() => {
-                isEditing ? editor?.disable() : editor?.enable();
                 setIsEditing(!isEditing);
               }}>
               {isEditing ? "Cancel" : "Edit"}
@@ -145,9 +102,7 @@ function DocPage({ params }: { params: { doc: string } }) {
           )}
         </div>
       </div>
-      <div className="flex flex-col w-full h-full" id="quillContainer">
-        <div ref={quillRef} />
-      </div>
+      <Editor value={editorTxt} setValue={setEditorTxt} readOnly={!isEditing} />
     </div>
   );
 }
