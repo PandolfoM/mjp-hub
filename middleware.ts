@@ -64,6 +64,6 @@ export const config = {
     "/manage/:path*",
     "/verify",
     "/docs",
-    "/docs/:category/:doc",
+    "/docs/:path*",
   ],
 };
