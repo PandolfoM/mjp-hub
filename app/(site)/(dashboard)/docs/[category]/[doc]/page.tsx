@@ -39,6 +39,11 @@ const formats = [
   "bullet",
   "color",
   "background",
+  "indent",
+  "link",
+  "image",
+  "align",
+  "direction",
 ];
 
 function DocPage({ params }: { params: { doc: string } }) {
@@ -92,6 +97,24 @@ function DocPage({ params }: { params: { doc: string } }) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      // Check if Ctrl+S or Cmd+S was pressed
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+        event.preventDefault(); // Prevent the default save action
+        saveDoc(); // Call the save function
+      }
+    };
+
+    // Register the event listener
+    window.addEventListener("keydown", handleKeydown);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, [quill, params.doc]);
 
   return (
     <div className="w-full h-full flex flex-col gap-2">
