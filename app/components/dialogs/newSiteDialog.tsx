@@ -49,7 +49,7 @@ function NewSiteDialog({ children }: Props) {
             <DialogTitle className="text-lg">Create Site</DialogTitle>
           </DialogHeader>
           <Input
-            placeholder="Message"
+            placeholder="Title"
             onChange={(e: any) => setTitle(e.target.value)}
           />
           <DialogFooter>
