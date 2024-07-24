@@ -45,6 +45,7 @@ const createSite = async (req: NextRequest): Promise<NextResponse> => {
       title,
       appId: newLiveAppId,
       testAppId: newTestAppId,
+      framework: "nextjs-ssr",
     };
 
     const site = await Site.create(newSite);

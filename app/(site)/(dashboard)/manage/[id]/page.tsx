@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faX } from "@fortawesome/free-solid-svg-icons";
-import Spinner from "@/app/components/spinner";
 import { UseFormReturn, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -26,11 +25,19 @@ import { DeleteDialog, DeployDialog } from "@/app/components/dialogs";
 import { useSite } from "@/app/context/SiteContext";
 import { useUser } from "@/app/context/UserContext";
 import { Permissions } from "@/utils/permissions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   repo: z.string().url(),
   testURL: z.string().optional(),
   liveURL: z.string().optional(),
+  framework: z.string().optional(),
   env: z
     .array(
       z.object({
@@ -40,6 +47,11 @@ const formSchema = z.object({
     )
     .optional(),
 });
+
+const FRAMEWORKS = [
+  { label: "Next.js - SSR", value: "nextjs-ssr" },
+  { label: "React", value: "react" },
+];
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -62,10 +74,15 @@ export default function Page({ params }: { params: { id: string } }) {
   const saveSite = async () => {
     setLoading(true);
     try {
+      const frameworkLabel = FRAMEWORKS.find(
+        (fw) => fw.value === form.getValues().framework
+      )?.label;
       const newSite = await axios.post("/api/sites/updatesite", {
         form: form.getValues(),
         site: site,
+        frameworkLabel: frameworkLabel,
       });
+
       setIsEdit(false);
       setError("");
       setSite(newSite.data.site);
@@ -109,6 +126,7 @@ export default function Page({ params }: { params: { id: string } }) {
               form.setValue("liveURL", data.data.liveURL);
               form.setValue("testURL", data.data.testURL);
               form.setValue("repo", data.data.repo);
+              form.setValue("framework", data.data.framework);
               if (data.data.env) {
                 form.setValue("env", data.data.env);
               }
@@ -302,29 +320,57 @@ const EditingComponent = ({
                 </FormItem>
               )}
             />
+            <div className="flex items-center w-full gap-[5px]">
+              <FormField
+                control={form.control}
+                name="testURL"
+                render={({ field }) => (
+                  <FormItem className="w-1/2">
+                    <FormLabel>Test URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Test URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="liveURL"
+                render={({ field }) => (
+                  <FormItem className="w-1/2">
+                    <FormLabel>Live URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Live URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
-              name="testURL"
+              name="framework"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Test URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Test URL" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="liveURL"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Live URL</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Live URL" {...field} />
-                  </FormControl>
-                  <FormMessage />
+                  <FormLabel>Framework</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={site.framework}
+                    disabled={site.deployments.length > 0}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a framework" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {FRAMEWORKS.map((fw, i) => (
+                        <SelectItem key={i} value={fw.value}>
+                          {fw.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormItem>
               )}
             />

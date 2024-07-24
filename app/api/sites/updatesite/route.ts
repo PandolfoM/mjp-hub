@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   CreateBranchCommand,
   CreateDomainAssociationCommand,
+  Platform,
   Stage,
   UpdateAppCommand,
 } from "@aws-sdk/client-amplify";
@@ -12,10 +13,29 @@ import { withAuth } from "@/middleware/auth";
 
 connect();
 
+const buildSpecReact = `
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .npm/**/*
+`;
+
 const updateSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
-    const { site, form } = reqBody;
+    const { site, form, frameworkLabel } = reqBody;
 
     const updateDB = await Site.findOneAndUpdate(
       { _id: site._id },
@@ -24,6 +44,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         env: form.env,
         testURL: form.testURL,
         liveURL: form.liveURL,
+        framework: form.framework,
       },
       { new: true }
     );
@@ -38,6 +59,9 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
+      buildSpec: buildSpecReact,
+      platform:
+        form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
 
     const updateLiveParams = {
@@ -45,6 +69,9 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
+      buildSpec: buildSpecReact,
+      platform:
+        form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
 
     const updateTestSite = new UpdateAppCommand(updateTestParams);
@@ -59,7 +86,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           branchName: "main",
           stage: Stage.PRODUCTION,
           enableAutoBuild: false,
-          framework: "Next.js - SSR",
+          framework: frameworkLabel,
         };
 
         const createLiveBranchCommand = new CreateBranchCommand(
@@ -72,7 +99,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           branchName: "main",
           stage: Stage.PRODUCTION,
           enableAutoBuild: false,
-          framework: "Next.js - SSR",
+          framework: frameworkLabel,
         };
 
         const createTestBranchCommand = new CreateBranchCommand(
