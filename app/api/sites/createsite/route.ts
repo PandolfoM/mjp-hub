@@ -1,7 +1,7 @@
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 import Site, { testSite } from "@/models/Site";
-import amplifyClient from "@/utils/amplifyClient";
+import { amplifyClient } from "@/utils/amplifyClient";
 import { CreateAppCommand, Platform } from "@aws-sdk/client-amplify";
 import { NextRequest, NextResponse } from "next/server";
 

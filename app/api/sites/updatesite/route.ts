@@ -2,12 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   CreateBranchCommand,
   CreateDomainAssociationCommand,
+  DeleteDomainAssociationCommand,
+  GetDomainAssociationCommand,
   Platform,
   Stage,
   UpdateAppCommand,
 } from "@aws-sdk/client-amplify";
+import {
+  ChangeResourceRecordSetsCommand,
+  CreateHostedZoneCommand,
+  DeleteHostedZoneCommand,
+  ListResourceRecordSetsCommand,
+  RRType,
+} from "@aws-sdk/client-route-53";
 import Site from "@/models/Site";
-import amplifyClient from "@/utils/amplifyClient";
+import { amplifyClient, route53Client } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 
@@ -36,18 +45,6 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
     const { site, form, frameworkLabel } = reqBody;
-
-    const updateDB = await Site.findOneAndUpdate(
-      { _id: site._id },
-      {
-        repo: form.repo,
-        env: form.env,
-        testURL: form.testURL,
-        liveURL: form.liveURL,
-        framework: form.framework,
-      },
-      { new: true }
-    );
 
     const environmentVariables = form.env.reduce((acc: any, curr: any) => {
       acc[curr.key] = curr.value;
@@ -133,7 +130,76 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       await amplifyClient.send(updateTestURL);
     }
 
+    let nameServers = null;
+    let zoneId = "";
     if (form.liveURL !== site.liveURL && form.liveURL !== "") {
+      if (site.zoneId) {
+        const getLiveUrl = new GetDomainAssociationCommand({
+          appId: site.appId,
+          domainName: site.liveURL,
+        });
+        const getLiveUrlRes = await amplifyClient.send(getLiveUrl);
+
+        if (getLiveUrlRes.domainAssociation?.certificateVerificationDNSRecord) {
+          const listRecords = new ListResourceRecordSetsCommand({
+            HostedZoneId: site.zoneId,
+            StartRecordName:
+              getLiveUrlRes.domainAssociation?.certificateVerificationDNSRecord.split(
+                " "
+              )[0],
+            StartRecordType: RRType.CNAME,
+            MaxItems: 1,
+          });
+          const listRecordsRes = await route53Client.send(listRecords);
+
+          if (listRecordsRes.ResourceRecordSets) {
+            const deleteRecords = new ChangeResourceRecordSetsCommand({
+              HostedZoneId: site.zoneId,
+              ChangeBatch: {
+                Changes: [
+                  {
+                    Action: "DELETE",
+                    ResourceRecordSet: {
+                      Name: getLiveUrlRes.domainAssociation?.certificateVerificationDNSRecord.split(
+                        " "
+                      )[0],
+                      Type: RRType.CNAME,
+                      TTL: listRecordsRes.ResourceRecordSets[0].TTL,
+                      ResourceRecords:
+                        listRecordsRes.ResourceRecordSets[0].ResourceRecords,
+                    },
+                  },
+                ],
+              },
+            });
+            await route53Client.send(deleteRecords);
+            const deleteHostedZone = new DeleteHostedZoneCommand({
+              Id: site.zoneId,
+            });
+            await route53Client.send(deleteHostedZone);
+
+            const deleteLiveUrl = new DeleteDomainAssociationCommand({
+              appId: site.appId,
+              domainName: site.liveURL,
+            });
+            await amplifyClient.send(deleteLiveUrl);
+          }
+        }
+      }
+
+      const createHostedZone = new CreateHostedZoneCommand({
+        CallerReference: Date.now().toString(),
+        Name: form.liveURL,
+      });
+      const hostedZoneRes = await route53Client.send(createHostedZone);
+
+      if (hostedZoneRes.DelegationSet) {
+        nameServers = hostedZoneRes.DelegationSet.NameServers;
+      }
+      if (hostedZoneRes.HostedZone?.Id) {
+        zoneId = hostedZoneRes.HostedZone?.Id.replace("/hostedzone/", "");
+      }
+
       const updateLiveURL = new CreateDomainAssociationCommand({
         appId: site.appId,
         domainName: form.liveURL,
@@ -145,12 +211,27 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         ],
       });
       await amplifyClient.send(updateLiveURL);
+      hostedZoneRes.DelegationSet?.NameServers;
     }
+
+    const updateDB = await Site.findOneAndUpdate(
+      { _id: site._id },
+      {
+        repo: form.repo,
+        env: form.env,
+        testURL: form.testURL,
+        liveURL: form.liveURL,
+        framework: form.framework,
+        zoneId,
+      },
+      { new: true }
+    );
 
     return NextResponse.json({
       updateTest: updateTestRes,
       updateLive: updateLiveRes,
       site: updateDB,
+      nameServers,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });

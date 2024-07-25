@@ -22,6 +22,7 @@ export interface Site extends mongoose.Document {
   deployments: DeploymentsI[];
   branchCreated: boolean;
   framework: string;
+  zoneId?: string;
 }
 
 export const testSite = {
@@ -35,6 +36,7 @@ export const testSite = {
   deployments: [],
   branchCreated: false,
   framework: "",
+  zoneId: "",
 };
 
 const siteSchema = new mongoose.Schema({
@@ -52,6 +54,7 @@ const siteSchema = new mongoose.Schema({
   testAppId: { type: String },
   branchCreated: { type: Boolean },
   framework: { type: String },
+  zoneId: { type: String },
   deployments: [
     {
       startTime: { type: Date },

@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import NameServersDialog from "@/app/components/dialogs/nameServersDialog";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -59,6 +60,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const { setLoading } = useSite();
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [nameServers, setNameServers] = useState<string[] | null>(null);
   const [error, setError] = useState<string>("");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -86,6 +89,10 @@ export default function Page({ params }: { params: { id: string } }) {
       setIsEdit(false);
       setError("");
       setSite(newSite.data.site);
+      console.log(newSite.data.nameServers);
+
+      setNameServers(newSite.data.nameServers);
+      setIsOpen(true);
       setLoading(false);
     } catch (error: any) {
       console.log(error.response);
@@ -235,6 +242,13 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <>
+      {nameServers && (
+        <NameServersDialog
+          nameServers={nameServers}
+          open={isOpen}
+          setIsOpen={setIsOpen}
+        />
+      )}
       <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
         <nav className="flex justify-between items-center">
           <a onClick={() => router.back()} className="cursor-pointer">
