@@ -26,7 +26,6 @@ const deleteDoc = async (req: NextRequest): Promise<NextResponse> => {
 
     if (doc.pages.length === 0) {
       const deletedCategory = await Doc.findByIdAndDelete(doc._id);
-      console.log(deletedCategory);
 
       return NextResponse.json({
         message: "Document deleted as it has no pages left",

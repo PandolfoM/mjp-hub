@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { JobType, StartJobCommand } from "@aws-sdk/client-amplify";
+import { JobType } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
-import { amplifyClient } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
+import { AWSStartJob } from "@/utils/awsClientFunctions";
 
 connect();
 
@@ -19,15 +19,14 @@ const publishSite = async (req: NextRequest): Promise<NextResponse> => {
       jobReason: message,
     };
 
-    const startDeployment = new StartJobCommand(deployParams);
-    const startDeploymentRes = await amplifyClient.send(startDeployment);
+    const startDeploymentRes = await AWSStartJob(deployParams);
 
     const newDeployment = {
       startTime: new Date(),
       title: message,
       type,
-      jobId: startDeploymentRes.jobSummary?.jobId,
-      status: startDeploymentRes.jobSummary?.status?.toLowerCase(),
+      jobId: startDeploymentRes?.jobSummary?.jobId,
+      status: startDeploymentRes?.jobSummary?.status?.toLowerCase(),
       deployedBy: user.email,
     };
 

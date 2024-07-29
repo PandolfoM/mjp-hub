@@ -4,6 +4,7 @@ import Site from "@/models/Site";
 import { amplifyClient } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
+import { AWSDeleteApp } from "@/utils/awsClientFunctions";
 
 connect();
 
@@ -12,10 +13,8 @@ const deleteSite = async (req: NextRequest): Promise<NextResponse> => {
     const reqBody = await req.json();
     const { site } = reqBody;
 
-    const deleteLiveSite = new DeleteAppCommand({ appId: site.appId });
-    await amplifyClient.send(deleteLiveSite);
-    const deleteTestSite = new DeleteAppCommand({ appId: site.testAppId });
-    await amplifyClient.send(deleteTestSite);
+    await AWSDeleteApp({ appId: site.appId });
+    await AWSDeleteApp({ appId: site.testAppId });
 
     await Site.findOneAndDelete({ _id: site._id });
 

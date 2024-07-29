@@ -91,7 +91,6 @@ function NewDocDialog({ children, setDocs, categories }: Props) {
           data.category === "new" ? data.category : category?.label,
         newCategory: data.newCategory,
       });
-      console.log(res.data.data);
 
       setDocs(res.data.data);
       router.push(

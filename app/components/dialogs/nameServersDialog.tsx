@@ -31,7 +31,7 @@ function NameServersDialog({ open, nameServers, setIsOpen }: Props) {
           <DialogHeader>
             <DialogTitle className="text-lg">Warning!</DialogTitle>
             <DialogDescription>
-              Copy the name servers and add them into{" "}
+              Copy the nameservers and add them into{" "}
               <a
                 href="https://dcc.godaddy.com/control/portfolio"
                 target="_blank"

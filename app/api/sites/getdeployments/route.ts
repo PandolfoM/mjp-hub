@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GetJobCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
-import { amplifyClient } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
+import { AWSGetJob } from "@/utils/awsClientFunctions";
 
 connect();
 
@@ -19,21 +18,20 @@ const getDeployments = async (req: NextRequest): Promise<NextResponse> => {
     for (let i = 0; i < deployments.length; i++) {
       const deploy = deployments[i];
 
-      const getJob = new GetJobCommand({
+      const getJobRes = await AWSGetJob({
         appId: deploy.type === "test" ? testAppId : appId,
         jobId: deploy.jobId,
         branchName: "main",
       });
-      const getJobRes = await amplifyClient.send(getJob);
 
       if (deploy.status !== "succeed") {
         await Site.findOneAndUpdate(
           { _id: siteId, "deployments._id": deploy._id },
           {
             $set: {
-              "deployments.$.endTime": getJobRes.job?.summary?.endTime,
+              "deployments.$.endTime": getJobRes?.job?.summary?.endTime,
               "deployments.$.status":
-                getJobRes.job?.summary?.status?.toLowerCase(),
+                getJobRes?.job?.summary?.status?.toLowerCase(),
             },
           },
           { new: true }

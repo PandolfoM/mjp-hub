@@ -10,12 +10,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Site } from "@/models/Site";
-import React, { Dispatch, ReactNode, useEffect, useState } from "react";
+import React, { Dispatch, ReactNode, useState } from "react";
 import { Input } from "@/components/ui/input";
 import Button from "../button";
 import axios from "axios";
 import { format } from "date-fns";
-import Spinner from "../spinner";
 import {
   Table,
   TableBody,
@@ -24,7 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SimpleUser } from "../navdrawer";
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
 

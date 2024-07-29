@@ -19,6 +19,17 @@ import Site from "@/models/Site";
 import { amplifyClient, route53Client } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
+import {
+  AWSChangeRecords,
+  AWSCreateBranch,
+  AWSCreateDomain,
+  AWSCreateHostedZone,
+  AWSDeleteDomain,
+  AWSDeleteHostedZone,
+  AWSGetDomain,
+  AWSListRecords,
+  AWSUpdateApp,
+} from "@/utils/awsClientFunctions";
 
 connect();
 
@@ -71,10 +82,8 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
 
-    const updateTestSite = new UpdateAppCommand(updateTestParams);
-    const updateTestRes = await amplifyClient.send(updateTestSite);
-    const updateLiveSite = new UpdateAppCommand(updateLiveParams);
-    const updateLiveRes = await amplifyClient.send(updateLiveSite);
+    const updateTestRes = await AWSUpdateApp(updateTestParams);
+    const updateLiveRes = await AWSUpdateApp(updateLiveParams);
 
     if (!site.branchCreated) {
       try {
@@ -86,10 +95,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           framework: frameworkLabel,
         };
 
-        const createLiveBranchCommand = new CreateBranchCommand(
-          branchLiveParams
-        );
-        await amplifyClient.send(createLiveBranchCommand);
+        await AWSCreateBranch(branchLiveParams);
 
         const branchTestParams = {
           appId: site.testAppId,
@@ -99,10 +105,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           framework: frameworkLabel,
         };
 
-        const createTestBranchCommand = new CreateBranchCommand(
-          branchTestParams
-        );
-        await amplifyClient.send(createTestBranchCommand);
+        await AWSCreateBranch(branchTestParams);
 
         await Site.findOneAndUpdate(
           { _id: site._id },
@@ -117,7 +120,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     if (form.testURL !== site.testURL && form.testURL !== "") {
-      const updateTestURL = new CreateDomainAssociationCommand({
+      await AWSCreateDomain({
         appId: site.testAppId,
         domainName: getDomainName(form.testURL),
         subDomainSettings: [
@@ -127,21 +130,21 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           },
         ],
       });
-      await amplifyClient.send(updateTestURL);
     }
 
     let nameServers = null;
     let zoneId = "";
     if (form.liveURL !== site.liveURL && form.liveURL !== "") {
       if (site.zoneId) {
-        const getLiveUrl = new GetDomainAssociationCommand({
+        const getLiveUrlRes = await AWSGetDomain({
           appId: site.appId,
           domainName: site.liveURL,
         });
-        const getLiveUrlRes = await amplifyClient.send(getLiveUrl);
 
-        if (getLiveUrlRes.domainAssociation?.certificateVerificationDNSRecord) {
-          const listRecords = new ListResourceRecordSetsCommand({
+        if (
+          getLiveUrlRes?.domainAssociation?.certificateVerificationDNSRecord
+        ) {
+          const listRecordsRes = await AWSListRecords({
             HostedZoneId: site.zoneId,
             StartRecordName:
               getLiveUrlRes.domainAssociation?.certificateVerificationDNSRecord.split(
@@ -150,10 +153,9 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
             StartRecordType: RRType.CNAME,
             MaxItems: 1,
           });
-          const listRecordsRes = await route53Client.send(listRecords);
 
-          if (listRecordsRes.ResourceRecordSets) {
-            const deleteRecords = new ChangeResourceRecordSetsCommand({
+          if (listRecordsRes?.ResourceRecordSets) {
+            await AWSChangeRecords({
               HostedZoneId: site.zoneId,
               ChangeBatch: {
                 Changes: [
@@ -172,35 +174,32 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
                 ],
               },
             });
-            await route53Client.send(deleteRecords);
-            const deleteHostedZone = new DeleteHostedZoneCommand({
+
+            await AWSDeleteHostedZone({
               Id: site.zoneId,
             });
-            await route53Client.send(deleteHostedZone);
 
-            const deleteLiveUrl = new DeleteDomainAssociationCommand({
+            await AWSDeleteDomain({
               appId: site.appId,
               domainName: site.liveURL,
             });
-            await amplifyClient.send(deleteLiveUrl);
           }
         }
       }
 
-      const createHostedZone = new CreateHostedZoneCommand({
+      const hostedZoneRes = await AWSCreateHostedZone({
         CallerReference: Date.now().toString(),
         Name: form.liveURL,
       });
-      const hostedZoneRes = await route53Client.send(createHostedZone);
 
-      if (hostedZoneRes.DelegationSet) {
+      if (hostedZoneRes?.DelegationSet) {
         nameServers = hostedZoneRes.DelegationSet.NameServers;
       }
-      if (hostedZoneRes.HostedZone?.Id) {
+      if (hostedZoneRes?.HostedZone?.Id) {
         zoneId = hostedZoneRes.HostedZone?.Id.replace("/hostedzone/", "");
       }
 
-      const updateLiveURL = new CreateDomainAssociationCommand({
+      await AWSCreateDomain({
         appId: site.appId,
         domainName: form.liveURL,
         subDomainSettings: [
@@ -210,8 +209,6 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
           },
         ],
       });
-      await amplifyClient.send(updateLiveURL);
-      hostedZoneRes.DelegationSet?.NameServers;
     }
 
     const updateDB = await Site.findOneAndUpdate(

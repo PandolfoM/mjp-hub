@@ -50,8 +50,8 @@ function Login() {
       }
     } catch (error: any) {
       console.log(error);
-
       setError(error.response.data.error);
+      setLoading(false);
     } finally {
       setLoading(false);
     }

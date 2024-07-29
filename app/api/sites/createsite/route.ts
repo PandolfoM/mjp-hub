@@ -2,6 +2,7 @@ import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 import Site, { testSite } from "@/models/Site";
 import { amplifyClient } from "@/utils/amplifyClient";
+import { AWSCreateApp } from "@/utils/awsClientFunctions";
 import { CreateAppCommand, Platform } from "@aws-sdk/client-amplify";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,16 +25,14 @@ const createSite = async (req: NextRequest): Promise<NextResponse> => {
       platform: Platform.WEB_COMPUTE,
     };
 
-    const createLiveAppCommand = new CreateAppCommand(liveAppParams);
-    const liveAppResponse = await amplifyClient.send(createLiveAppCommand);
-    const createTestAppCommand = new CreateAppCommand(testAppParams);
-    const testAppResponse = await amplifyClient.send(createTestAppCommand);
+    const liveAppResponse = await AWSCreateApp(liveAppParams);
+    const testAppResponse = await AWSCreateApp(testAppParams);
 
-    if (!liveAppResponse.app) {
+    if (!liveAppResponse?.app) {
       throw new Error("Failed to create live app");
     }
 
-    if (!testAppResponse.app) {
+    if (!testAppResponse?.app) {
       throw new Error("Failed to create test app");
     }
 

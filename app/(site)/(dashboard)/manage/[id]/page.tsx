@@ -89,7 +89,6 @@ export default function Page({ params }: { params: { id: string } }) {
       setIsEdit(false);
       setError("");
       setSite(newSite.data.site);
-      console.log(newSite.data.nameServers);
 
       setNameServers(newSite.data.nameServers);
       setIsOpen(true);
