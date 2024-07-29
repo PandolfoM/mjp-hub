@@ -10,11 +10,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Button from "../button";
-import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-solid-svg-icons";
-import { copyToClipboard } from "@/utils/copyToClipboard";
 import Popout from "../popout";
+import { copyToClipboard } from "@/utils/copyToClipboard";
 
 type Props = {
   open: boolean;
@@ -46,7 +45,9 @@ function NameServersDialog({ open, nameServers, setIsOpen }: Props) {
               <div className="flex items-center gap-5" key={i}>
                 <p>{server}</p>
                 <Popout text="Copy">
-                  <div className="border rounded-sm border-primary w-8 h-8 flex items-center justify-center">
+                  <div
+                    className="border rounded-sm border-primary w-8 h-8 flex items-center justify-center"
+                    onClick={() => copyToClipboard(server)}>
                     <FontAwesomeIcon icon={faCopy} />
                   </div>
                 </Popout>
