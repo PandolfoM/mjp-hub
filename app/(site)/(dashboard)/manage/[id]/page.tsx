@@ -250,7 +250,9 @@ export default function Page({ params }: { params: { id: string } }) {
       )}
       <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
         <nav className="flex justify-between items-center">
-          <a onClick={() => router.back()} className="cursor-pointer">
+          <a
+            onClick={() => router.back()}
+            className="cursor-pointer no-underline">
             <FontAwesomeIcon icon={faChevronLeft} /> Back
           </a>
           {site && (

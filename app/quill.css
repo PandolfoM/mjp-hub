@@ -37,3 +37,7 @@
   border-radius: 2px !important;
   font-family: "JetBrainsMono", monospace !important;
 }
+
+.ql-bubble .ql-editor img {
+  max-width: 400px;
+}

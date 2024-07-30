@@ -4,6 +4,11 @@
 
 a {
   cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .custom-border {

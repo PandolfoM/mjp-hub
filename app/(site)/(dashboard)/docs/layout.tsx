@@ -155,7 +155,10 @@ const DocsList = ({
     <ul className="flex flex-col gap-2 w-full overflow-y-auto h-full">
       <li className="flex flex-col gap-2">
         <p className="text-white cursor-default">Get Started</p>
-        <Link href={`/docs`} onClick={onClick} className="text-white/50 ml-2">
+        <Link
+          href={`/docs`}
+          onClick={onClick}
+          className="text-white/50 ml-2 no-underline">
           Welcome
         </Link>
       </li>
@@ -168,7 +171,7 @@ const DocsList = ({
                 <Link
                   href={`/docs/${doc.categoryRoute}/${page.route}`}
                   onClick={onClick}
-                  className="text-white/50 ml-2">
+                  className="text-white/50 ml-2 no-underline">
                   {page.name}
                 </Link>
               </ContextMenuTrigger>

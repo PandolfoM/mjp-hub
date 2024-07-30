@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="dark dark:bg-background dark:text-white h-full w-full relative">
+      className="dark dark:bg-background dark:text-white h-full w-full relative selection:bg-primary/80">
       <head>
         <meta
           name="viewport"

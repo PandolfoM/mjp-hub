@@ -6,11 +6,15 @@ import { useCallback, useEffect, useState } from "react";
 import Button from "@/app/components/button";
 import { Doc } from "@/models/Doc";
 import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
+import { useUser } from "@/app/context/UserContext";
+import { Permissions } from "@/utils/permissions";
 
 const Editor = dynamic(() => import("@/app/components/editor"), { ssr: false });
 
 function DocPage({ params }: { params: { doc: string } }) {
   const { setLoading } = useSite();
+  const { hasPermission } = useUser();
   const [doc, setDoc] = useState<Doc | null>(null);
   const [editorTxt, setEditorTxt] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -93,7 +97,12 @@ function DocPage({ params }: { params: { doc: string } }) {
           )}
           {doc && (
             <Button
-              className="hidden sm:block"
+              className={cn(
+                hasPermission(Permissions.Manage) ||
+                  hasPermission(Permissions.Admin)
+                  ? "sm:block"
+                  : "hidden"
+              )}
               onClick={() => {
                 setIsEditing(!isEditing);
               }}>

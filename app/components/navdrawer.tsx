@@ -100,7 +100,7 @@ function NavDrawer({ children }: Props) {
                   </Button>
                   <Button
                     className={cn(
-                      hasPermission(Permissions.User) && "hidden",
+                      !hasPermission(Permissions.Admin) && "hidden",
                       "text-left"
                     )}
                     variant="ghost"
@@ -157,16 +157,16 @@ function NavDrawer({ children }: Props) {
                 />
               </div>
             </Popout>
-            <Popout text="Admin">
-              <div
-                onClick={() => handleRedirect("admin")}
-                className={cn(hasPermission(Permissions.User) && "hidden")}>
-                <FontAwesomeIcon
-                  icon={faHammer}
-                  className="w-1/2 h-auto cursor-pointer"
-                />
-              </div>
-            </Popout>
+            <div className={cn(!hasPermission(Permissions.Admin) && "hidden")}>
+              <Popout text="Admin">
+                <div onClick={() => handleRedirect("admin")}>
+                  <FontAwesomeIcon
+                    icon={faHammer}
+                    className="w-1/2 h-auto cursor-pointer"
+                  />
+                </div>
+              </Popout>
+            </div>
             <Popout text="Docs">
               <div onClick={() => handleRedirect("docs")}>
                 <FontAwesomeIcon
@@ -178,7 +178,7 @@ function NavDrawer({ children }: Props) {
           </div>
           <div className="overflow-hidden flex flex-col gap-2 w-full items-center">
             <HoverCard openDelay={0}>
-              <HoverCardTrigger>
+              <HoverCardTrigger className="no-underline">
                 {user ? (
                   <Avatar className="bg-primary cursor-pointer w-9 h-auto aspect-square">
                     <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
