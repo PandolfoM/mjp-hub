@@ -123,6 +123,8 @@ export default function Page({ params }: { params: { id: string } }) {
         });
 
         if (res.data.data) {
+          console.log(res.data.data);
+
           if (res.data.success) {
             setSite(res.data.data);
             form.setValue("liveURL", res.data.data.liveURL);
@@ -364,7 +366,8 @@ const EditingComponent = ({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={site.framework}
-                    disabled={site.deployments.length > 0}>
+                    // disabled={site.deployments.length > 0}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a framework" />

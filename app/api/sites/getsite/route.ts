@@ -9,7 +9,8 @@ const getSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
     const { id } = reqBody;
-    const site = await Site.findById(id);
+    const site = await Site.findById(id).select("-deployments");
+    site.deployments = [];
 
     if (!site) {
       return NextResponse.json({
