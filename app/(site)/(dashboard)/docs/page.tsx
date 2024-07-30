@@ -42,6 +42,11 @@ function Docs() {
               Tailwind
             </Link>
           </li>
+          <li>
+            <Link href="https://www.mongodb.com/" target="_blank">
+              MongoDB
+            </Link>
+          </li>
         </ul>
       </div>
     </div>

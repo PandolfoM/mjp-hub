@@ -106,7 +106,7 @@ export default function DocsLayout({
       <div className="hidden md:flex md:flex-col justify-between w-60 h-full bg-card/5 p-2">
         <DocsList setCategories={setCategories} docs={docs} setDocs={setDocs} />
         <NewDocDialog setDocs={setDocs} categories={categories}>
-          <Button disabled={!hasPermission(Permissions.User)}>
+          <Button disabled={hasPermission(Permissions.User)}>
             Add New Doc
           </Button>
         </NewDocDialog>
