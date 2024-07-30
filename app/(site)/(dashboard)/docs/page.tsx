@@ -33,6 +33,11 @@ function Docs() {
             </Link>
           </li>
           <li>
+            <Link href="https://resend.com/" target="_blank">
+              Resend
+            </Link>
+          </li>
+          <li>
             <Link href="https://fontawesome.com/" target="_blank">
               Font Awesome
             </Link>
