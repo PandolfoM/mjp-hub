@@ -84,7 +84,7 @@ export async function AWSGetDomain(
     );
     return res;
   } catch (error) {
-    console.log("Error Getting Domain:", error);
+    // console.log("Error Getting Domain:", error);
     return undefined;
   }
 }
