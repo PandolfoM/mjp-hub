@@ -118,33 +118,25 @@ export default function Page({ params }: { params: { id: string } }) {
     const fetchSite = async () => {
       setLoading(true);
       try {
-        await fetch("/api/sites/getsite", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ id: params.id }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.success) {
-              setSite(data.data);
-              form.setValue("liveURL", data.data.liveURL);
-              form.setValue("testURL", data.data.testURL);
-              form.setValue("repo", data.data.repo);
-              form.setValue("framework", data.data.framework);
-              if (data.data.env) {
-                form.setValue("env", data.data.env);
-              }
-            } else {
-              router.replace("/");
+        const res = await axios.post("/api/sites/getsite", {
+          id: params.id,
+        });
+
+        if (res.data.data) {
+          if (res.data.success) {
+            setSite(res.data.data);
+            form.setValue("liveURL", res.data.data.liveURL);
+            form.setValue("testURL", res.data.data.testURL);
+            form.setValue("repo", res.data.data.repo);
+            form.setValue("framework", res.data.data.framework);
+            if (res.data.data.env) {
+              form.setValue("env", res.data.data.env);
             }
-            setLoading(false);
-          })
-          .catch(() => {
+          } else {
             router.replace("/");
-            setLoading(false);
-          });
+          }
+        }
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch sites", error);
         setLoading(false);
