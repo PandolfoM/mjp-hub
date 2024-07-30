@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3001",
     "lint": "next lint",
     "email": "email dev"
   },
@@ -50,6 +50,7 @@
     "react-hook-form": "^7.51.5",
     "react-quill": "^2.0.0",
     "resend": "^3.3.0",
+    "sharp": "^0.33.4",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",

@@ -123,8 +123,6 @@ export default function Page({ params }: { params: { id: string } }) {
         });
 
         if (res.data.data) {
-          console.log(res.data.data);
-
           if (res.data.success) {
             setSite(res.data.data);
             form.setValue("liveURL", res.data.data.liveURL);
@@ -138,9 +136,10 @@ export default function Page({ params }: { params: { id: string } }) {
             router.replace("/");
           }
         }
+
         setLoading(false);
       } catch (error) {
-        console.error("Failed to fetch sites", error);
+        console.error("Failed to fetch site", error);
         setLoading(false);
       }
     };
@@ -178,21 +177,25 @@ export default function Page({ params }: { params: { id: string } }) {
           </p>
           <p className="flex gap-2 items-center">
             <strong>Test URL: </strong>
-            <Link
-              href={`https://${site.testURL}`}
-              target="_blank"
-              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-              {site.testURL}
-            </Link>
+            {site.testURL && (
+              <Link
+                href={`https://${site.testURL}`}
+                target="_blank"
+                className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                {site.testURL}
+              </Link>
+            )}
           </p>
           <p className="flex gap-2 items-center">
             <strong>Live URL: </strong>
-            <Link
-              href={`https://${site.liveURL}`}
-              target="_blank"
-              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-              {site.liveURL}
-            </Link>
+            {site.liveURL && (
+              <Link
+                href={`https://${site.liveURL}`}
+                target="_blank"
+                className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                {site.liveURL}
+              </Link>
+            )}
           </p>
           <p className="flex gap-2 items-center">
             <strong>Environment Variables: </strong>
