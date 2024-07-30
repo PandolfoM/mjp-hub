@@ -120,6 +120,18 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
     }
 
     if (form.testURL !== site.testURL && form.testURL !== "") {
+      const domain = await AWSGetDomain({
+        appId: site.testAppId,
+        domainName: "mjphub.com",
+      });
+
+      if (domain) {
+        await AWSDeleteDomain({
+          appId: site.testAppId,
+          domainName: "mjphub.com",
+        });
+      }
+
       await AWSCreateDomain({
         appId: site.testAppId,
         domainName: getDomainName(form.testURL),

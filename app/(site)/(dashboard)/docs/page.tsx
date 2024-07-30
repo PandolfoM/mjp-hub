@@ -2,6 +2,41 @@
 
 import Link from "next/link";
 
+const LINKS = [
+  {
+    url: "https://aws.amazon.com",
+    name: "AWS",
+  },
+  {
+    url: "https://docs.aws.amazon.com/",
+    name: "AWS Documentation",
+  },
+  {
+    url: "https://www.godaddy.com/",
+    name: "GoDaddy",
+  },
+  {
+    url: "https://ui.shadcn.com",
+    name: "Shadcn/ui",
+  },
+  {
+    url: "https://resend.com/",
+    name: "Resend",
+  },
+  {
+    url: "https://fontawesome.com/",
+    name: "Font Awesome",
+  },
+  {
+    url: "https://tailwindcss.com/",
+    name: "Tailwind",
+  },
+  {
+    url: "https://www.mongodb.com/",
+    name: "MongoDB",
+  },
+];
+
 function Docs() {
   return (
     <div className="w-full h-full flex flex-col gap-2">
@@ -12,46 +47,13 @@ function Docs() {
       <div>
         <h3 className="font-bold">Important Links</h3>
         <ul className="list-disc ml-6">
-          <li>
-            <Link href="https://aws.amazon.com" target="_blank">
-              AWS
-            </Link>
-          </li>
-          <li>
-            <Link href="https://docs.aws.amazon.com/" target="_blank">
-              AWS Documentation
-            </Link>
-          </li>
-          <li>
-            <Link href="https://www.godaddy.com/" target="_blank">
-              GoDaddy
-            </Link>
-          </li>
-          <li>
-            <Link href="https://ui.shadcn.com" target="_blank">
-              Shadcn/ui
-            </Link>
-          </li>
-          <li>
-            <Link href="https://resend.com/" target="_blank">
-              Resend
-            </Link>
-          </li>
-          <li>
-            <Link href="https://fontawesome.com/" target="_blank">
-              Font Awesome
-            </Link>
-          </li>
-          <li>
-            <Link href="https://tailwindcss.com/" target="_blank">
-              Tailwind
-            </Link>
-          </li>
-          <li>
-            <Link href="https://www.mongodb.com/" target="_blank">
-              MongoDB
-            </Link>
-          </li>
+          {LINKS.map((link, i) => (
+            <li key={i} className="mt-1">
+              <Link href={link.url} target="_blank">
+                {link.name}
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </div>
