@@ -1,22 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  CreateBranchCommand,
-  CreateDomainAssociationCommand,
-  DeleteDomainAssociationCommand,
-  GetDomainAssociationCommand,
-  Platform,
-  Stage,
-  UpdateAppCommand,
-} from "@aws-sdk/client-amplify";
-import {
-  ChangeResourceRecordSetsCommand,
-  CreateHostedZoneCommand,
-  DeleteHostedZoneCommand,
-  ListResourceRecordSetsCommand,
-  RRType,
-} from "@aws-sdk/client-route-53";
+import { Platform, Stage } from "@aws-sdk/client-amplify";
+import { RRType } from "@aws-sdk/client-route-53";
 import Site from "@/models/Site";
-import { amplifyClient, route53Client } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 import {
@@ -52,6 +37,26 @@ frontend:
       - .npm/**/*
 `;
 
+const buildSpecNext = `
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
+`;
+
 const updateSite = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
@@ -67,7 +72,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
-      buildSpec: buildSpecReact,
+      buildSpec: form.framework === "react" ? buildSpecReact : buildSpecNext,
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
@@ -77,7 +82,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
-      buildSpec: buildSpecReact,
+      buildSpec: form.framework === "react" ? buildSpecReact : buildSpecNext,
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
