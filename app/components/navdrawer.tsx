@@ -98,15 +98,14 @@ function NavDrawer({ children }: Props) {
                     onClick={() => handleRedirect("/")}>
                     Dashboard
                   </Button>
-                  <Button
-                    className={cn(
-                      !hasPermission(Permissions.Admin) && "hidden",
-                      "text-left"
-                    )}
-                    variant="ghost"
-                    onClick={() => handleRedirect("admin")}>
-                    Admin
-                  </Button>
+                  {!hasPermission(Permissions.Admin) && (
+                    <Button
+                      className="text-left"
+                      variant="ghost"
+                      onClick={() => handleRedirect("admin")}>
+                      Admin
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     className="text-left"
@@ -157,7 +156,7 @@ function NavDrawer({ children }: Props) {
                 />
               </div>
             </Popout>
-            <div className={cn(!hasPermission(Permissions.Admin) && "hidden")}>
+            {!hasPermission(Permissions.Admin) && (
               <Popout text="Admin">
                 <div onClick={() => handleRedirect("admin")}>
                   <FontAwesomeIcon
@@ -166,7 +165,7 @@ function NavDrawer({ children }: Props) {
                   />
                 </div>
               </Popout>
-            </div>
+            )}
             <Popout text="Docs">
               <div onClick={() => handleRedirect("docs")}>
                 <FontAwesomeIcon
