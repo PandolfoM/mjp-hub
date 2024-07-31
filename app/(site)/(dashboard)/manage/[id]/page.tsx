@@ -155,13 +155,16 @@ export default function Page({ params }: { params: { id: string } }) {
             <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
               {site.title}
             </h3>
-            <Button
-              variant="ghost"
-              className="text-sm"
-              disabled={hasPermission(Permissions.User)}
-              onClick={() => setIsEdit(true)}>
-              Edit
-            </Button>
+            {(hasPermission(Permissions.Admin) ||
+              hasPermission(Permissions.Developer)) && (
+              <Button
+                variant="ghost"
+                className="text-sm"
+                disabled={hasPermission(Permissions.User)}
+                onClick={() => setIsEdit(true)}>
+                Edit
+              </Button>
+            )}
           </div>
           <p className="text-xs">ID: {site._id}</p>
         </nav>
@@ -254,15 +257,12 @@ export default function Page({ params }: { params: { id: string } }) {
           </a>
           {site && (
             <DeployDialog site={site} setSite={setSite}>
-              <Button
-                disabled={
-                  !site.repo ||
-                  hasPermission(Permissions.User) ||
-                  hasPermission(Permissions.Manage)
-                }
-                onClick={getDeployments}>
-                Deployments
-              </Button>
+              {(hasPermission(Permissions.Admin) ||
+                hasPermission(Permissions.Developer)) && (
+                <Button disabled={!site.repo} onClick={getDeployments}>
+                  Deployments
+                </Button>
+              )}
             </DeployDialog>
           )}
         </nav>

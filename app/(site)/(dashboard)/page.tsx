@@ -12,9 +12,11 @@ import axios from "axios";
 import SiteCard from "../../components/siteCard";
 import { useUser } from "../../context/UserContext";
 import { useSite } from "../../context/SiteContext";
+import { Permissions } from "@/utils/permissions";
 
 export default function Home() {
   const { setLoading } = useSite();
+  const { hasPermission } = useUser();
   const { user, favorites } = useUser();
   const [sites, setSites] = useState<Site[]>([]);
   const [search, setSearch] = useState<string>("");
@@ -86,9 +88,12 @@ export default function Home() {
             </Button>
           </form>
           <NewSiteDialog>
-            <Button className="sm:h-full whitespace-nowrap h-full">
-              New Site
-            </Button>
+            {(hasPermission(Permissions.Admin) ||
+              hasPermission(Permissions.Developer)) && (
+              <Button className="sm:h-full whitespace-nowrap h-full">
+                New Site
+              </Button>
+            )}
           </NewSiteDialog>
         </nav>
 
