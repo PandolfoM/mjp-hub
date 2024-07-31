@@ -9,10 +9,12 @@ import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/app/context/UserContext";
 import { Permissions } from "@/utils/permissions";
+import { usePathname } from "next/navigation";
 
 const Editor = dynamic(() => import("@/app/components/editor"), { ssr: false });
 
 function DocPage({ params }: { params: { doc: string } }) {
+  const pathname = usePathname();
   const { setLoading } = useSite();
   const { hasPermission } = useUser();
   const [doc, setDoc] = useState<Doc | null>(null);
@@ -24,8 +26,12 @@ function DocPage({ params }: { params: { doc: string } }) {
       setLoading(true);
 
       try {
+        const category = pathname.split("/")[2];
+        const route = pathname.split("/")[3];
+
         const res = await axios.post("/api/docs/getdoc", {
-          route: params.doc,
+          category,
+          route,
         });
 
         if (res.data.data) {
@@ -40,13 +46,16 @@ function DocPage({ params }: { params: { doc: string } }) {
     };
 
     fetchDoc();
-  }, [params.doc, setLoading]);
+  }, [setLoading, pathname]);
 
   const saveDoc = useCallback(async () => {
     setLoading(true);
     try {
+      const category = pathname.split("/")[2];
+      const route = pathname.split("/")[3];
       const res = await axios.post("/api/docs/savedoc", {
-        route: params.doc,
+        category,
+        route,
         content: editorTxt,
       });
 
@@ -55,7 +64,7 @@ function DocPage({ params }: { params: { doc: string } }) {
     } catch (err) {
       console.log(err);
     }
-  }, [editorTxt, params.doc, setLoading]);
+  }, [editorTxt, setLoading, pathname]);
 
   useEffect(() => {
     const handleKeydown = (event: KeyboardEvent) => {

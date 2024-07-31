@@ -16,17 +16,36 @@ const newDoc = async (req: NextRequest): Promise<NextResponse> => {
         ? newCategory.toLowerCase().replace(/\s+/g, "")
         : category.value;
 
-    const doc = await Doc.create({
-      category: docCategory,
+    const categoryExists = await Doc.findOne({
       categoryRoute: docCategoryRoute,
-      pages: [
-        {
-          name: title,
-          route: title.toLowerCase().replace(/\s+/g, ""),
-          content: `<p>${title}</p>`,
-        },
-      ],
     });
+
+    let doc = null;
+    if (categoryExists) {
+      const newPage = {
+        name: title,
+        route: title.toLowerCase().replace(/\s+/g, ""),
+        content: `<p>${title}</p>`,
+      };
+
+      console.log(newPage);
+      doc = await Doc.updateOne(
+        { categoryRoute: docCategoryRoute },
+        { $push: { pages: newPage } }
+      );
+    } else {
+      doc = await Doc.create({
+        category: docCategory,
+        categoryRoute: docCategoryRoute,
+        pages: [
+          {
+            name: title,
+            route: title.toLowerCase().replace(/\s+/g, ""),
+            content: `<p>${title}</p>`,
+          },
+        ],
+      });
+    }
 
     const docs = await Doc.find();
 

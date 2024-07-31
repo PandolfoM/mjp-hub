@@ -8,11 +8,17 @@ connect();
 const getDoc = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const reqBody = await req.json();
-    const { route } = reqBody;
+    const { category, route } = reqBody;
 
-    const doc = await Doc.findOne({
-      pages: { $elemMatch: { route } },
-    }).exec();
+    const doc = await Doc.findOne(
+      {
+        categoryRoute: category,
+        pages: { $elemMatch: { route: route } },
+      },
+      {
+        "pages.$": 1, // This projection will include only the matched element in the 'pages' array
+      }
+    ).exec();
 
     if (!doc) {
       return NextResponse.json({

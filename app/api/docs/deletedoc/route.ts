@@ -12,8 +12,7 @@ const deleteDoc = async (req: NextRequest): Promise<NextResponse> => {
 
     const doc = await Doc.findOneAndUpdate(
       { "pages._id": page._id },
-      { $pull: { pages: { _id: page._id } } },
-      { new: true }
+      { $pull: { pages: { _id: page._id } } }
     );
 
     if (!doc) {
@@ -35,10 +34,12 @@ const deleteDoc = async (req: NextRequest): Promise<NextResponse> => {
       });
     }
 
+    const docs = await Doc.find();
+
     const response = NextResponse.json({
-      message: "Doc created successfully",
+      message: "Doc deleted successfully",
       success: true,
-      data: doc,
+      data: docs,
     });
 
     return response;
