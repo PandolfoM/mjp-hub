@@ -17,8 +17,9 @@ export default function Template({ children }: { children: React.ReactNode }) {
         const me = await axios.get("/api/auth/me");
         setUser(me.data.user);
 
-        const favs = await axios.post("/api/auth/getfavorites", {
+        const favs = await axios.post("/api/users/getfavorites", {
           favs: me.data.user.favorites,
+          uid: me.data.user._id,
         });
         setFavorites(favs.data.favorites);
 

@@ -27,6 +27,8 @@ export default function Home() {
           search: "",
         });
 
+        console.log(res.data.sites);
+
         setSites(res.data.sites);
         setLoading(false);
       } catch (error) {
