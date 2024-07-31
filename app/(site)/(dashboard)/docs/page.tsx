@@ -35,6 +35,10 @@ const LINKS = [
     url: "https://www.mongodb.com/",
     name: "MongoDB",
   },
+  {
+    url: "https://nextjs.org/",
+    name: "Next.js",
+  },
 ];
 
 function Docs() {
