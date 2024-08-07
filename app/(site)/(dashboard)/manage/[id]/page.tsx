@@ -183,7 +183,7 @@ export default function Page({ params }: { params: { id: string } }) {
               (hasPermission(Permissions.Admin) ||
                 hasPermission(Permissions.Developer)) && (
                 <Popout text="Copy Git Clone">
-                  <div>
+                  <div className="hidden sm:block">
                     <FontAwesomeIcon
                       icon={faCopy}
                       className="cursor-pointer"
