@@ -44,6 +44,7 @@ export interface SimpleUser {
   _id: string;
   email: string;
   name: string;
+  githubUsername?: string;
   tempPassword: boolean;
   expireAt?: Date;
   favorites: Site[];

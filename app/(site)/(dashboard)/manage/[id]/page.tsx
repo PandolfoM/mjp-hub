@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, memo, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faX } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faCopy, faX } from "@fortawesome/free-solid-svg-icons";
 import { UseFormReturn, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import NameServersDialog from "@/app/components/dialogs/nameServersDialog";
+import Popout from "@/app/components/popout";
+import { copyToClipboard } from "@/utils/copyToClipboard";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -56,7 +58,7 @@ const FRAMEWORKS = [
 
 export default function Page({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { hasPermission } = useUser();
+  const { hasPermission, user } = useUser();
   const { setLoading } = useSite();
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -169,7 +171,7 @@ export default function Page({ params }: { params: { id: string } }) {
           <p className="text-xs">ID: {site._id}</p>
         </nav>
         <div className="flex flex-col gap-2 w-full">
-          <p className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center">
             <strong>Repository: </strong>
             <Link
               href={site.repo}
@@ -177,7 +179,20 @@ export default function Page({ params }: { params: { id: string } }) {
               className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
               {site.repo}
             </Link>
-          </p>
+            {user?.githubUsername &&
+              (hasPermission(Permissions.Admin) ||
+                hasPermission(Permissions.Developer)) && (
+                <Popout text="Copy Git Clone">
+                  <div>
+                    <FontAwesomeIcon
+                      icon={faCopy}
+                      className="cursor-pointer"
+                      onClick={() => copyToClipboard(`${site.repo}.git`)}
+                    />
+                  </div>
+                </Popout>
+              )}
+          </div>
           <p className="flex gap-2 items-center">
             <strong>Test URL: </strong>
             {site.testURL && (

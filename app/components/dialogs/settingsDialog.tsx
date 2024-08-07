@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
+import { Permissions } from "@/utils/permissions";
 
 type Props = {
   isOpen: boolean;
@@ -37,10 +38,11 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Required" }).optional(),
   confirmPassword: z.string().min(1, { message: "Required" }).optional(),
   name: z.string().min(1, { message: "Required" }),
+  githubUsername: z.string().optional(),
 });
 
 function SettingsDialog({ isOpen, setIsOpen }: Props) {
-  const { user, setUser } = useUser();
+  const { user, setUser, hasPermission } = useUser();
   const { setLoading, loading } = useSite();
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
@@ -51,6 +53,7 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
 
   const updateUser = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
+    console.log(data.githubUsername);
 
     if (data.password !== data.confirmPassword) {
       setLoading(false);
@@ -62,6 +65,7 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
         user,
         email: data.email,
         name: data.name,
+        githubUsername: data.githubUsername,
         password: data.password,
         updateSelf: true,
       });
@@ -129,6 +133,26 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
                           </FormItem>
                         )}
                       />
+                      {(hasPermission(Permissions.Developer) ||
+                        hasPermission(Permissions.Admin)) && (
+                        <FormField
+                          control={form.control}
+                          name="githubUsername"
+                          defaultValue={user.githubUsername}
+                          render={({ field }) => (
+                            <FormItem className="sm:w-full space-y-0">
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  placeholder="Github Username"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
                       <>
                         <FormField
                           control={form.control}

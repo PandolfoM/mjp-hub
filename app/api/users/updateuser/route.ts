@@ -12,12 +12,23 @@ connect();
 const updateUser = async (req: NextRequest): Promise<NextResponse> => {
   try {
     const request = await req.json();
-    const { user, email, name, password, permission, updateSelf } = request;
+    const {
+      user,
+      email,
+      name,
+      githubUsername,
+      password,
+      permission,
+      updateSelf,
+    } = request;
+
+    console.log(githubUsername);
 
     if (
       user.email === email &&
       user.name === name &&
-      user.permission === permission
+      user.permission === permission &&
+      user.githubUsername === githubUsername
     ) {
       return NextResponse.json(
         { error: "No data has changed", success: false },
@@ -58,6 +69,7 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
           {
             password: hashedPassword,
             name,
+            githubUsername,
             email,
             permission,
           },
@@ -100,6 +112,7 @@ const updateUser = async (req: NextRequest): Promise<NextResponse> => {
           { _id: user._id },
           {
             name,
+            githubUsername,
             email,
             permission,
           },
