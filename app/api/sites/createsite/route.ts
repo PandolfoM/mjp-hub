@@ -1,9 +1,8 @@
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
 import Site, { testSite } from "@/models/Site";
-import { amplifyClient } from "@/utils/amplifyClient";
 import { AWSCreateApp } from "@/utils/awsClientFunctions";
-import { CreateAppCommand, Platform } from "@aws-sdk/client-amplify";
+import { CreateAppCommandInput, Platform } from "@aws-sdk/client-amplify";
 import { NextRequest, NextResponse } from "next/server";
 
 connect();
@@ -13,13 +12,13 @@ const createSite = async (req: NextRequest): Promise<NextResponse> => {
     const reqBody = await req.json();
     const { title } = reqBody;
 
-    const liveAppParams = {
+    const liveAppParams: CreateAppCommandInput = {
       name: `${title}`,
       oauthToken: process.env.GITHUB_OAUTH_TOKEN,
       platform: Platform.WEB_COMPUTE,
     };
 
-    const testAppParams = {
+    const testAppParams: CreateAppCommandInput = {
       name: `${title}-test`,
       oauthToken: process.env.GITHUB_OAUTH_TOKEN,
       platform: Platform.WEB_COMPUTE,

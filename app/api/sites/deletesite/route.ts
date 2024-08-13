@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DeleteAppCommand } from "@aws-sdk/client-amplify";
 import Site from "@/models/Site";
-import { amplifyClient } from "@/utils/amplifyClient";
 import { connect } from "@/lib/db";
 import { withAuth } from "@/middleware/auth";
-import { AWSDeleteApp } from "@/utils/awsClientFunctions";
+import { AWSDeleteApp, AWSDeleteDomain, AWSDeleteHostedZone, AWSGetDomain } from "@/utils/awsClientFunctions";
 
 connect();
 
@@ -15,6 +13,22 @@ const deleteSite = async (req: NextRequest): Promise<NextResponse> => {
 
     await AWSDeleteApp({ appId: site.appId });
     await AWSDeleteApp({ appId: site.testAppId });
+
+    if (site.zoneId) {
+      await AWSDeleteHostedZone({ Id: site.zoneId });
+    }
+
+    const domain = await AWSGetDomain({
+      appId: site.testAppId,
+      domainName: "mjphub.com",
+    });
+
+    if (domain) {
+      await AWSDeleteDomain({
+        appId: site.testAppId,
+        domainName: "mjphub.com",
+      });
+    }
 
     await Site.findOneAndDelete({ _id: site._id });
 

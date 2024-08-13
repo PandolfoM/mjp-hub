@@ -53,7 +53,6 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
 
   const updateUser = async (data: z.infer<typeof formSchema>) => {
     setLoading(true);
-    console.log(data.githubUsername);
 
     if (data.password !== data.confirmPassword) {
       setLoading(false);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Platform, Stage } from "@aws-sdk/client-amplify";
+import { Platform, Stage, UpdateAppCommandInput } from "@aws-sdk/client-amplify";
 import { RRType } from "@aws-sdk/client-route-53";
 import Site from "@/models/Site";
 import { connect } from "@/lib/db";
@@ -67,7 +67,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       return acc;
     }, {});
 
-    const updateTestParams = {
+    const updateTestParams: UpdateAppCommandInput = {
       appId: site.testAppId,
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
@@ -77,7 +77,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
 
-    const updateLiveParams = {
+    const updateLiveParams: UpdateAppCommandInput = {
       appId: site.appId,
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
