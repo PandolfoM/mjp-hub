@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <FontAwesomeIcon
             icon={showPassword ? EyeSolid : EyeReg}
             onClick={() => setShowPassword(!showPassword)}
-            className="px-3 absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer z-[99999999]"
+            className="px-3 absolute right-0 top-1/2 -translate-y-1/2 cursor-pointer z-50"
           />
         )}
       </span>
