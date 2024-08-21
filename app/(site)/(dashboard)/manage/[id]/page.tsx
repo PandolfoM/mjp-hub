@@ -179,7 +179,7 @@ export default function Page({ params }: { params: { id: string } }) {
               className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
               {site.repo}
             </Link>
-            {user?.githubUsername &&
+            {(user?.githubUsername && site.repo) &&
               (hasPermission(Permissions.Admin) ||
                 hasPermission(Permissions.Developer)) && (
                 <Popout text="Copy Git Clone">
