@@ -87,25 +87,13 @@ function SiteCard({ site }: { site: Site }) {
 
   return (
     <>
-      <VerticalCard
-        className={cn(
-          "overflow-hidden group",
-          isArchived ? "opacity-50" : "opacity-100"
-        )}>
+      <VerticalCard className="overflow-hidden group">
         <>
           <header className="text-center w-full relative">
-            <h3 className="text-md font-bold whitespace-nowrap text-ellipsis overflow-hidden w-full">
-              {site.title}
+            <h3 className={cn("text-md font-bold whitespace-nowrap text-ellipsis overflow-hidden w-full", isArchived && "opacity-50")}>
+              {site.title} {isArchived && <span className="text-sm font-normal">(Archived)</span>}
             </h3>
             {user && (
-              // <Button
-              //   variant="ghost"
-              //   onClick={toggleFavorite}
-              //   className="absolute right-0 top-1/2 -translate-y-1/2 sm:hidden sm:group-hover:block">
-              //   <FontAwesomeIcon
-              //     icon={isFavorite ? faStarSolid : faStarReg}
-              //     size="lg"
-              //   />
               <DropdownMenu>
                 <DropdownMenuTrigger className="absolute right-0 top-1/2 -translate-y-1/2 p-2 ring-0 outline-none">
                   <FontAwesomeIcon
@@ -123,10 +111,9 @@ function SiteCard({ site }: { site: Site }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              // </Button>
             )}
           </header>
-          <div className="text-md text-left flex flex-col gap-2 flex-1 whitespace-nowrap w-full">
+          <div className={cn("text-md text-left flex flex-col gap-2 flex-1 whitespace-nowrap w-full", isArchived && "opacity-50")}>
             <p className="overflow-hidden text-ellipsis">
               <strong>Repository:</strong>{" "}
               <a href={site.repo} target="_blank" className="underline">
@@ -152,7 +139,7 @@ function SiteCard({ site }: { site: Site }) {
               </a>
             </p>
           </div>
-          <Link href={`/manage/${site._id}`} className="w-full">
+          <Link href={`/manage/${site._id}`} className={cn("w-full", isArchived && "opacity-50")}>
             <Button className="w-full" disabled={isArchived}>
               Manage
             </Button>
