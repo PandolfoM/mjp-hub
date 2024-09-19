@@ -13,14 +13,14 @@ const deployment = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  console.log(req.json());
 
-  const { email } = await req.json();
+  const data = await req.json();
+  console.log(data);
 
   try {
     const { data, error } = await resend.emails.send({
       from: "MJP Hub <mjp@mattpandolfo.com>",
-      to: email,
+      to: "matt@pandolfo.com",
       subject: `Deployment Finished`,
       react: Deployment(),
       text: "Deployment Finished",
