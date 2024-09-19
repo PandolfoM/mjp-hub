@@ -41,8 +41,10 @@ const formSchema = z.object({
   testURL: z.string().optional(),
   liveURL: z.string().optional(),
   framework: z.string().optional(),
-  emailFrequency: z.string(),
+  maintenanceEmailFrequency: z.string(),
   maintenanceEmails: z.string().optional(),
+  deploymentEmailOption: z.string().optional(),
+  deploymentEmails: z.string().optional(),
   env: z
     .array(
       z.object({
@@ -59,11 +61,17 @@ const FRAMEWORKS = [
 ];
 
 const MAINTENANCE_EMAIL_OPTIONS = [
-  { label: "Never", value: "never" },
   { label: "Monthly", value: "monthly" },
   { label: "Quarterly", value: "quarterly" },
   { label: "Biannual", value: "biannual" },
   { label: "Yearly", value: "yearly" },
+  { label: "Never", value: "never" },
+];
+
+const DEPLOYMENT_EMAIL_OPTIONS = [
+  { label: "Requested User", value: "requestedUser" },
+  { label: "Specific", value: "specific" },
+  { label: "None", value: "none" },
 ];
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -82,7 +90,10 @@ export default function Page({ params }: { params: { id: string } }) {
       repo: "",
       testURL: "",
       liveURL: "",
+      maintenanceEmailFrequency: "never",
       maintenanceEmails: "",
+      deploymentEmailOption: "none",
+      deploymentEmails: "",
       env: [{ key: "", value: "" }],
     },
   });
@@ -103,8 +114,13 @@ export default function Page({ params }: { params: { id: string } }) {
             form.setValue("testURL", data.testURL);
             form.setValue("repo", data.repo);
             form.setValue("framework", data.framework);
-            form.setValue("emailFrequency", data.emailFrequency);
+            form.setValue(
+              "maintenanceEmailFrequency",
+              data.maintenanceEmailFrequency
+            );
             form.setValue("maintenanceEmails", data.maintenanceEmails);
+            form.setValue("deploymentEmailOption", data.deploymentEmailOption);
+            form.setValue("deploymentEmails", data.deploymentEmails);
             if (data.env) {
               form.setValue("env", data.env);
             }
@@ -274,13 +290,18 @@ export default function Page({ params }: { params: { id: string } }) {
                   <p className="flex gap-2 items-center">
                     <strong>Maintenance Emails: </strong>
                     <span className="text-nowrap text-ellipsis overflow-hidden capitalize">
-                      {site.emailFrequency}
+                      {site.maintenanceEmailFrequency}
                     </span>
                   </p>
                   <p className="flex gap-2 items-center">
                     <strong>Deployment Emails: </strong>
-                    <span className="text-nowrap text-ellipsis overflow-hidden">
-                      Requested User
+                    <span className="text-nowrap text-ellipsis overflow-hidden capitalize">
+                      {
+                        DEPLOYMENT_EMAIL_OPTIONS.find(
+                          (option) =>
+                            option.value === site.deploymentEmailOption
+                        )?.label
+                      }
                     </span>
                   </p>
                 </div>
@@ -554,13 +575,13 @@ const EditingComponent = ({
                   <div className="flex flex-col gap-[5px] w-full">
                     <FormField
                       control={form.control}
-                      name="emailFrequency"
+                      name="maintenanceEmailFrequency"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Maintenance Emails</FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={site.emailFrequency}>
+                            defaultValue={site.maintenanceEmailFrequency}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select how often to send an email" />
@@ -593,12 +614,49 @@ const EditingComponent = ({
                         </FormItem>
                       )}
                     />
-                    <p className="flex gap-2 items-center">
-                      <strong>Deployment Emails: </strong>
-                      <span className="text-nowrap text-ellipsis overflow-hidden">
-                        Requested User
-                      </span>
-                    </p>
+                    <FormField
+                      control={form.control}
+                      name="deploymentEmailOption"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Deployment Emails</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={site.deploymentEmailOption}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select how often to send an email" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {DEPLOYMENT_EMAIL_OPTIONS.map((option, i) => (
+                                <SelectItem key={i} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    {form.watch("deploymentEmailOption") === "specific" && (
+                      <FormField
+                        control={form.control}
+                        name="deploymentEmails"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Deployment Email Receivers</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Email Addresses (separate with comma)"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
                 </>
               </VerticalCard>

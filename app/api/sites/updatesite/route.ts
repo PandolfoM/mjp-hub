@@ -240,8 +240,10 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         testURL: form.testURL,
         liveURL: form.liveURL,
         framework: form.framework,
-        emailFrequency: form.emailFrequency,
+        maintenanceEmailFrequency: form.maintenanceEmailFrequency,
         maintenanceEmails: form.maintenanceEmails,
+        deploymentEmails: form.deploymentEmails,
+        deploymentEmailOption: form.deploymentEmailOption,
         zoneId,
       },
       { new: true }

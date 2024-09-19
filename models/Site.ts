@@ -24,8 +24,10 @@ export interface Site extends mongoose.Document {
   framework: string;
   zoneId?: string;
   archived?: boolean;
-  emailFrequency?: string;
+  maintenanceEmailFrequency?: string;
   maintenanceEmails?: string;
+  deploymentEmails?: string;
+  deploymentEmailOption?: string;
 }
 
 export const testSite = {
@@ -41,8 +43,10 @@ export const testSite = {
   framework: "",
   zoneId: "",
   archived: false,
-  emailFrequency: "",
+  maintenanceEmailFrequency: "",
   maintenanceEmails: "",
+  deploymentEmails: "",
+  deploymentEmailOption: "",
 };
 
 const siteSchema = new mongoose.Schema({
@@ -62,8 +66,10 @@ const siteSchema = new mongoose.Schema({
   framework: { type: String },
   zoneId: { type: String },
   archived: { type: Boolean },
-  emailFrequency: { type: String },
   maintenanceEmails: { type: String },
+  maintenanceEmailFrequency: { type: String },
+  deploymentEmails: { type: String },
+  deploymentEmailOption: { type: String },
   deployments: [
     {
       startTime: { type: Date },
