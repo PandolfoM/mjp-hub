@@ -24,6 +24,8 @@ export interface Site extends mongoose.Document {
   framework: string;
   zoneId?: string;
   archived?: boolean;
+  emailFrequency?: string;
+  maintenanceEmails?: string;
 }
 
 export const testSite = {
@@ -39,6 +41,8 @@ export const testSite = {
   framework: "",
   zoneId: "",
   archived: false,
+  emailFrequency: "",
+  maintenanceEmails: "",
 };
 
 const siteSchema = new mongoose.Schema({
@@ -58,6 +62,8 @@ const siteSchema = new mongoose.Schema({
   framework: { type: String },
   zoneId: { type: String },
   archived: { type: Boolean },
+  emailFrequency: { type: String },
+  maintenanceEmails: { type: String },
   deployments: [
     {
       startTime: { type: Date },

@@ -41,6 +41,8 @@ const formSchema = z.object({
   testURL: z.string().optional(),
   liveURL: z.string().optional(),
   framework: z.string().optional(),
+  emailFrequency: z.string(),
+  maintenanceEmails: z.string().optional(),
   env: z
     .array(
       z.object({
@@ -54,6 +56,14 @@ const formSchema = z.object({
 const FRAMEWORKS = [
   { label: "Next.js - SSR", value: "nextjs-ssr" },
   { label: "React", value: "react" },
+];
+
+const MAINTENANCE_EMAIL_OPTIONS = [
+  { label: "Never", value: "never" },
+  { label: "Monthly", value: "monthly" },
+  { label: "Quarterly", value: "quarterly" },
+  { label: "Biannual", value: "biannual" },
+  { label: "Yearly", value: "yearly" },
 ];
 
 export default function Page({ params }: { params: { id: string } }) {
@@ -72,49 +82,10 @@ export default function Page({ params }: { params: { id: string } }) {
       repo: "",
       testURL: "",
       liveURL: "",
+      maintenanceEmails: "",
       env: [{ key: "", value: "" }],
     },
   });
-
-  const saveSite = async () => {
-    setLoading(true);
-    try {
-      const frameworkLabel = FRAMEWORKS.find(
-        (fw) => fw.value === form.getValues().framework
-      )?.label;
-      const newSite = await axios.post("/api/sites/updatesite", {
-        form: form.getValues(),
-        site: site,
-        frameworkLabel: frameworkLabel,
-      });
-
-      setIsEdit(false);
-      setError("");
-      setSite(newSite.data.site);
-
-      setNameServers(newSite.data.nameServers);
-      setIsOpen(true);
-      setLoading(false);
-    } catch (error: any) {
-      console.log(error.response);
-      setError(error.response.data.error);
-      setLoading(false);
-    }
-  };
-
-  const deleteSite = async () => {
-    setLoading(true);
-    try {
-      await axios.post("/api/sites/deletesite", {
-        site: site,
-      });
-      setError("");
-      router.push("/");
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     const fetchSite = async () => {
@@ -123,16 +94,19 @@ export default function Page({ params }: { params: { id: string } }) {
         const res = await axios.post("/api/sites/getsite", {
           id: params.id,
         });
+        const data = res.data.data;
 
-        if (res.data.data) {
+        if (data) {
           if (res.data.success) {
-            setSite(res.data.data);
-            form.setValue("liveURL", res.data.data.liveURL);
-            form.setValue("testURL", res.data.data.testURL);
-            form.setValue("repo", res.data.data.repo);
-            form.setValue("framework", res.data.data.framework);
-            if (res.data.data.env) {
-              form.setValue("env", res.data.data.env);
+            setSite(data);
+            form.setValue("liveURL", data.liveURL);
+            form.setValue("testURL", data.testURL);
+            form.setValue("repo", data.repo);
+            form.setValue("framework", data.framework);
+            form.setValue("emailFrequency", data.emailFrequency);
+            form.setValue("maintenanceEmails", data.maintenanceEmails);
+            if (data.env) {
+              form.setValue("env", data.env);
             }
           } else {
             router.replace("/");
@@ -148,83 +122,6 @@ export default function Page({ params }: { params: { id: string } }) {
 
     fetchSite();
   }, [params.id, router, form, setLoading]);
-
-  const NotEditing = ({ site }: { site: Site }) => {
-    return (
-      <>
-        <nav className="flex items-start justify-between w-full flex-col">
-          <div className="flex gap-4 w-full justify-between items-center">
-            <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
-              {site.title}
-            </h3>
-            {(hasPermission(Permissions.Admin) ||
-              hasPermission(Permissions.Developer)) && (
-              <Button
-                variant="ghost"
-                className="text-sm"
-                disabled={hasPermission(Permissions.User)}
-                onClick={() => setIsEdit(true)}>
-                Edit
-              </Button>
-            )}
-          </div>
-          <p className="text-xs">ID: {site._id}</p>
-        </nav>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex gap-2 items-center">
-            <strong>Repository: </strong>
-            <Link
-              href={site.repo}
-              target="_blank"
-              className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-              {site.repo}
-            </Link>
-            {(user?.githubUsername && site.repo) &&
-              (hasPermission(Permissions.Admin) ||
-                hasPermission(Permissions.Developer)) && (
-                <Popout text="Copy Git Clone">
-                  <div className="hidden sm:block">
-                    <FontAwesomeIcon
-                      icon={faCopy}
-                      className="cursor-pointer"
-                      onClick={() => copyToClipboard(`${site.repo}.git`)}
-                    />
-                  </div>
-                </Popout>
-              )}
-          </div>
-          <p className="flex gap-2 items-center">
-            <strong>Test URL: </strong>
-            {site.testURL && (
-              <Link
-                href={`https://${site.testURL}`}
-                target="_blank"
-                className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-                {site.testURL}
-              </Link>
-            )}
-          </p>
-          <p className="flex gap-2 items-center">
-            <strong>Live URL: </strong>
-            {site.liveURL && (
-              <Link
-                href={`https://${site.liveURL}`}
-                target="_blank"
-                className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-                {site.liveURL}
-              </Link>
-            )}
-          </p>
-          <p className="flex gap-2 items-center">
-            <strong>Environment Variables: </strong>
-            <span className="text-nowrap text-ellipsis overflow-hidden">
-              {site.env.length}
-            </span>
-          </p>
-        </div>
-      </>
-    );
-  };
 
   const getDeployments = async () => {
     setLoading(true);
@@ -252,6 +149,147 @@ export default function Page({ params }: { params: { id: string } }) {
       setError("There has been an error");
       setLoading(false);
     }
+  };
+
+  const deleteSite = async () => {
+    setLoading(true);
+    try {
+      await axios.post("/api/sites/deletesite", {
+        site: site,
+      });
+      setError("");
+      router.push("/");
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  const saveSite = async () => {
+    setLoading(true);
+    try {
+      const frameworkLabel = FRAMEWORKS.find(
+        (fw) => fw.value === form.getValues().framework
+      )?.label;
+      const newSite = await axios.post("/api/sites/updatesite", {
+        form: form.getValues(),
+        site: site,
+        frameworkLabel: frameworkLabel,
+      });
+
+      setIsEdit(false);
+      setError("");
+      setSite(newSite.data.site);
+
+      setNameServers(newSite.data.nameServers);
+      setIsOpen(true);
+      setLoading(false);
+    } catch (error: any) {
+      console.log(error.response);
+      setError(error.response.data.error);
+      setLoading(false);
+    }
+  };
+
+  const NotEditing = ({ site }: { site: Site }) => {
+    return (
+      <div className="w-full flex flex-col gap-2 flex-1 lg:flex-row lg:h-full">
+        <div className="flex flex-col w-full h-full min-h-[80%] lg:min-w-[70%]">
+          <h3 className="self-start font-bold text-lg text-primary">Details</h3>
+          <VerticalCard className="w-full h-full">
+            <div className="flex flex-col gap-2 w-full">
+              <nav className="border-b-2 border-primary flex items-baseline justify-between">
+                <h3 className="text-md font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
+                  {site.title}
+                </h3>
+                {/* <p className="text-xs text-nowrap">ID: {site._id}</p> */}
+              </nav>
+              <div className="flex gap-2 items-center">
+                <strong>Repository: </strong>
+                <Link
+                  href={site.repo}
+                  target="_blank"
+                  className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                  {site.repo}
+                </Link>
+                {user?.githubUsername &&
+                  site.repo &&
+                  (hasPermission(Permissions.Admin) ||
+                    hasPermission(Permissions.Developer)) && (
+                    <Popout text="Copy Git Clone">
+                      <div className="hidden sm:block">
+                        <FontAwesomeIcon
+                          icon={faCopy}
+                          className="cursor-pointer"
+                          onClick={() => copyToClipboard(`${site.repo}.git`)}
+                        />
+                      </div>
+                    </Popout>
+                  )}
+              </div>
+              <p className="flex gap-2 items-center">
+                <strong>Test URL: </strong>
+                {site.testURL && (
+                  <Link
+                    href={`https://${site.testURL}`}
+                    target="_blank"
+                    className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                    {site.testURL}
+                  </Link>
+                )}
+              </p>
+              <p className="flex gap-2 items-center">
+                <strong>Live URL: </strong>
+                {site.liveURL && (
+                  <Link
+                    href={`https://${site.liveURL}`}
+                    target="_blank"
+                    className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                    {site.liveURL}
+                  </Link>
+                )}
+              </p>
+              <p className="flex gap-2 items-center">
+                <strong>Environment Variables: </strong>
+                <span className="text-nowrap text-ellipsis overflow-hidden">
+                  {site.env.length}
+                </span>
+              </p>
+            </div>
+          </VerticalCard>
+        </div>
+        <div className="flex flex-col w-full gap-2">
+          <div className="flex flex-col">
+            <h3 className="self-start font-bold text-lg text-primary">
+              Notifications
+            </h3>
+            <VerticalCard className="w-full min-h-0 h-auto">
+              <div className="flex flex-col gap-2 w-full">
+                <nav className="border-b-2 border-primary">
+                  <h3 className="text-md font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
+                    Emails
+                  </h3>
+                </nav>
+                <div className="flex flex-col gap-2 w-full">
+                  <p className="flex gap-2 items-center">
+                    <strong>Maintenance Emails: </strong>
+                    <span className="text-nowrap text-ellipsis overflow-hidden capitalize">
+                      {site.emailFrequency}
+                    </span>
+                  </p>
+                  <p className="flex gap-2 items-center">
+                    <strong>Deployment Emails: </strong>
+                    <span className="text-nowrap text-ellipsis overflow-hidden">
+                      Requested User
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </VerticalCard>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -283,22 +321,40 @@ export default function Page({ params }: { params: { id: string } }) {
         </nav>
         <div className="flex items-center gap-2 flex-col h-full">
           {site && (
-            <VerticalCard className="h-full w-full">
-              <>
-                {isEdit ? (
-                  <Editing
-                    form={form}
-                    site={site}
-                    onSubmit={saveSite}
-                    deleteSite={deleteSite}
-                    setIsEdit={setIsEdit}
-                    error={error}
-                  />
-                ) : (
-                  <NotEditing site={site} />
-                )}
-              </>
-            </VerticalCard>
+            <>
+              <nav className="flex items-start justify-between w-full flex-col">
+                <div className="flex gap-4 w-full justify-between items-center lg:justify-start">
+                  <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
+                    Site Setup
+                  </h3>
+                  {(hasPermission(Permissions.Admin) ||
+                    hasPermission(Permissions.Developer)) && (
+                    <Button
+                      variant="ghost"
+                      className="text-sm"
+                      disabled={hasPermission(Permissions.User)}
+                      onClick={() => setIsEdit(true)}>
+                      Edit
+                    </Button>
+                  )}
+                </div>
+                <p className="text-sm">
+                  Provide the details to create a new site
+                </p>
+              </nav>
+              {isEdit ? (
+                <Editing
+                  form={form}
+                  site={site}
+                  onSubmit={saveSite}
+                  deleteSite={deleteSite}
+                  setIsEdit={setIsEdit}
+                  error={error}
+                />
+              ) : (
+                <NotEditing site={site} />
+              )}
+            </>
           )}
         </div>
       </div>
@@ -328,148 +384,226 @@ const EditingComponent = ({
   });
 
   return (
-    <div className="flex flex-col gap-2 h-full w-full">
+    <div className="w-full flex flex-col gap-2 flex-1 lg:flex-row lg:h-full">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col h-full">
-          <div className="flex flex-col gap-[5px] text-left flex-1">
-            <FormField
-              control={form.control}
-              name="repo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Repository</FormLabel>
-                  <FormControl>
-                    <Input type="url" placeholder="Repository" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex items-center w-full gap-[5px]">
-              <FormField
-                control={form.control}
-                name="testURL"
-                render={({ field }) => (
-                  <FormItem className="w-1/2">
-                    <FormLabel>Test URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Test URL" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="liveURL"
-                render={({ field }) => (
-                  <FormItem className="w-1/2">
-                    <FormLabel>Live URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Live URL" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="framework"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Framework</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={site.framework}
-                    // disabled={site.deployments.length > 0}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a framework" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {FRAMEWORKS.map((fw, i) => (
-                        <SelectItem key={i} value={fw.value}>
-                          {fw.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <FormLabel className="my-2">Environment Variables</FormLabel>
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex gap-1">
-                <FormField
-                  control={form.control}
-                  name={`env.${index}.key`}
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <FormControl>
-                        <Input placeholder="Key" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`env.${index}.value`}
-                  render={({ field }) => (
-                    <FormItem className="w-1/2">
-                      <FormControl>
-                        <Input placeholder="Value" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  variant="filled"
-                  className="w-10 bg-error"
-                  onClick={() => remove(index)}>
-                  <FontAwesomeIcon icon={faX} className="pointer-events-none" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              className="w-full"
-              onClick={() => append({ key: "", value: "" })}>
-              Add Environment Variable
-            </Button>
+          className="flex flex-col h-full w-full gap-2 lg:flex-row">
+          <div className="flex flex-col w-full h-full lg:min-w-[70%]">
+            <h3 className="self-start font-bold text-lg text-primary">
+              Details
+            </h3>
+            <VerticalCard className="w-full h-full">
+              <>
+                <div className="flex flex-col gap-[5px] text-left flex-1 w-full">
+                  <FormField
+                    control={form.control}
+                    name="repo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Repository</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="url"
+                            placeholder="Repository"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex items-center w-full gap-[5px]">
+                    <FormField
+                      control={form.control}
+                      name="testURL"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <FormLabel>Test URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Test URL" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="liveURL"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <FormLabel>Live URL</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Live URL" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="framework"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Framework</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={site.framework}
+                          // disabled={site.deployments.length > 0}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a framework" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {FRAMEWORKS.map((fw, i) => (
+                              <SelectItem key={i} value={fw.value}>
+                                {fw.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormLabel className="my-2">Environment Variables</FormLabel>
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex gap-1">
+                      <FormField
+                        control={form.control}
+                        name={`env.${index}.key`}
+                        render={({ field }) => (
+                          <FormItem className="w-1/2">
+                            <FormControl>
+                              <Input placeholder="Key" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`env.${index}.value`}
+                        render={({ field }) => (
+                          <FormItem className="w-1/2">
+                            <FormControl>
+                              <Input placeholder="Value" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        variant="filled"
+                        className="w-10 bg-error"
+                        onClick={() => remove(index)}>
+                        <FontAwesomeIcon
+                          icon={faX}
+                          className="pointer-events-none"
+                        />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    className="w-full"
+                    onClick={() => append({ key: "", value: "" })}>
+                    Add Environment Variable
+                  </Button>
+                </div>
+                {error && <p className="text-error text-sm">{error}</p>}
+                <footer className="flex justify-between w-full items-center pt-2">
+                  <div className="flex gap-4">
+                    <Button
+                      variant="outline"
+                      className="w-24 border-white/50"
+                      onClick={() => {
+                        setIsEdit(false);
+                      }}>
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={
+                        form.watch("repo") === "" || !form.formState.isDirty
+                      }
+                      variant="filled"
+                      className="w-24 bg-primary">
+                      Save
+                    </Button>
+                  </div>
+                  <DeleteDialog onClick={deleteSite} name={site.title}>
+                    <Button variant="filled" className="w-24 bg-error h-full">
+                      Delete
+                    </Button>
+                  </DeleteDialog>
+                </footer>
+              </>
+            </VerticalCard>
           </div>
-          {error && <p className="text-error text-sm">{error}</p>}
-          <footer className="flex justify-between items-center">
-            <div className="flex gap-4">
-              <Button
-                variant="outline"
-                className="w-24 border-white/50"
-                onClick={() => {
-                  setIsEdit(false);
-                }}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={form.watch("repo") === ""}
-                variant="filled"
-                className="w-24 bg-primary">
-                Save
-              </Button>
+          <div className="flex flex-col w-full gap-2">
+            <div className="flex flex-col">
+              <h3 className="self-start font-bold text-lg text-primary">
+                Notifications
+              </h3>
+              <VerticalCard className="w-full min-h-0 h-auto">
+                <>
+                  <div className="flex flex-col gap-[5px] w-full">
+                    <FormField
+                      control={form.control}
+                      name="emailFrequency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maintenance Emails</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={site.emailFrequency}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select how often to send an email" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {MAINTENANCE_EMAIL_OPTIONS.map((option, i) => (
+                                <SelectItem key={i} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="maintenanceEmails"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Maintenance Email Receivers</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Email Addresses (separate with comma)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <p className="flex gap-2 items-center">
+                      <strong>Deployment Emails: </strong>
+                      <span className="text-nowrap text-ellipsis overflow-hidden">
+                        Requested User
+                      </span>
+                    </p>
+                  </div>
+                </>
+              </VerticalCard>
             </div>
-            <DeleteDialog onClick={deleteSite} name={site.title}>
-              <Button variant="filled" className="w-24 bg-error h-full">
-                Delete
-              </Button>
-            </DeleteDialog>
-          </footer>
+          </div>
         </form>
       </Form>
     </div>

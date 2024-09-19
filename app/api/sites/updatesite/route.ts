@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Platform, Stage, UpdateAppCommandInput } from "@aws-sdk/client-amplify";
+import {
+  Platform,
+  Stage,
+  UpdateAppCommandInput,
+} from "@aws-sdk/client-amplify";
 import { RRType } from "@aws-sdk/client-route-53";
 import Site from "@/models/Site";
 import { connect } from "@/lib/db";
@@ -236,6 +240,8 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         testURL: form.testURL,
         liveURL: form.liveURL,
         framework: form.framework,
+        emailFrequency: form.emailFrequency,
+        maintenanceEmails: form.maintenanceEmails,
         zoneId,
       },
       { new: true }
