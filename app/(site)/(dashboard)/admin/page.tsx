@@ -80,7 +80,7 @@ function Admin() {
       });
 
       setUsers(createUser.data.users);
-      await axios.post("/api/sendemail", {
+      await axios.post("/api/emails/newaccount", {
         email: data.email,
         password: createUser.data.password,
       });

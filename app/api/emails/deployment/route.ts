@@ -1,9 +1,9 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
-import AccountCreated from "@/emails/accountCreated";
+import Deployment from "@/emails/deployment";
 import { withAuth } from "@/middleware/auth";
 
-const sendEmail = async (req: NextRequest): Promise<NextResponse> => {
+const deployment = async (req: NextRequest): Promise<NextResponse> => {
   if (!process.env.RESEND_API_KEY) {
     console.error("no resend api key");
     return NextResponse.json(
@@ -13,15 +13,17 @@ const sendEmail = async (req: NextRequest): Promise<NextResponse> => {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const { email, password } = await req.json();
+  console.log(req.json());
+
+  const { email } = await req.json();
 
   try {
     const { data, error } = await resend.emails.send({
       from: "MJP Hub <mjp@mattpandolfo.com>",
       to: email,
-      subject: `Account Created`,
-      react: AccountCreated({ email, password }),
-      text: "Your account has been created",
+      subject: `Deployment Finished`,
+      react: Deployment(),
+      text: "Deployment Finished",
     });
 
     if (error) {
@@ -36,4 +38,4 @@ const sendEmail = async (req: NextRequest): Promise<NextResponse> => {
   }
 };
 
-export const POST = withAuth(sendEmail);
+export const POST = deployment;

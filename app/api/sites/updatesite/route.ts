@@ -51,6 +51,9 @@ frontend:
     build:
       commands:
         - npm run build
+    postBuild:
+      commands:
+        - curl -X POST https://mjphub.mjphub.com/api/emails/deployment
   artifacts:
     baseDirectory: .next
     files:
