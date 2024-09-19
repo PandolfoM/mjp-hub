@@ -92,7 +92,7 @@ export default function Page({ params }: { params: { id: string } }) {
       liveURL: "",
       maintenanceEmailFrequency: "never",
       maintenanceEmails: "",
-      deploymentEmailOption: "none",
+      deploymentEmailOption: "requestedUser",
       deploymentEmails: "",
       env: [{ key: "", value: "" }],
     },
@@ -184,6 +184,10 @@ export default function Page({ params }: { params: { id: string } }) {
   const saveSite = async () => {
     setLoading(true);
     try {
+      if (form.watch("deploymentEmailOption") !== "specific") {
+        form.setValue("deploymentEmails", "");
+      }
+
       const frameworkLabel = FRAMEWORKS.find(
         (fw) => fw.value === form.getValues().framework
       )?.label;
