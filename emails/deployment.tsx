@@ -1,3 +1,4 @@
+import { DeploymentsI, Site } from "@/models/Site";
 import {
   Body,
   Button,
@@ -10,10 +11,11 @@ import {
   Tailwind,
   Text,
 } from "@react-email/components";
+import { format } from "date-fns";
 import * as React from "react";
 
 interface EmailTemplateProps {
-  // email: string;
+  site: Site;
 }
 
 const tailwindConfig = {
@@ -42,7 +44,14 @@ const tailwindConfig = {
   },
 };
 
-export const Deployment = () => {
+export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
+  site,
+}) => {
+  const latestDeployment: DeploymentsI = site.deployments.sort(
+    (a: DeploymentsI, b: DeploymentsI) =>
+      new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+  )[0];
+
   return (
     <Html lang="en" dir="ltr" className="bg-background">
       <Head>
@@ -63,14 +72,24 @@ export const Deployment = () => {
             Deployment Finished
           </h2>
           <div className="h-[500px] min-w-[250px] flex flex-col items-start justify-start gap-[3px] bg-card/5 rounded-[10px] m-auto relative overflow-hidden box-border mx-2">
-            <div className="py-[15px] px-[15px] w-full box-border text-left flex gap-5 justify-center">
+            <div className="py-[15px] px-[15px] w-full box-border text-left flex gap-5 justify-center text-md">
               <div className="flex flex-col">
                 <Row>Site:</Row>
-                <Row>Finished:</Row>
+                <Row>Test URL:</Row>
+                {site.liveURL && <Row>Live URL:</Row>}
+                <Row>Deployment Title:</Row>
+                <Row>Start Time:</Row>
+                {latestDeployment.endTime && <Row>End Time:</Row>}
               </div>
               <div className="flex flex-col">
-                <Row>MJP Hub</Row>
-                <Row>9/19/24 7:13 PM</Row>
+                <Row>{site.title}</Row>
+                <Row>{site.testURL}</Row>
+                {site.liveURL && <Row>{site.liveURL}</Row>}
+                <Row>{latestDeployment.title}</Row>
+                <Row>{format(latestDeployment.startTime, "M/d/y hh:mm a")}</Row>
+                {latestDeployment.endTime && (
+                  <Row>{format(latestDeployment.endTime, "M/d/y hh:mm a")}</Row>
+                )}
               </div>
             </div>
           </div>

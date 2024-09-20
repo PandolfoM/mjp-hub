@@ -22,26 +22,7 @@ import {
 
 connect();
 
-const buildSpecReact = `
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - npm ci --cache .npm --prefer-offline
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: build
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - .npm/**/*
-`;
-
-const buildSpecNext = `
+const buildSpecReact = (siteId: string, req: NextRequest) => `
 version: 1
 frontend:
   phases:
@@ -53,7 +34,33 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - curl -X POST https://mjphub.mjphub.com/api/emails/deployment
+        - curl -X POST http://${req.headers.get("host")}/api/emails/deployment \
+          -H "Content-Type: application/json" \
+          -d '${siteId}'
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .npm/**/*
+`;
+
+const buildSpecNext = (siteId: string, req: NextRequest) => `
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - npm run build
+    postBuild:
+      commands:
+        - curl -X POST http://${req.headers.get("host")}/api/emails/deployment \
+          -H "Content-Type: application/json" \
+          -d '${siteId}'
   artifacts:
     baseDirectory: .next
     files:
@@ -79,7 +86,10 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
-      buildSpec: form.framework === "react" ? buildSpecReact : buildSpecNext,
+      buildSpec:
+        form.framework === "react"
+          ? buildSpecReact(site._id, req)
+          : buildSpecNext(site._id, req),
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
@@ -89,7 +99,10 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       repository: form.repo,
       accessToken: process.env.GITHUB_OAUTH_TOKEN,
       environmentVariables,
-      buildSpec: form.framework === "react" ? buildSpecReact : buildSpecNext,
+      buildSpec:
+        form.framework === "react"
+          ? buildSpecReact(site._id, req)
+          : buildSpecNext(site._id, req),
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
