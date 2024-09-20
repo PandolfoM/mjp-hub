@@ -34,9 +34,11 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - curl -X POST http://${req.headers.get("host")}/api/emails/deployment \
+        - 'curl -X POST http://${req.headers.get(
+          "host"
+        )}/api/emails/deployment \
           -H "Content-Type: application/json" \
-          -d '${siteId}'
+          -d "${siteId}"'
   artifacts:
     baseDirectory: build
     files:
@@ -58,9 +60,11 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - curl -X POST http://${req.headers.get("host")}/api/emails/deployment \
+        - 'curl -X POST http://${req.headers.get(
+          "host"
+        )}/api/emails/deployment \
           -H "Content-Type: application/json" \
-          -d '${siteId}'
+          -d "${siteId}"'
   artifacts:
     baseDirectory: .next
     files:
