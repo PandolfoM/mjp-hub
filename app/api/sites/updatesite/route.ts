@@ -22,7 +22,7 @@ import {
 
 connect();
 
-const buildSpecReact = (siteId: string, req: NextRequest) => `
+const buildSpecReact = (siteId: string, url: string) => `
 version: 1
 frontend:
   phases:
@@ -34,7 +34,7 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -X POST http://mjphub.com/api/emails/deployment \
+        - 'curl -X POST ${url} \
           -H "Content-Type: application/json" \
           -d "${siteId}"'
   artifacts:
@@ -46,7 +46,7 @@ frontend:
       - .npm/**/*
 `;
 
-const buildSpecNext = (siteId: string, req: NextRequest) => `
+const buildSpecNext = (siteId: string, url: string) => `
 version: 1
 frontend:
   phases:
@@ -58,7 +58,7 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -X POST http://mjphub.com/api/emails/deployment \
+        - 'curl -X POST ${url} \
           -H "Content-Type: application/json" \
           -d "${siteId}"'
   artifacts:
@@ -72,6 +72,16 @@ frontend:
 `;
 
 const updateSite = async (req: NextRequest): Promise<NextResponse> => {
+  const host = req.headers.get("host");
+  let url = "http://mjphub.com/api/emails/deploymen";
+
+  // Check if the host is localhost, if so, change to mjphub.mjphub.com
+  if (host) {
+    url = host.includes("localhost")
+      ? "http://mjphub.mjphub.com/api/emails/deployment"
+      : `http://${host}/api/emails/deployment`;
+  }
+
   try {
     const reqBody = await req.json();
     const { site, form, frameworkLabel } = reqBody;
@@ -88,8 +98,8 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       environmentVariables,
       buildSpec:
         form.framework === "react"
-          ? buildSpecReact(site._id, req)
-          : buildSpecNext(site._id, req),
+          ? buildSpecReact(site._id, url)
+          : buildSpecNext(site._id, url),
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
@@ -101,8 +111,8 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       environmentVariables,
       buildSpec:
         form.framework === "react"
-          ? buildSpecReact(site._id, req)
-          : buildSpecNext(site._id, req),
+          ? buildSpecReact(site._id, url)
+          : buildSpecNext(site._id, url),
       platform:
         form.framework === "react" ? Platform.WEB : Platform.WEB_COMPUTE,
     };
