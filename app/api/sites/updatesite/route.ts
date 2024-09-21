@@ -34,9 +34,7 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -X POST http://${req.headers.get(
-          "host"
-        )}/api/emails/deployment \
+        - 'curl -X POST http://mjphub.com/api/emails/deployment \
           -H "Content-Type: application/json" \
           -d "${siteId}"'
   artifacts:
@@ -60,9 +58,7 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -X POST http://${req.headers.get(
-          "host"
-        )}/api/emails/deployment \
+        - 'curl -X POST http://mjphub.com/api/emails/deployment \
           -H "Content-Type: application/json" \
           -d "${siteId}"'
   artifacts:

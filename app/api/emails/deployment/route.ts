@@ -1,7 +1,6 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 import Deployment from "@/emails/deployment";
-import { withAuth } from "@/middleware/auth";
 import Site, { DeploymentsI } from "@/models/Site";
 import { connect } from "@/lib/db";
 
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const { siteId } = await req.json();
+  const siteId = await req.json();
 
   try {
     const site = await Site.findById(siteId);
@@ -42,8 +41,6 @@ export async function POST(req: NextRequest) {
     if (site.deploymentEmailOption === "none")
       return NextResponse.json({ error: "No email to send" });
     else if (site.deploymentEmailOption === "specific") {
-      console.log("specific");
-
       if (!site.deploymentEmails) {
         return NextResponse.json({ error: "No emails specified" });
       }
@@ -51,12 +48,9 @@ export async function POST(req: NextRequest) {
       const emailArray = site.deploymentEmails
         .split(",")
         .map((email: string) => email.trim());
-      console.log(emailArray);
 
       toEmails = emailArray;
     } else {
-      console.log("reqested");
-
       toEmails = latestDeployment.deployedBy;
     }
 
