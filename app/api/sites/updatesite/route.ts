@@ -34,9 +34,10 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -L -X POST ${url} \
+        - |
+          curl -L -X POST ${url} \
           -H "Content-Type: application/json" \
-          -d "{"siteId": ${siteId}}"'
+          -d '{"id": "${siteId}"}'
   artifacts:
     baseDirectory: build
     files:
@@ -58,9 +59,10 @@ frontend:
         - npm run build
     postBuild:
       commands:
-        - 'curl -L -X POST ${url} \
+        - |
+          curl -L -X POST ${url} \
           -H "Content-Type: application/json" \
-          -d "{"siteId": ${siteId}}"'
+          -d '{"id": "${siteId}"}'
   artifacts:
     baseDirectory: .next
     files:

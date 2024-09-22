@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
   }
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const { siteId } = await req.json();
+  const siteId = await req.json();
 
   try {
-    const site = await Site.findById(siteId);
+    const site = await Site.findById(siteId.id);
     let toEmails;
 
     if (!site) {
