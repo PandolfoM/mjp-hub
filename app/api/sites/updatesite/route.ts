@@ -260,6 +260,17 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       });
     }
 
+    const date = new Date();
+    const newDate = new Date(
+      date.getFullYear(),
+      date.getMonth() + formToNumber(form.maintenanceEmailFrequency),
+      date.getDate(),
+      date.getHours(),
+      date.getMinutes(),
+      date.getSeconds(),
+      date.getMilliseconds()
+    );
+
     const updateDB = await Site.findOneAndUpdate(
       { _id: site._id },
       {
@@ -270,6 +281,8 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
         framework: form.framework,
         maintenanceEmailFrequency: form.maintenanceEmailFrequency,
         maintenanceEmails: form.maintenanceEmails,
+        maintenanceSendDate:
+          date.getTime() === newDate.getTime() ? null : newDate,
         deploymentEmails: form.deploymentEmails,
         deploymentEmailOption: form.deploymentEmailOption,
         zoneId,
@@ -302,6 +315,20 @@ function getDomainName(domain: string) {
     return domain; // If there are less than 3 parts, return the whole domain
   }
   return parts.slice(-2).join(".");
+}
+
+function formToNumber(field: string) {
+  if (field === "monthly") {
+    return 1;
+  } else if (field === "quarterly") {
+    return 3;
+  } else if (field === "biannual") {
+    return 6;
+  } else if (field === "yearly") {
+    return 12;
+  } else {
+    return 0;
+  }
 }
 
 export const POST = withAuth(updateSite);

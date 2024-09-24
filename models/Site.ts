@@ -25,6 +25,7 @@ export interface Site extends mongoose.Document {
   zoneId?: string;
   archived?: boolean;
   maintenanceEmailFrequency?: string;
+  maintenanceSendDate?: Date;
   maintenanceEmails?: string;
   deploymentEmails?: string;
   deploymentEmailOption?: string;
@@ -45,6 +46,7 @@ export const testSite = {
   archived: false,
   maintenanceEmailFrequency: "",
   maintenanceEmails: "",
+  maintenanceSendDate: new Date(),
   deploymentEmails: "",
   deploymentEmailOption: "",
 };
@@ -68,6 +70,7 @@ const siteSchema = new mongoose.Schema({
   archived: { type: Boolean },
   maintenanceEmails: { type: String },
   maintenanceEmailFrequency: { type: String },
+  maintenanceSendDate: { type: Date },
   deploymentEmails: { type: String },
   deploymentEmailOption: { type: String },
   deployments: [
