@@ -76,7 +76,7 @@ frontend:
 
 const updateSite = async (req: NextRequest): Promise<NextResponse> => {
   const host = req.headers.get("host");
-  let url = "http://mjphub.com/api/emails/deploymen";
+  let url = "http://mjphub.com/api/emails/deployment";
 
   // Check if the host is localhost, if so, change to mjphub.mjphub.com
   if (host) {
