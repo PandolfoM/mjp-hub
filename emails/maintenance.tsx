@@ -1,13 +1,10 @@
-import { DeploymentsI, Site } from "@/models/Site";
+import { MaintenanceI } from "@/models/Maintenance";
+import { Site } from "@/models/Site";
 import {
   Body,
-  Button,
-  Column,
   Font,
   Head,
-  Hr,
   Html,
-  Row,
   Tailwind,
   Text,
 } from "@react-email/components";
@@ -15,7 +12,9 @@ import { format } from "date-fns";
 import * as React from "react";
 
 interface EmailTemplateProps {
+  maintenanceDoc: MaintenanceI;
   site: Site;
+  newDate: Date;
 }
 
 const tailwindConfig = {
@@ -44,14 +43,11 @@ const tailwindConfig = {
   },
 };
 
-export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
+export const MaintenanceEmail: React.FC<Readonly<EmailTemplateProps>> = ({
+  maintenanceDoc,
   site,
+  newDate,
 }) => {
-  const latestDeployment: DeploymentsI = site?.deployments.sort(
-    (a: DeploymentsI, b: DeploymentsI) =>
-      new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
-  )[0];
-
   return (
     <Html lang="en" dir="ltr" className="bg-background">
       <Head>
@@ -69,28 +65,20 @@ export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
       <Tailwind config={tailwindConfig}>
         <Body className="bg-background text-white m-0 p-0">
           <h2 className="text-lg m-0 mb-[25px] text-center pt-20">
-            Deployment Finished
+            Maintenance Reminder
           </h2>
           <div className="h-[500px] min-w-[250px] flex flex-col items-start justify-start gap-[3px] bg-card/5 rounded-[10px] m-auto relative overflow-hidden box-border mx-2">
-            <div className="py-[15px] px-[15px] w-full box-border text-left flex gap-5 justify-center text-md">
-              <div className="flex flex-col">
-                <Row>Site:</Row>
-                <Row>Test URL:</Row>
-                {site.liveURL && <Row>Live URL:</Row>}
-                <Row>Deployment Title:</Row>
-                <Row>Start Time:</Row>
-                {latestDeployment.endTime && <Row>End Time:</Row>}
-              </div>
-              <div className="flex flex-col">
-                <Row>{site.title}</Row>
-                <Row>{site.testURL}</Row>
-                {site.liveURL && <Row>{site.liveURL}</Row>}
-                <Row>{latestDeployment.title}</Row>
-                <Row>{format(latestDeployment.startTime, "M/d/y hh:mm a")}</Row>
-                {latestDeployment.endTime && (
-                  <Row>{format(latestDeployment.endTime, "M/d/y hh:mm a")}</Row>
-                )}
-              </div>
+            <div className="py-[15px] px-[15px] w-full box-border text-center">
+              <Text className="text-md opacity-75 m-0">
+                <a
+                  href={`https://mjphub.com/manage/${maintenanceDoc.siteId}`}
+                  target="_blank"
+                  className="text-white font-bold">
+                  {site.title}
+                </a>{" "}
+                is due for maintenance. Next maintenance date will be{" "}
+                {format(newDate, "M/d/y")}.
+              </Text>
             </div>
           </div>
         </Body>
@@ -99,7 +87,7 @@ export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
   );
 };
 
-export default Deployment;
+export default MaintenanceEmail;
 
 const customBorder = {
   borderImage: `url("data:image/svg+xml,%3csvg width='100' height='100' viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3e %3crect x='1' y='1' width='98' height='98' rx='1' stroke='url(%23paint0_linear_59_93)' stroke-width='2'/%3e %3cdefs%3e %3clinearGradient id='paint0_linear_59_93' x1='0' y1='0' x2='100' y2='100' gradientUnits='userSpaceOnUse'%3e %3cstop stop-color='%23F300AE'/%3e %3cstop offset='1' stop-color='%238E39C5'/%3e %3c/linearGradient%3e %3c/defs%3e %3c/svg%3e") 2 / 2px stretch`,

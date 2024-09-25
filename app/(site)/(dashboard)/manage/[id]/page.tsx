@@ -191,10 +191,16 @@ export default function Page({ params }: { params: { id: string } }) {
       const frameworkLabel = FRAMEWORKS.find(
         (fw) => fw.value === form.getValues().framework
       )?.label;
+
       const newSite = await axios.post("/api/sites/updatesite", {
         form: form.getValues(),
         site: site,
         frameworkLabel: frameworkLabel,
+      });
+
+      await axios.post("/api/sites/addmaintenance", {
+        site: site,
+        emails: form.getValues().maintenanceEmails,
       });
 
       setIsEdit(false);

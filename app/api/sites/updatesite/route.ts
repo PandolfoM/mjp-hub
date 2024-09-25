@@ -19,6 +19,7 @@ import {
   AWSListRecords,
   AWSUpdateApp,
 } from "@/utils/awsClientFunctions";
+import { formToNumber } from "@/utils/functions";
 
 connect();
 
@@ -294,6 +295,7 @@ const updateSite = async (req: NextRequest): Promise<NextResponse> => {
       updateTest: updateTestRes,
       updateLive: updateLiveRes,
       site: updateDB,
+      date: newDate,
       nameServers,
     });
   } catch (e: any) {
@@ -315,20 +317,6 @@ function getDomainName(domain: string) {
     return domain; // If there are less than 3 parts, return the whole domain
   }
   return parts.slice(-2).join(".");
-}
-
-function formToNumber(field: string) {
-  if (field === "monthly") {
-    return 1;
-  } else if (field === "quarterly") {
-    return 3;
-  } else if (field === "biannual") {
-    return 6;
-  } else if (field === "yearly") {
-    return 12;
-  } else {
-    return 0;
-  }
 }
 
 export const POST = withAuth(updateSite);
