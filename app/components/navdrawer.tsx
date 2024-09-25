@@ -58,18 +58,6 @@ function NavDrawer({ children }: Props) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const handleLogout = async () => {
-    setLoading(true);
-    try {
-      await axios.delete("/api/users/signout");
-      router.push("/login");
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setLoading(false);
-    }
-  };
-
   const handleRedirect = (route: string) => {
     if (route.includes("/")) route = "";
     if (pathname === `/${route}`) return;
@@ -83,34 +71,35 @@ function NavDrawer({ children }: Props) {
         <Drawer direction="left">
           <DrawerTitle className="hidden">Nav</DrawerTitle>
           <DrawerTrigger asChild className="sm:hidden">
-            <div className="flex gap-4">
-              {children}
-              <p>MJP Hub</p>
-            </div>
+            {children}
           </DrawerTrigger>
           <DrawerPortal>
             <DrawerOverlay className="fixed inset-0 bg-background/40" />
             <DrawerContent className="flex flex-col border-none rounded-none h-full w-72 fixed bottom-0 right-0 focus-visible:border-none focus-visible:outline-none px-4 py-4 overflow-x-hidden">
               <section className="flex flex-col justify-between h-full">
                 <div className="flex flex-col gap-2 text-md">
+                  <div className="flex items-center gap-2 pb-4 cursor-default">
+                    <Image src={logo} alt="MJP Hub logo" className="w-[35px]" />
+                    <p>MJP Hub</p>
+                  </div>
                   <Button
-                    variant="ghost"
                     className="text-left"
                     onClick={() => handleRedirect("/")}>
+                    <FontAwesomeIcon icon={faGauge} className="pr-2" />
                     Dashboard
                   </Button>
                   {hasPermission(Permissions.Admin) && (
                     <Button
                       className="text-left"
-                      variant="ghost"
                       onClick={() => handleRedirect("admin")}>
+                      <FontAwesomeIcon icon={faHammer} className="pr-2" />
                       Admin
                     </Button>
                   )}
                   <Button
-                    variant="ghost"
                     className="text-left"
                     onClick={() => handleRedirect("docs")}>
+                    <FontAwesomeIcon icon={faBook} className="pr-2" />
                     Docs
                   </Button>
                 </div>
@@ -134,12 +123,6 @@ function NavDrawer({ children }: Props) {
                       </Button>
                     </div>
                   )}
-                  <Button
-                    variant="ghost"
-                    className="no-underline py-0 px-0 text-start"
-                    onClick={handleLogout}>
-                    <FontAwesomeIcon icon={faRightFromBracket} /> Log out
-                  </Button>
                 </div>
               </section>
             </DrawerContent>
@@ -148,7 +131,11 @@ function NavDrawer({ children }: Props) {
       ) : (
         <aside className="hidden sm:flex bg-card/5 h-full w-16 p-2 flex-col items-center justify-between">
           <div className="flex flex-col w-full gap-5 text-md items-center">
-            <Image src={logo} alt="MJP Hub logo" className="pb-4 w-[90%]" />
+            <Image
+              src={logo}
+              alt="MJP Hub logo"
+              className="pb-4 w-[90%] max-w-[42px]"
+            />
             <Popout text="Dashboard">
               <div onClick={() => handleRedirect("/")}>
                 <FontAwesomeIcon
@@ -211,12 +198,6 @@ function NavDrawer({ children }: Props) {
                       </Button>
                     </div>
                   )}
-                  <Button
-                    variant="ghost"
-                    className="no-underline py-0 px-0"
-                    onClick={handleLogout}>
-                    <FontAwesomeIcon icon={faRightFromBracket} /> Log out
-                  </Button>
                 </div>
               </HoverCardContent>
             </HoverCard>

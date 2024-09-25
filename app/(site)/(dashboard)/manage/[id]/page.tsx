@@ -364,8 +364,8 @@ export default function Page({ params }: { params: { id: string } }) {
                       variant="ghost"
                       className="text-sm"
                       disabled={hasPermission(Permissions.User)}
-                      onClick={() => setIsEdit(true)}>
-                      Edit
+                      onClick={() => setIsEdit(!isEdit)}>
+                      {isEdit ? "Cancel" : "Edit"}
                     </Button>
                   )}
                 </div>

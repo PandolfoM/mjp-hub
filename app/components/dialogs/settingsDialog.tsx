@@ -25,6 +25,9 @@ import {
 import { useUser } from "@/app/context/UserContext";
 import { useSite } from "@/app/context/SiteContext";
 import { Permissions } from "@/utils/permissions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
 
 type Props = {
   isOpen: boolean;
@@ -46,6 +49,7 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
   const { setLoading, loading } = useSite();
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,6 +86,18 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
     }
   };
 
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await axios.delete("/api/users/signout");
+      router.push("/login");
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -90,6 +106,12 @@ function SettingsDialog({ isOpen, setIsOpen }: Props) {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="text-lg">Settings</DialogTitle>
+              <Button
+                variant="ghost"
+                className="no-underline py-0 px-0 text-start absolute top-0 right-2 text-sm"
+                onClick={handleLogout}>
+                <FontAwesomeIcon icon={faRightFromBracket} /> Log out
+              </Button>
             </DialogHeader>
             <div className="flex flex-col max-h-[30rem]">
               <section className="flex-1 overflow-y-auto flex flex-col">
