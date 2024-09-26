@@ -16,6 +16,7 @@ import * as React from "react";
 
 interface EmailTemplateProps {
   site: Site;
+  endDate: Date;
 }
 
 const tailwindConfig = {
@@ -46,6 +47,7 @@ const tailwindConfig = {
 
 export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
   site,
+  endDate,
 }) => {
   const latestDeployment: DeploymentsI = site?.deployments.sort(
     (a: DeploymentsI, b: DeploymentsI) =>
@@ -79,7 +81,7 @@ export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
                 {site.liveURL && <Row>Live URL:</Row>}
                 <Row>Deployment Title:</Row>
                 <Row>Start Time:</Row>
-                {latestDeployment.endTime && <Row>End Time:</Row>}
+                {endDate && <Row>End Time:</Row>}
               </div>
               <div className="flex flex-col">
                 <Row>{site.title}</Row>
@@ -87,9 +89,7 @@ export const Deployment: React.FC<Readonly<EmailTemplateProps>> = ({
                 {site.liveURL && <Row>{site.liveURL}</Row>}
                 <Row>{latestDeployment.title}</Row>
                 <Row>{format(latestDeployment.startTime, "M/d/y hh:mm a")}</Row>
-                {latestDeployment.endTime && (
-                  <Row>{format(latestDeployment.endTime, "M/d/y hh:mm a")}</Row>
-                )}
+                {endDate && <Row>{format(endDate, "M/d/y hh:mm a")}</Row>}
               </div>
             </div>
           </div>

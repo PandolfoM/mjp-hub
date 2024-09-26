@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
       from: "MJP Hub <mjp@mattpandolfo.com>",
       to: toEmails,
       subject: `Deployment Finished`,
-      react: Deployment({ site }),
+      react: Deployment({ site, endDate: new Date() }),
       text: "Deployment Finished",
     });
 
