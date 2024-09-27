@@ -63,7 +63,7 @@ function DeployDialog({ site, setSite, children }: Props) {
           startTime: new Date(),
           title: deployMessage,
           jobId: "0",
-          status: "running",
+          status: "pending",
           type,
         },
       ]);
