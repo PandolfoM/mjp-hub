@@ -428,23 +428,52 @@ const EditingComponent = ({
             <VerticalCard className="w-full h-full">
               <>
                 <div className="flex flex-col gap-[5px] text-left flex-1 w-full">
-                  <FormField
-                    control={form.control}
-                    name="repo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Repository</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="url"
-                            placeholder="Repository"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="flex items-center w-full gap-[5px]">
+                    <FormField
+                      control={form.control}
+                      name="repo"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <FormLabel>Repository</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="url"
+                              placeholder="Repository"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="framework"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <FormLabel>Framework</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={site.framework}
+                            // disabled={site.deployments.length > 0}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a framework" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {FRAMEWORKS.map((fw, i) => (
+                                <SelectItem key={i} value={fw.value}>
+                                  {fw.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                   <div className="flex items-center w-full gap-[5px]">
                     <FormField
                       control={form.control}
@@ -473,33 +502,6 @@ const EditingComponent = ({
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="framework"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Framework</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={site.framework}
-                          // disabled={site.deployments.length > 0}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a framework" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {FRAMEWORKS.map((fw, i) => (
-                              <SelectItem key={i} value={fw.value}>
-                                {fw.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
                   <FormLabel className="my-2">Environment Variables</FormLabel>
                   {fields.map((field, index) => (
                     <div key={field.id} className="flex gap-1">
