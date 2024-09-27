@@ -35,6 +35,7 @@ import {
 import NameServersDialog from "@/app/components/dialogs/nameServersDialog";
 import Popout from "@/app/components/popout";
 import { copyToClipboard } from "@/utils/copyToClipboard";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -612,7 +613,11 @@ const EditingComponent = ({
                       control={form.control}
                       name="maintenanceEmails"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem
+                          className={cn(
+                            form.getValues().maintenanceEmailFrequency ===
+                              "never" && "hidden"
+                          )}>
                           <FormLabel>Maintenance Email Receivers</FormLabel>
                           <FormControl>
                             <Input
