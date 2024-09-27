@@ -344,9 +344,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <DeployDialog site={site} setSite={setSite}>
               {(hasPermission(Permissions.Admin) ||
                 hasPermission(Permissions.Developer)) && (
-                <Button disabled={!site.repo} onClick={getDeployments}>
-                  Deployments
-                </Button>
+                <Button disabled={!site.repo}>Deployments</Button>
               )}
             </DeployDialog>
           )}
