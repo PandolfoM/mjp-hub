@@ -56,6 +56,17 @@ function DeployDialog({ site, setSite, children }: Props) {
 
       setDeployMessage("");
       setError("");
+      setDeployments((prev) => [
+        ...prev,
+        {
+          deployedBy: user?.email || "",
+          startTime: new Date(),
+          title: deployMessage,
+          jobId: "0",
+          status: "running",
+          type,
+        },
+      ]);
       setSite(deploySite.data.updatedSite);
       setLoading(false);
     } catch (error: any) {
