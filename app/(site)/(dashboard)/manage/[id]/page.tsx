@@ -140,34 +140,6 @@ export default function Page({ params }: { params: { id: string } }) {
     fetchSite();
   }, [params.id, router, form, setLoading]);
 
-  const getDeployments = async () => {
-    setLoading(true);
-    if (!site) return;
-
-    try {
-      const res = await axios.post<{ deployments: DeploymentsI[] }>(
-        "/api/sites/getdeployments",
-        {
-          siteId: site._id,
-          appId: site.appId,
-          testAppId: site.testAppId,
-        }
-      );
-      const deployments = res.data.deployments;
-
-      // @ts-ignore
-      setSite((prevSite: Site) => ({
-        ...prevSite!,
-        deployments: deployments,
-      }));
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setError("There has been an error");
-      setLoading(false);
-    }
-  };
-
   const deleteSite = async () => {
     setLoading(true);
     try {
@@ -354,7 +326,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <>
               <nav className="flex items-start justify-between w-full flex-col">
                 <div className="flex gap-4 w-full justify-between items-center lg:justify-start">
-                  <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left">
+                  <h3 className="text-lg font-bold whitespace-nowrap text-ellipsis overflow-hidden text-left text-primary">
                     Site Setup
                   </h3>
                   {(hasPermission(Permissions.Admin) ||
