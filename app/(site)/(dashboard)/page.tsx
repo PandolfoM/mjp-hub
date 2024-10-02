@@ -72,10 +72,10 @@ export default function Home() {
             />
           </NavDrawer>
 
-          <form onSubmit={searchSites} className="px-2 hidden relative sm:flex">
+          <form onSubmit={searchSites} className="px-2 relative flex">
             <Input
               placeholder="Search..."
-              className="w-[300px] rounded-r-none"
+              className="sm:w-[300px] rounded-r-none"
               onChange={handleSearchChange}
             />
             <Button
