@@ -36,6 +36,11 @@ import NameServersDialog from "@/app/components/dialogs/nameServersDialog";
 import Popout from "@/app/components/popout";
 import { copyToClipboard } from "@/utils/copyToClipboard";
 import { cn } from "@/lib/utils";
+import { AWSGetDomain } from "@/utils/awsClientFunctions";
+import {
+  faCircleCheck,
+  faCircleXmark,
+} from "@fortawesome/free-regular-svg-icons";
 
 const formSchema = z.object({
   repo: z.string().url(),
@@ -82,6 +87,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [site, setSite] = useState<Site>();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isLiveUrlAvail, setIsLiveUrlAvail] = useState<boolean>(false);
   const [nameServers, setNameServers] = useState<string[] | null>(null);
   const [error, setError] = useState<string>("");
 
@@ -124,6 +130,16 @@ export default function Page({ params }: { params: { id: string } }) {
             form.setValue("deploymentEmails", data.deploymentEmails);
             if (data.env) {
               form.setValue("env", data.env);
+            }
+            if (data.liveURL) {
+              const domain = await AWSGetDomain({
+                appId: data.appId,
+                domainName: data.liveURL,
+              });
+
+              if (domain?.domainAssociation?.domainStatus === "AVAILABLE") {
+                setIsLiveUrlAvail(true);
+              }
             }
           } else {
             router.replace("/");
@@ -240,12 +256,20 @@ export default function Page({ params }: { params: { id: string } }) {
               <p className="flex gap-2 items-center">
                 <strong>Live URL: </strong>
                 {site.liveURL && (
-                  <Link
-                    href={`https://${site.liveURL}`}
-                    target="_blank"
-                    className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
-                    {site.liveURL}
-                  </Link>
+                  <>
+                    <Link
+                      href={`https://${site.liveURL}`}
+                      target="_blank"
+                      className="text-nowrap text-ellipsis overflow-hidden underline hover:no-underline">
+                      {site.liveURL}
+                    </Link>
+                    <FontAwesomeIcon
+                      icon={isLiveUrlAvail ? faCircleCheck : faCircleXmark}
+                      className={cn(
+                        isLiveUrlAvail ? "text-success" : "text-error"
+                      )}
+                    />
+                  </>
                 )}
               </p>
               <p className="flex gap-2 items-center">
