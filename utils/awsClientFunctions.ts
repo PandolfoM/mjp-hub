@@ -29,6 +29,7 @@ import {
 } from "@aws-sdk/client-amplify";
 import { amplifyClient, route53Client } from "./amplifyClient";
 import {
+  ChangeBatch,
   ChangeResourceRecordSetsCommand,
   ChangeResourceRecordSetsCommandInput,
   ChangeResourceRecordSetsCommandOutput,
@@ -217,6 +218,36 @@ export async function AWSDeleteHostedZone(
   params: DeleteHostedZoneCommandInput
 ): Promise<DeleteHostedZoneCommandOutput | undefined> {
   try {
+    // Change the records that cant be deleted
+    const listCommand = new ListResourceRecordSetsCommand({
+      HostedZoneId: params.Id,
+    });
+    const records = await route53Client.send(listCommand);
+
+    if (records.ResourceRecordSets) {
+      const nonDefaultRecords = records.ResourceRecordSets.filter(
+        (record) => record.Type !== "SOA" && record.Type !== "NS"
+      );
+
+      // If there are non-default records, delete them
+      if (nonDefaultRecords.length > 0) {
+        const changeBatch: ChangeBatch = {
+          Changes: nonDefaultRecords.map((record) => ({
+            Action: "DELETE",
+            ResourceRecordSet: record,
+          })),
+        };
+
+        const deleteParams = {
+          HostedZoneId: params.Id,
+          ChangeBatch: changeBatch,
+        };
+
+        const deleteCommand = new ChangeResourceRecordSetsCommand(deleteParams);
+        await route53Client.send(deleteCommand);
+      }
+    }
+
     const command = new DeleteHostedZoneCommand(params);
     const res: DeleteHostedZoneCommandOutput = await route53Client.send(
       command
