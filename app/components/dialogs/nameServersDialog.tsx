@@ -26,7 +26,7 @@ function NameServersDialog({ open, nameServers, setIsOpen }: Props) {
     <Dialog open={open}>
       <DialogPortal>
         <DialogOverlay className="bg-background/40" />
-        <DialogContent>
+        <DialogContent className="!max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg">Warning!</DialogTitle>
             <DialogDescription>
@@ -42,11 +42,13 @@ function NameServersDialog({ open, nameServers, setIsOpen }: Props) {
           </DialogHeader>
           <div className="flex flex-col max-h-[30rem] gap-[5px]">
             {nameServers.map((server, i) => (
-              <div className="flex items-center gap-5" key={i}>
-                <p>{server}</p>
+              <div
+                className="flex items-center gap-5 p-2 odd:bg-card/5"
+                key={i}>
+                <p className="w-32">{server}</p>
                 <Popout text="Copy">
                   <div
-                    className="border rounded-sm border-primary w-8 h-8 flex items-center justify-center"
+                    className="border rounded-sm border-primary w-8 h-8 flex items-center justify-center cursor-pointer"
                     onClick={() => copyToClipboard(server)}>
                     <FontAwesomeIcon icon={faCopy} />
                   </div>

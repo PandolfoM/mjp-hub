@@ -322,13 +322,23 @@ export default function Page({ params }: { params: { id: string } }) {
 
   return (
     <>
-      {nameServers && (
+      <NameServersDialog
+        nameServers={[
+          "nameserver_1",
+          "nameserver_2",
+          "nameserver_3",
+          "nameserver_4",
+        ]}
+        open={true}
+        setIsOpen={setIsOpen}
+      />
+      {/* {nameServers && (
         <NameServersDialog
           nameServers={nameServers}
           open={isOpen}
           setIsOpen={setIsOpen}
         />
-      )}
+      )} */}
       <div className="flex flex-col h-full w-full gap-5 p-2 sm:p-5">
         <nav className="flex justify-between items-center">
           <a
